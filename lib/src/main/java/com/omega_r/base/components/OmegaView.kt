@@ -2,6 +2,7 @@ package com.omega_r.base.components
 
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpView
+import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
 
@@ -15,5 +16,11 @@ interface OmegaView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showBottomMessage(message: Text, action: Text? = null, actionListener: (() -> Unit)? = null)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun showToast(message: Text)
+
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun setWaiting(waiting: Boolean, text: Text? = null)
 
 }

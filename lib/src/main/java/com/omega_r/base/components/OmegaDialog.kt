@@ -14,7 +14,7 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-class OmegaDialog: Dialog, OmegaBindable, OmegaClickable {
+open class OmegaDialog: Dialog, OmegaBindable, OmegaClickable {
 
     override val clickManager = ClickManager()
 
