@@ -21,8 +21,14 @@ interface OmegaBindable: OmegaContext, OmegaViewFindable {
     private val resources: Resources
         get() = getContext()!!.resources
 
+    fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = bindersManager.bind(BindersManager.BindType.RESETTABLE_WITH_AUTO_INIT) {
+        val view = findViewById<T>(res)!!
+        initBlock(view)
+        view
+    }
+
     fun <T : View> bind(@IdRes res: Int) = bindersManager.bind(BindersManager.BindType.RESETTABLE) {
-        findViewById<T>(res)
+        findViewById<T>(res)!!
     }
 
     fun <T> bind(init: () -> T) = bindersManager.bind(BindersManager.BindType.RESETTABLE, init)

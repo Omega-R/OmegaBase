@@ -1,8 +1,7 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -23,12 +22,19 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
     implementation 'androidx.core:core-ktx:1.1.0-alpha05'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+    implementation project(':lib')
+    implementation 'com.github.Omega-R:OmegaRecyclerView:1.9.4'
+    implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
+    implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:0.0.7'
+
 }

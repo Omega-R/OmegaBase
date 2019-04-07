@@ -7,7 +7,7 @@ import androidx.annotation.IdRes
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-class ClickManager(private val minimumInterval: Long = 555L) {
+open class ClickManager(private val minimumInterval: Long = 555L) {
 
     companion object {
         private var lastClickTimestamp: Long = 0
@@ -31,7 +31,7 @@ class ClickManager(private val minimumInterval: Long = 555L) {
 
     }
 
-    private fun canClickHandle(): Boolean {
+    protected open fun canClickHandle(): Boolean {
         val uptimeMillis = SystemClock.uptimeMillis()
         val result = (lastClickTimestamp == 0L
                 || uptimeMillis - lastClickTimestamp > minimumInterval)

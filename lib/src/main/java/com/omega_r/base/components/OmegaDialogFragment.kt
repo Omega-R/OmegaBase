@@ -9,15 +9,25 @@ import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omegar.mvp.MvpAppCompatDialogFragment
 import android.R.menu
 import android.view.MenuInflater
+import android.widget.Toast
+import androidx.annotation.IdRes
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.omega_r.base.annotations.OmegaClickViews
+import com.omega_r.base.annotations.OmegaTheme
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
+import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.FragmentLauncher
+import com.omega_r.base.tools.WaitingDialog
+import com.omega_r.libs.omegatypes.Text
 import kotlin.reflect.full.findAnnotation
 
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaBindable, OmegaClickable {
+open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaView, OmegaBindable, OmegaClickable {
 
     override val clickManager = ClickManager()
 
@@ -40,16 +50,86 @@ open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaBindable, Om
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
-        return if (contentView !=  null) {
-            inflater.inflate(contentView.layoutRes, container, false)
+        val view = if (contentView !=  null) {
+            var themedInflater = inflater
+            val theme = this::class.findAnnotation<OmegaTheme>()
+            theme?.let {
+                val contextThemeWrapper = ContextThemeWrapper(activity, theme.resId)
+                themedInflater = inflater.cloneInContext(contextThemeWrapper)
+            }
+            themedInflater.inflate(contentView.layoutRes, container, false)
         } else {
             super.onCreateView(inflater, container, savedInstanceState)
         }
+
+        this::class.findAnnotation<OmegaClickViews>()?.let {
+            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        }
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
+        bindersManager.doAutoInit()
+    }
+
+    override fun showMessage(message: Text) {
+        MaterialAlertDialogBuilder(context)
+            .setMessage(message.getString(resources))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    protected open fun getViewForSnackbar() = view!!
+
+    override fun showBottomMessage(message: Text, action: Text?, actionListener: (() -> Unit)?) {
+        Snackbar.make(getViewForSnackbar(), message.getString(resources)!!, Snackbar.LENGTH_LONG).apply {
+            if (action != null) {
+                setAction(action.getString(resources)!!) {
+                    actionListener?.invoke()
+                }
+            }
+        }.show()
+    }
+
+    override fun showToast(message: Text) {
+        Toast.makeText(context, message.getString(resources), Toast.LENGTH_LONG).show()
+    }
+
+    override fun setWaiting(waiting: Boolean, text: Text?) {
+        (activity as OmegaActivity).setWaiting(waiting, text)
+    }
+
+    fun ActivityLauncher.launch(option: Bundle? = null) {
+        launch(context!!, option)
+    }
+
+    fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
+        launchForResult(this@OmegaDialogFragment, requestCode, option)
+    }
+
+    fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
+        createLauncher()
+            .launch(context!!, option)
+    }
+
+    fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
+        createLauncher()
+            .launchForResult(this@OmegaDialogFragment, requestCode, option)
+    }
+
+    fun FragmentLauncher.replaceFragment(@IdRes containerViewId: Int) {
+        replace(this@OmegaDialogFragment, containerViewId)
+    }
+
+    fun FragmentLauncher.addFragment(@IdRes containerViewId: Int) {
+        add(this@OmegaDialogFragment, containerViewId)
+    }
+
+    protected open fun onClickView(view: View) {
+        // nothing
     }
 
 }

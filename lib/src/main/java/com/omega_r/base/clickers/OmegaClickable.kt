@@ -1,6 +1,8 @@
 package com.omega_r.base.clickers
 
+import android.os.Build
 import android.view.View
+import androidx.core.view.ViewCompat
 import com.omega_r.base.OmegaViewFindable
 
 /**
@@ -9,6 +11,13 @@ import com.omega_r.base.OmegaViewFindable
 interface OmegaClickable: OmegaViewFindable {
 
     val clickManager: ClickManager
+
+    fun setOnClickListener(itemView: View, block: () -> Unit) {
+        if (itemView.id == View.NO_ID) {
+            itemView.id  = ViewCompat.generateViewId()
+        }
+        itemView.setOnClickListener(clickManager.wrap(itemView.id, block))
+    }
 
     fun setOnClickListener(id: Int, listener: View.OnClickListener) {
         findViewById<View>(id)!!.setOnClickListener(clickManager.wrap(id, listener))
@@ -23,9 +32,11 @@ interface OmegaClickable: OmegaViewFindable {
     }
 
     fun setOnClickListeners(vararg pairs: Pair<Int, () -> Unit>) {
-        for (pair in pairs) {
-            setOnClickListener(pair.first, pair.second)
-        }
+        pairs.forEach { setOnClickListener(it.first, it.second) }
+    }
+
+    fun setOnClickListeners(vararg ids: Int, block: (View) -> Unit) {
+        ids.forEach { findViewById<View>(it)!!.setOnClickListener(clickManager.wrap(it, block)) }
     }
 
 }
