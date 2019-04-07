@@ -5,10 +5,22 @@ package com.omega_r.base.binders.managers
  */
 open class BindersManager {
 
-    open fun <V> bind(bindType: BindType = BindType.STATIC, init: () -> V) = lazy(LazyThreadSafetyMode.NONE) { init() }
+    private val autoInitList = mutableListOf<Lazy<*>>()
+
+    open fun <V> bind(bindType: BindType = BindType.STATIC, init: () -> V): Lazy<V> {
+        val lazy = lazy(LazyThreadSafetyMode.NONE) { init() }
+        if (bindType == BindType.RESETTABLE_WITH_AUTO_INIT) {
+            autoInitList += lazy
+        }
+        return lazy
+    }
+
+    fun doAutoInit() {
+        autoInitList.forEach { it.value }
+    }
 
     enum class BindType {
-        RESETTABLE, STATIC
+        STATIC, RESETTABLE, RESETTABLE_WITH_AUTO_INIT
     }
 
 }

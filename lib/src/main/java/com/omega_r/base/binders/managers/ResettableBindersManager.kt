@@ -18,7 +18,10 @@ class ResettableBindersManager: BindersManager() {
     }
 
     override fun <V> bind(bindType: BindType, init: () -> V): Lazy<V> {
-        return if (bindType == BindType.RESETTABLE) ResettableLazy(init) else super.bind(bindType, init)
+        return when (bindType) {
+            BindType.RESETTABLE, BindType.RESETTABLE_WITH_AUTO_INIT -> ResettableLazy(init)
+            else -> super.bind(bindType, init)
+        }
     }
 
     fun reset() {

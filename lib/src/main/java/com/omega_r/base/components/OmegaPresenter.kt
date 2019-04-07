@@ -25,16 +25,16 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         // nothing
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
-    }
-
     protected suspend fun <T> CoroutineScope.withWaiting(block: suspend () -> T): T {
         viewState.setWaiting(true)
         val result = block()
         viewState.setWaiting(false)
         return result
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 
 }
