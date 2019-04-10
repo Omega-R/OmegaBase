@@ -42,6 +42,13 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
     override fun getContext(): Context = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        this::class.findAnnotation<OmegaWindowFlags>()?.let {
+            window?.apply {
+                addFlags(it.addFlags)
+                clearFlags(it.clearFlags)
+            }
+        }
+
         super.onCreate(savedInstanceState)
 
         this::class.findAnnotation<OmegaTheme>()?.let {
@@ -55,6 +62,7 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
             setOnClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
+
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
