@@ -99,7 +99,6 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
                         val drawable = ContextCompat.getDrawable(this, iconRes)
                         supportActionBar.setHomeAsUpIndicator(drawable)
                     }
-                    supportActionBar.setDisplayOptions()
                     supportActionBar.setDisplayHomeAsUpEnabled(homeIndicator.isVisible)
                 }
             }
