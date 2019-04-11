@@ -39,4 +39,12 @@ interface OmegaClickable: OmegaViewFindable {
         ids.forEach { findViewById<View>(it)!!.setOnClickListener(clickManager.wrap(it, block)) }
     }
 
+    fun setMenuListener(vararg pairs: Pair<Int, () -> Unit>) {
+        pairs.forEach { setMenuListener(it.first, it.second) }
+    }
+
+    fun setMenuListener(id: Int, block: () -> Unit) {
+        clickManager.addMenuClicker(id, block)
+    }
+
 }

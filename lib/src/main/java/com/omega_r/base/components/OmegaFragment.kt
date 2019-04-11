@@ -46,6 +46,14 @@ open class OmegaFragment: MvpAppCompatFragment(), OmegaBindable, OmegaClickable,
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (clickManager.handleMenuClick(item.itemId)) {
+            return true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
         val view =  if (contentView !=  null) {

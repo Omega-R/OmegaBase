@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -123,6 +124,13 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (clickManager.handleMenuClick(item.itemId)) {
+            return true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun showMessage(message: Text) {
         MaterialAlertDialogBuilder(this)

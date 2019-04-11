@@ -15,7 +15,8 @@ open class ClickManager(private val minimumInterval: Long = 555L) {
 
     private val clickListenerMap = mutableMapOf<Int, View.OnClickListener>()
     private val clickLambdasMap = mutableMapOf<Int,  () -> Unit>()
-    private val clickViewLambdasMap = mutableMapOf<Int,  (View) -> Unit>()
+    private val viewLambdasClickMap = mutableMapOf<Int,  (View) -> Unit>()
+    private val menuClickMap = mutableMapOf<Int,  () -> Unit>()
 
     private val clickListenerObject = View.OnClickListener { v ->
         if (canClickHandle()) {
@@ -27,7 +28,7 @@ open class ClickManager(private val minimumInterval: Long = 555L) {
         val id = view.id
         clickListenerMap[id]?.onClick(view)
             ?: clickLambdasMap[id]?.invoke()
-            ?: clickViewLambdasMap[id]?.invoke(view)
+            ?: viewLambdasClickMap[id]?.invoke(view)
 
     }
 
@@ -52,8 +53,17 @@ open class ClickManager(private val minimumInterval: Long = 555L) {
     }
 
     fun wrap(@IdRes id: Int, listener: (View) -> Unit): View.OnClickListener {
-        clickViewLambdasMap[id] = listener
+        viewLambdasClickMap[id] = listener
         return clickListenerObject
+    }
+
+    fun addMenuClicker(@IdRes id: Int, listener: () -> Unit) {
+        menuClickMap[id] = listener
+    }
+
+    fun handleMenuClick(@IdRes id: Int): Boolean {
+        menuClickMap[id]?.invoke() ?: return false
+        return true
     }
 
     fun removeClickListener(@IdRes id: Int) {
