@@ -24,7 +24,6 @@ import com.omega_r.base.launchers.FragmentLauncher
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatActivity
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -196,6 +195,16 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
 
     fun FragmentLauncher.addFragment(@IdRes containerViewId: Int) {
         add(this@OmegaActivity, containerViewId)
+    }
+
+    fun FragmentLauncher.DefaultCompanion.replaceFragment(@IdRes containerViewId: Int) {
+        createLauncher()
+            .replace(this@OmegaActivity, containerViewId)
+    }
+
+    fun FragmentLauncher.DefaultCompanion.addFragment(@IdRes containerViewId: Int) {
+        createLauncher()
+            .add(this@OmegaActivity, containerViewId)
     }
 
     protected open fun onClickView(view: View) {

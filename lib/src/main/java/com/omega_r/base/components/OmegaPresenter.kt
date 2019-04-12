@@ -1,10 +1,7 @@
 package com.omega_r.base.components
 
 import com.omegar.mvp.MvpPresenter
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -30,6 +27,14 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         val result = block()
         viewState.setWaiting(false)
         return result
+    }
+
+    protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) {
+        viewState.setWaiting(true)
+        launch {
+            block()
+            viewState.setWaiting(false)
+        }
     }
 
     override fun onDestroy() {

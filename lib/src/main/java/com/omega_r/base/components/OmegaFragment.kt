@@ -16,15 +16,13 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatFragment
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaFragment: MvpAppCompatFragment(), OmegaBindable, OmegaClickable, OmegaView {
+open class OmegaFragment : MvpAppCompatFragment(), OmegaBindable, OmegaClickable, OmegaView {
 
     override val clickManager = ClickManager()
 
@@ -56,7 +54,7 @@ open class OmegaFragment: MvpAppCompatFragment(), OmegaBindable, OmegaClickable,
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
-        val view =  if (contentView !=  null) {
+        val view = if (contentView != null) {
             var themedInflater = inflater
             val theme = this::class.findAnnotation<OmegaTheme>()
             theme?.let {

@@ -69,8 +69,8 @@ interface OmegaBindable: OmegaContext, OmegaViewFindable {
         map
     }
 
-    fun <T: View, IH: IdHolder> bind(vararg idsPair: Pair<IH, Int>) = bindersManager.bind(RESETTABLE)  {
-        val map = HashMap<IH, T>(idsPair.size)
+    fun <T: View, E> bind(vararg idsPair: Pair<E, Int>) = bindersManager.bind(RESETTABLE)  {
+        val map = HashMap<E, T>(idsPair.size)
         for (idHolder in idsPair) {
             val view = findViewById<T>(idHolder.second)!!
             map[idHolder.first] = view
@@ -79,8 +79,8 @@ interface OmegaBindable: OmegaContext, OmegaViewFindable {
         map
     }
 
-    fun <T: View, IH: IdHolder> bind(vararg idsPair: Pair<IH, Int>, initBlock: T.(IdHolder) -> Unit) = bindersManager.bind(RESETTABLE_WITH_AUTO_INIT)  {
-        val map = HashMap<IH, T>(idsPair.size)
+    fun <T: View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) = bindersManager.bind(RESETTABLE_WITH_AUTO_INIT)  {
+        val map = HashMap<E, T>(idsPair.size)
         for (idHolder in idsPair) {
             val view = findViewById<T>(idHolder.second)!!
             map[idHolder.first] = view

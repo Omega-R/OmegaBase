@@ -1,6 +1,5 @@
 package com.omega_r.base.launchers
 
-import android.app.Activity
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
@@ -52,6 +51,17 @@ data class FragmentLauncher(private val fragmentClass: Class<Fragment>, private 
 
     fun add(fragment: Fragment, @IdRes containerViewId: Int) {
         add(fragment.childFragmentManager, containerViewId)
+    }
+
+    interface DefaultCompanion {
+
+        fun createLauncher(): FragmentLauncher
+
+        fun createFragment(): Fragment {
+            return createLauncher()
+                .createFragment()
+        }
+
     }
 
 

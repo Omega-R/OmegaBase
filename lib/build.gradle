@@ -43,7 +43,7 @@ dependencies {
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
 
     implementation 'com.github.Omega-R:OmegaRecyclerView:1.9.4@aar'
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:0.0.7'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:0.0.8'
 
     implementation 'com.google.android.material:material:1.1.0-alpha05'
 

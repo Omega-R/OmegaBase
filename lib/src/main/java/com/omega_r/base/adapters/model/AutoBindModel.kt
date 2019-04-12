@@ -6,7 +6,9 @@ package com.omega_r.base.adapters.model
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
+import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.setImage
@@ -29,7 +31,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
-    constructor(vararg binder: Binder<*, M>): this(binder.toList())
+    constructor(vararg binder: Binder<*, M>) : this(binder.toList())
 
     fun bind(view: View, item: M) {
         @Suppress("UNCHECKED_CAST")
@@ -42,6 +44,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             var bindView = viewCache[it.id]
             if (bindView == null) {
                 bindView = view.findViewById(it.id)!!
+                it.dispatchOnCreateView(bindView)
                 viewCache[it.id] = bindView
             }
             it.dispatchBind(bindView, item)
@@ -52,26 +55,45 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     class Builder<M>() {
         private val list: MutableList<Binder<*, M>> = mutableListOf()
 
-        fun <V: View> bind(id: Int, binder: (view: V, item: M) -> Unit) {
+        fun <V : View> bindCustom(id: Int, binder: (view: V, item: M) -> Unit) {
             list += CustomBinder(id, binder)
         }
 
-        fun bind(id: Int, property: KProperty<Image?>, placeholderRes: Int = 0): Builder<M> {
-            list += ImageBinder(id, property, placeholderRes)
+        fun bindImage(
+            id: Int,
+            vararg properties: KProperty<*>,
+            placeholderRes: Int = 0
+        ): Builder<M> {
+            list += ImageBinder(id, *properties, placeholderResId = placeholderRes)
             return this
         }
 
-        fun bind(id: Int, vararg property: KProperty<*>, formatter: ((Any?)-> String?)? = null): Builder<M> {
-            list += StringBinder(id, *property, formatter = formatter)
+        fun bindString(
+            id: Int,
+            vararg properties: KProperty<*>,
+            formatter: ((Any?) -> String?)? = null
+        ): Builder<M> {
+            list += StringBinder(id, *properties, formatter = formatter)
             return this
         }
 
-        fun bind(id: Int, property: KProperty<Text?>): Builder<M> {
-            list += TextBinder(id, property)
+        fun bindText(
+            id: Int,
+            vararg properties: KProperty<*>
+        ): Builder<M> {
+            list += TextBinder(id, *properties)
             return this
         }
 
-        fun bind(binder: Binder<*, M>): Builder<M> {
+        fun <M2> bindRecycler(id: Int,
+                              vararg properties: KProperty<*>,
+                              layoutRes: Int,
+                              block: AutoBindModel.Builder<M2>.() -> Unit): Builder<M> {
+            list += RecyclerBinder(id, *properties, layoutRes = layoutRes, block = block)
+            return this
+        }
+
+        fun bindBinder(binder: Binder<*, M>): Builder<M> {
             list += binder
             return this
         }
@@ -80,9 +102,18 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
-    abstract class Binder<V: View, M> {
+    abstract class Binder<V : View, M> {
 
         abstract val id: Int
+
+        internal fun dispatchOnCreateView(view: View) {
+            @Suppress("UNCHECKED_CAST")
+            onCreateView(view as V)
+        }
+
+        protected open fun onCreateView(itemView: V) {
+            // nothing
+        }
 
         internal fun dispatchBind(view: View, item: M) {
             @Suppress("UNCHECKED_CAST")
@@ -94,27 +125,43 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     }
 
     class ImageBinder<M>(
-        override val id: Int, private val property: KProperty<Image?>,
-        private val placeholderResId: Int = 0)  : Binder<ImageView, M>() {
+        override val id: Int,
+        private vararg val properties: KProperty<*>,
+        private val placeholderResId: Int = 0
+    ) : Binder<ImageView, M>() {
 
         override fun bind(itemView: ImageView, item: M) {
-            itemView.setImage(property.getter.call(item), placeholderResId)
-        }
+            var obj: Any? = item
 
-    }
-
-    class StringBinder<M>(override val id: Int,
-                          private vararg val properties: KProperty<*>,
-                          private val formatter: ((Any?)-> String?)? = null) : Binder<TextView, M>() {
-
-        override fun bind(itemView: TextView, item: M) {
-            var obj : Any? = item
             for (property in properties) {
                 obj = property.call(obj)
                 if (obj == null) {
                     break
                 }
             }
+
+            val image: Image? = obj?.let { obj as Image }
+
+            itemView.setImage(image, placeholderResId)
+        }
+
+    }
+
+    class StringBinder<M>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>,
+        private val formatter: ((Any?) -> String?)? = null
+    ) : Binder<TextView, M>() {
+
+        override fun bind(itemView: TextView, item: M) {
+            var obj: Any? = item
+            for (property in properties) {
+                obj = property.call(obj)
+                if (obj == null) {
+                    break
+                }
+            }
+
             if (formatter == null) {
                 itemView.text = obj?.toString()
             } else {
@@ -124,12 +171,23 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
-    class TextBinder<M>(override val id: Int, private val property: KProperty<Text?>) : Binder<TextView, M>() {
+    class TextBinder<M>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>
+    ) : Binder<TextView, M>() {
 
         override fun bind(itemView: TextView, item: M) {
-            val text = property.getter.call(item)
-            if (text != null) {
-                itemView.setText(text)
+
+            var obj: Any? = item
+            for (property in properties) {
+                obj = property.call(obj)
+                if (obj == null) {
+                    break
+                }
+            }
+
+            if (obj != null) {
+                itemView.setText(obj as Text)
             } else {
                 itemView.text = null
             }
@@ -137,8 +195,38 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
+    class RecyclerBinder<M, M2>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>,
+        private val layoutRes: Int,
+        private val block: AutoBindModel.Builder<M2>.() -> Unit
+    ) : Binder<RecyclerView, M>() {
+
+        override fun onCreateView(itemView: RecyclerView) {
+            itemView.adapter = OmegaAutoAdapter.create(layoutRes, block)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun bind(itemView: RecyclerView, item: M) {
+            var obj: Any? = item
+            for (property in properties) {
+                obj = property.call(obj)
+                if (obj == null) {
+                    break
+                }
+            }
+            if (obj != null) {
+                val list = obj as List<M2>
+                (itemView.adapter as OmegaAutoAdapter<M2>).list = list
+            } else {
+                (itemView.adapter as OmegaAutoAdapter<M2>).list = emptyList()
+            }
+        }
+
+    }
+
     class CustomBinder<V : View, M>(override val id: Int, val binder: (view: V, item: M) -> Unit) : Binder<V, M>() {
-        override fun bind(itemView: V, item: M)  = binder(itemView, item)
+        override fun bind(itemView: V, item: M) = binder(itemView, item)
     }
 
 }

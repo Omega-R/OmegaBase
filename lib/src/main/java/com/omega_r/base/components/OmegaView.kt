@@ -5,6 +5,7 @@ import com.omegar.mvp.MvpView
 import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
+import kotlin.reflect.KAnnotatedElement
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -24,3 +25,7 @@ interface OmegaView : MvpView {
     fun setWaiting(waiting: Boolean, text: Text? = null)
 
 }
+
+inline fun <reified T : Annotation> KAnnotatedElement.findAnnotation(): T? =
+    @Suppress("UNCHECKED_CAST")
+    annotations.firstOrNull { it is T } as T?
