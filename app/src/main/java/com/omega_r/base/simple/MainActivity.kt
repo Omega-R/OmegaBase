@@ -11,10 +11,11 @@ import com.omega_r.libs.omegatypes.Text
 @OmegaContentView(R.layout.activity_main)
 class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Item> {
 
-    private val adapter = OmegaAutoAdapter.create<Item>(R.layout.item_test) {
+    private val adapter = OmegaAutoAdapter.create(R.layout.item_test, this) {
         bind(R.id.textview_test, Item::text)
-    }.apply {
-        callback = this@MainActivity
+        bindRecycler<SubItem>(R.id.recyclerview, R.layout.item_test, Item::list) {
+            bind(R.id.textview_test, SubItem::text)
+        }
     }
 
     private val recyclerView: OmegaRecyclerView by bind(R.id.recyclerview) {
@@ -30,7 +31,9 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
         showToast(Text.from("Click $position"))
     }
 
-    data class Item (val text: String = "123")
+    data class Item (val text: String = "123", val list: List<SubItem> = listOf(SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem()))
+
+    data class SubItem (val text: String = "123")
 
     enum class Field(override val id: Int) : IdHolder {
         ITEM1(R.id.recyclerview),
