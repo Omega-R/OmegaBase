@@ -7,12 +7,16 @@ open class BindersManager {
 
     private val autoInitList = mutableListOf<Lazy<*>>()
 
-    open fun <V> bind(bindType: BindType = BindType.STATIC, init: () -> V): Lazy<V> {
-        val lazy = lazy(LazyThreadSafetyMode.NONE) { init() }
+    fun <V> bind(bindType: BindType = BindType.STATIC, init: () -> V): Lazy<V> {
+        val lazy = createLazy(bindType, init)
         if (bindType == BindType.RESETTABLE_WITH_AUTO_INIT) {
             autoInitList += lazy
         }
         return lazy
+    }
+
+    protected open fun <V> createLazy(bindType: BindType = BindType.STATIC, init: () -> V): Lazy<V> {
+        return lazy(LazyThreadSafetyMode.NONE) { init() }
     }
 
     fun doAutoInit() {
