@@ -13,7 +13,7 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
 
     private val adapter = OmegaAutoAdapter.create(R.layout.item_test, this) {
         bind(R.id.textview_test, Item::text)
-        bindRecycler<SubItem>(R.id.recyclerview, R.layout.item_test, Item::list) {
+        bindRecycler(R.id.recyclerview, R.layout.item_test, Item::list) {
             bind(R.id.textview_test, SubItem::text)
         }
     }

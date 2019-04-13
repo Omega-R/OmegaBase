@@ -92,6 +92,14 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         fun <SM> bindRecycler(@IdRes id: Int,
                               layoutRes: Int,
+                              property: KProperty<List<SM>>,
+                              callback: OmegaAutoAdapter.Callback<SM>? = null,
+                              block: Builder<SM>.() -> Unit): Builder<M> {
+            return bindRecycler(id, layoutRes, property , block = block, callback = callback)
+        }
+
+        fun <SM> bindRecycler(@IdRes id: Int,
+                              layoutRes: Int,
                               vararg properties: KProperty<*>,
                               callback: OmegaAutoAdapter.Callback<SM>? = null,
                               block: Builder<SM>.() -> Unit): Builder<M> {
