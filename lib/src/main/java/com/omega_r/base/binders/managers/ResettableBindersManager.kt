@@ -17,10 +17,10 @@ class ResettableBindersManager: BindersManager() {
         }
     }
 
-    override fun <V> bind(bindType: BindType, init: () -> V): Lazy<V> {
+    override fun <V> createLazy(bindType: BindType, init: () -> V): Lazy<V> {
         return when (bindType) {
             BindType.RESETTABLE, BindType.RESETTABLE_WITH_AUTO_INIT -> ResettableLazy(init)
-            else -> super.bind(bindType, init)
+            else -> super.createLazy(bindType, init)
         }
     }
 

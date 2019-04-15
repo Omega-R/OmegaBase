@@ -12,12 +12,11 @@ import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaDialog: Dialog, OmegaBindable, OmegaClickable {
+open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
 
     override val clickManager = ClickManager()
 
@@ -27,9 +26,11 @@ open class OmegaDialog: Dialog, OmegaBindable, OmegaClickable {
 
     constructor(context: Context, themeResId: Int) : super(context, themeResId)
 
-    constructor(context: Context,
-                cancelable: Boolean,
-                cancelListener: DialogInterface.OnCancelListener?) : super(context, cancelable, cancelListener)
+    constructor(
+        context: Context,
+        cancelable: Boolean,
+        cancelListener: DialogInterface.OnCancelListener?
+    ) : super(context, cancelable, cancelListener)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
