@@ -81,6 +81,15 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             return this
         }
 
+        fun bindCharSequence(@IdRes id: Int, property: KProperty<CharSequence?>): Builder<M> {
+            return bindCharSequence(id, property)
+        }
+
+        fun bindCharSequence(@IdRes id: Int, vararg properties: KProperty<*>): Builder<M> {
+            list += CharSequenceBinder(id, *properties)
+            return this
+        }
+
         fun bind(@IdRes id: Int, property: KProperty<Text?>): Builder<M> {
             return bindText(id, property)
         }
@@ -177,6 +186,18 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             } else {
                 itemView.text = formatter.invoke(obj)
             }
+        }
+
+    }
+
+    class CharSequenceBinder<M>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>
+    ) : Binder<TextView, M>() {
+
+        override fun bind(itemView: TextView, item: M) {
+            val charSequence: CharSequence? = item.findValue(item, properties)
+            itemView.text = charSequence
         }
 
     }
