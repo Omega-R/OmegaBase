@@ -10,7 +10,8 @@ import org.intellij.lang.annotations.Identifier
  * Created by Anton Knyazev on 07.04.2019.
  */
 class OmegaAutoAdapter<M> (
-    @LayoutRes private val layoutRes: Int, private val bindModel: AutoBindModel<M>,
+    @LayoutRes private val layoutRes: Int,
+    private val bindModel: AutoBindModel<M>,
     private val callback: Callback<M>? = null
 ) : OmegaListAdapter<M, OmegaAutoAdapter<M>.ViewHolder>() {
 
