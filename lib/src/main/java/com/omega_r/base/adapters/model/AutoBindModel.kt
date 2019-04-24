@@ -10,6 +10,9 @@ import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.adapters.OmegaAutoAdapter
+import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
+import com.omega_r.libs.omegarecyclerview.header.HeaderFooterWrapperAdapter
+import com.omega_r.libs.omegarecyclerview.pagination.WrapperAdapter
 import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.setImage
@@ -81,6 +84,15 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             return this
         }
 
+        fun bindCharSequence(@IdRes id: Int, property: KProperty<CharSequence?>): Builder<M> {
+            return bindCharSequence(id, property)
+        }
+
+        fun bindCharSequence(@IdRes id: Int, vararg properties: KProperty<*>): Builder<M> {
+            list += CharSequenceBinder(id, *properties)
+            return this
+        }
+
         fun bind(@IdRes id: Int, property: KProperty<Text?>): Builder<M> {
             return bindText(id, property)
         }
@@ -95,7 +107,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                               property: KProperty<List<SM>>,
                               callback: OmegaAutoAdapter.Callback<SM>? = null,
                               block: Builder<SM>.() -> Unit): Builder<M> {
-            return bindRecycler(id, layoutRes, property , block = block, callback = callback)
+            return bindRecycler(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
         }
 
         fun <SM> bindRecycler(@IdRes id: Int,
@@ -181,6 +193,18 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
+    class CharSequenceBinder<M>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>
+    ) : Binder<TextView, M>() {
+
+        override fun bind(itemView: TextView, item: M) {
+            val charSequence: CharSequence? = item.findValue(item, properties)
+            itemView.text = charSequence
+        }
+
+    }
+
     class TextBinder<M>(
         override val id: Int,
         private vararg val properties: KProperty<*>
@@ -212,8 +236,19 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         @Suppress("UNCHECKED_CAST")
         override fun bind(itemView: RecyclerView, item: M) {
             val list: List<SM>? = item.findValue(item, properties)
-            (itemView.adapter as OmegaAutoAdapter<SM>).list = list ?: emptyList()
+
+            getAdapter(itemView).list = list ?: emptyList()
         }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun getAdapter(itemView: RecyclerView): OmegaAutoAdapter<SM> {
+            val adapter = when (itemView) {
+                is OmegaRecyclerView -> itemView.realAdapter
+                else -> itemView.adapter
+            }
+            return adapter as OmegaAutoAdapter<SM>
+        }
+
 
     }
 

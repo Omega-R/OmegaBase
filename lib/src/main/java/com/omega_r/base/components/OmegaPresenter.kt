@@ -19,7 +19,7 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
 
     protected open fun handleErrors(throwable: Throwable) {
-        // nothing
+        throwable.printStackTrace()
     }
 
     protected suspend fun <T> CoroutineScope.withWaiting(block: suspend () -> T): T {
