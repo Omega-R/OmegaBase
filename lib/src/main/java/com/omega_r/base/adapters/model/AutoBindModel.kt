@@ -85,7 +85,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         fun bindCharSequence(@IdRes id: Int, property: KProperty<CharSequence?>): Builder<M> {
-            return bindCharSequence(id, property)
+            return bindCharSequence(id, *arrayOf(property))
         }
 
         fun bindCharSequence(@IdRes id: Int, vararg properties: KProperty<*>): Builder<M> {
