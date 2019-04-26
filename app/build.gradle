@@ -41,6 +41,6 @@ dependencies {
     implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
     implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:0.0.7'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:0.2.0'
 
 }
