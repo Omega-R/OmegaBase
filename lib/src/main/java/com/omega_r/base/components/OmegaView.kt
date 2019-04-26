@@ -24,6 +24,9 @@ interface OmegaView : MvpView {
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun setWaiting(waiting: Boolean, text: Text? = null)
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun exit()
+
 }
 
 inline fun <reified T : Annotation> KAnnotatedElement.findAnnotation(): T? =

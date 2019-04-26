@@ -22,7 +22,7 @@ import com.omegar.mvp.MvpAppCompatFragment
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaFragment : MvpAppCompatFragment(), OmegaBindable, OmegaClickable, OmegaView {
+open class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override val clickManager = ClickManager()
 
@@ -80,28 +80,7 @@ open class OmegaFragment : MvpAppCompatFragment(), OmegaBindable, OmegaClickable
         bindersManager.doAutoInit()
     }
 
-    override fun showMessage(message: Text) {
-        MaterialAlertDialogBuilder(context)
-            .setMessage(message.getString(resources))
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    protected open fun getViewForSnackbar() = view!!
-
-    override fun showBottomMessage(message: Text, action: Text?, actionListener: (() -> Unit)?) {
-        Snackbar.make(getViewForSnackbar(), message.getString(resources)!!, Snackbar.LENGTH_LONG).apply {
-            if (action != null) {
-                setAction(action.getString(resources)!!) {
-                    actionListener?.invoke()
-                }
-            }
-        }.show()
-    }
-
-    override fun showToast(message: Text) {
-        Toast.makeText(context, message.getString(resources), Toast.LENGTH_LONG).show()
-    }
+    override fun getViewForSnackbar() = view!!
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
         (activity as OmegaActivity).setWaiting(waiting, text)
@@ -135,6 +114,10 @@ open class OmegaFragment : MvpAppCompatFragment(), OmegaBindable, OmegaClickable
 
     protected open fun onClickView(view: View) {
         // nothing
+    }
+
+    override fun exit() {
+        activity!!.finish()
     }
 
 }

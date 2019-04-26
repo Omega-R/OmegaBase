@@ -31,7 +31,7 @@ import com.omegar.mvp.MvpAppCompatActivity
 
 const val DELAY_SHOW_WAITING = 555L
 
-open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, OmegaClickable {
+open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     override val clickManager = ClickManager()
 
@@ -63,6 +63,9 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
         }
     }
 
+    override fun getViewForSnackbar(): View {
+        return findViewById(android.R.id.content)!!
+    }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -131,31 +134,6 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
         }
     }
 
-    override fun showMessage(message: Text) {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(message.getString(resources))
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
-
-    protected open fun getViewForSnackbar(): View {
-        return findViewById(android.R.id.content)!!
-    }
-
-    override fun showBottomMessage(message: Text, action: Text?, actionListener: (() -> Unit)?) {
-        Snackbar.make(getViewForSnackbar(), message.getString(resources)!!, Snackbar.LENGTH_LONG).apply {
-            if (action != null) {
-                setAction(action.getString(resources)!!) {
-                    actionListener?.invoke()
-                }
-            }
-        }.show()
-    }
-
-    override fun showToast(message: Text) {
-        Toast.makeText(this, message.getString(resources), Toast.LENGTH_LONG).show()
-    }
-
     override fun setWaiting(waiting: Boolean, text: Text?) {
         if (waiting) {
             if (waitingDialog == null) {
@@ -209,6 +187,10 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaBindable, OmegaView, Ome
 
     protected open fun onClickView(view: View) {
         // nothing
+    }
+
+    override fun exit() {
+        finish()
     }
 
 }
