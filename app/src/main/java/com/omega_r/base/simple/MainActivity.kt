@@ -1,6 +1,7 @@
 package com.omega_r.base.simple
 
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
@@ -16,12 +17,11 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
         bindRecycler(R.id.recyclerview, R.layout.item_test, Item::list) {
             bind(R.id.textview_test, SubItem::text)
         }
+    }.apply {
+        list = listOf(Item(), Item())
     }
 
-    private val recyclerView: OmegaRecyclerView by bind(R.id.recyclerview) {
-        this@MainActivity.adapter.list = listOf(Item(), Item())
-        adapter = this@MainActivity.adapter
-    }
+    private val recyclerView: RecyclerView by bind(R.id.recyclerview, adapter)
 
     private val maps: Map<Field, View> by bind(Field.values()) {
         showToast(Text.from(it.id.toString()))

@@ -28,6 +28,8 @@ open class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override val bindersManager = ResettableBindersManager()
 
+    open fun getTitle(): Text? = null
+
     override fun <T : View> findViewById(id: Int) = view?.findViewById<T>(id)
 
     override fun onCreate(savedInstanceState: Bundle?) {
