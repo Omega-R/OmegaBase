@@ -28,7 +28,7 @@ class OmegaAutoAdapter<M> (
 
     override fun getItemId(position: Int): Long {
         return when (val item = list[position]) {
-            is Identifiable -> item.id
+            is Identifiable<*> -> item.idAsLong
             else -> super.getItemId(position)
         }
     }
