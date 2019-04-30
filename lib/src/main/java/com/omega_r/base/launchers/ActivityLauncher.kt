@@ -6,20 +6,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.AndroidRuntimeException
 import androidx.fragment.app.Fragment
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
 import com.omega_r.base.tools.equalsBundle
 import com.omega_r.base.tools.hashCodeBundle
+import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
+@Parcelize
 class ActivityLauncher(private val activityClass: Class<Activity>,
                                            private val bundle: Bundle? = null,
-                                           private var flags: Int = 0) : Launcher, Serializable {
+                                           private var flags: Int = 0) : Launcher, Parcelable {
 
     constructor(activityClass: Class<Activity>, vararg extraParams: BundlePair, flags: Int = 0)
             : this(activityClass, bundleOf(*extraParams), flags)
