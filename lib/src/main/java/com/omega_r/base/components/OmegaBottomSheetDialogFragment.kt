@@ -12,12 +12,9 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.FragmentLauncher
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.mvp.MvpAppCompatDialogFragment
+import com.omegar.mvp.MvpBottomSheetDialogFragment
 
-/**
- * Created by Anton Knyazev on 04.04.2019.
- */
-open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
+open class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
     override val clickManager = ClickManager()
 
@@ -84,7 +81,7 @@ open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
-        launchForResult(this@OmegaDialogFragment, requestCode, option)
+        launchForResult(this@OmegaBottomSheetDialogFragment, requestCode, option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
@@ -94,15 +91,15 @@ open class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
         createLauncher()
-            .launchForResult(this@OmegaDialogFragment, requestCode, option)
+            .launchForResult(this@OmegaBottomSheetDialogFragment, requestCode, option)
     }
 
     fun FragmentLauncher.replaceFragment(@IdRes containerViewId: Int) {
-        replace(this@OmegaDialogFragment, containerViewId)
+        replace(this@OmegaBottomSheetDialogFragment, containerViewId)
     }
 
     fun FragmentLauncher.addFragment(@IdRes containerViewId: Int) {
-        add(this@OmegaDialogFragment, containerViewId)
+        add(this@OmegaBottomSheetDialogFragment, containerViewId)
     }
 
     protected open fun onClickView(view: View) {
