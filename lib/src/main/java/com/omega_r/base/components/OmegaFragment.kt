@@ -15,6 +15,7 @@ import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatFragment
@@ -112,6 +113,14 @@ open class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     fun FragmentLauncher.addFragment(@IdRes containerViewId: Int) {
         add(this@OmegaFragment, containerViewId)
+    }
+
+    fun DialogFragmentLauncher.launch(tag: String? = null, requestCode: Int? = null) {
+        launch(childFragmentManager, tag, this@OmegaFragment, requestCode)
+    }
+
+    fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null, requestCode: Int? = null) {
+        launch(childFragmentManager, tag, this@OmegaFragment, requestCode)
     }
 
     protected open fun onClickView(view: View) {

@@ -10,12 +10,14 @@ import android.util.AndroidRuntimeException
 import androidx.fragment.app.Fragment
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
+import com.omega_r.base.tools.equalsBundle
+import com.omega_r.base.tools.hashCodeBundle
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
-data class ActivityLauncher(private val activityClass: Class<Activity>,
+class ActivityLauncher(private val activityClass: Class<Activity>,
                                            private val bundle: Bundle? = null,
                                            private var flags: Int = 0) : Launcher, Serializable {
 
@@ -78,6 +80,31 @@ data class ActivityLauncher(private val activityClass: Class<Activity>,
 
     fun launchForResult(fragment: Fragment, requestCode: Int, option: Bundle? = null) {
         fragment.startActivityForResult(createIntent(fragment.context!!), requestCode, option)
+    }
+
+    fun isOurActivity(activity: Activity): Boolean {
+        return activityClass.isInstance(activity)
+                && activity.intent.extras.equalsBundle(bundle)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ActivityLauncher
+
+        if (activityClass != other.activityClass) return false
+        if (!bundle.equalsBundle(other.bundle)) return false
+        if (flags != other.flags) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = activityClass.hashCode()
+        result = 31 * result + (bundle?.hashCodeBundle() ?: 0)
+        result = 31 * result + flags
+        return result
     }
 
     interface DefaultCompanion {

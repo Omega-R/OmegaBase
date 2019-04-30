@@ -7,14 +7,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
+import com.omega_r.base.tools.equalsBundle
+import com.omega_r.base.tools.hashCodeBundle
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
-data class FragmentLauncher(private val fragmentClass: Class<Fragment>, private val bundle: Bundle? = null): Launcher, Serializable {
+class FragmentLauncher(private val fragmentClass: Class<Fragment>, private val bundle: Bundle? = null): Launcher, Serializable {
 
-    constructor(fragmentClass: Class<Fragment>, vararg extraParams: BundlePair, flags: Int = 0)
+    constructor(fragmentClass: Class<Fragment>, vararg extraParams: BundlePair)
             : this(fragmentClass, bundleOf(*extraParams))
 
     fun createFragment(): Fragment {
@@ -51,6 +53,28 @@ data class FragmentLauncher(private val fragmentClass: Class<Fragment>, private 
 
     fun add(fragment: Fragment, @IdRes containerViewId: Int) {
         add(fragment.childFragmentManager, containerViewId)
+    }
+
+    fun isOurFragment(fragment: Fragment): Boolean {
+        return fragmentClass.isInstance(fragment) && fragment.arguments.equalsBundle(bundle)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FragmentLauncher
+
+        if (fragmentClass != other.fragmentClass) return false
+        if (!bundle.equalsBundle(other.bundle)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = fragmentClass.hashCode()
+        result = 31 * result + (bundle?.hashCodeBundle() ?: 0)
+        return result
     }
 
     interface DefaultCompanion {

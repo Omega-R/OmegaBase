@@ -3,6 +3,7 @@ package com.omega_r.base.components
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils.replace
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -11,6 +12,9 @@ import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.OneShotPreDrawListener.add
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.R
@@ -20,6 +24,7 @@ import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
@@ -183,6 +188,14 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     fun FragmentLauncher.DefaultCompanion.addFragment(@IdRes containerViewId: Int) {
         createLauncher()
             .add(this@OmegaActivity, containerViewId)
+    }
+
+    fun DialogFragmentLauncher.launch(tag: String? = null) {
+        launch(supportFragmentManager, tag)
+    }
+
+    fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null) {
+        launch(supportFragmentManager, tag)
     }
 
     protected open fun onClickView(view: View) {
