@@ -10,9 +10,10 @@ interface Identifiable<T> {
     val id: T
 
     val idAsLong: Long
-        get() = when (id) {
+        get() = when (val id = id) {
             is String -> id.toLongHash()
             else -> id.hashCode().toLong()
         }
+
 
 }
