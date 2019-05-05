@@ -12,8 +12,8 @@ interface Identifiable<T> {
     val idAsLong: Long
         get() = when (val id = id) {
             is String -> id.toLongHash()
+            is Int -> id.toLong()
+            is Long -> id
             else -> id.hashCode().toLong()
         }
-
-
 }

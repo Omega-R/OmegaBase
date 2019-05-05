@@ -1,4 +1,4 @@
-package com.omega_r.base.components
+package com.omega_r.base.mvp
 
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*

@@ -1,8 +1,11 @@
-package com.omega_r.base.components
+package com.omega_r.base.mvp
 
+import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.strategies.RemoveEndTagStrategy
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpView
 import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
+import com.omegar.mvp.viewstate.strategy.AddToEndStrategy
 import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
 import kotlin.reflect.KAnnotatedElement
@@ -12,11 +15,21 @@ import kotlin.reflect.KAnnotatedElement
  */
 interface OmegaView : MvpView {
 
+    companion object {
+        private const val TAG_QUERY= "query"
+    }
+
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showMessage(message: Text)
 
+    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY)
+    fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
+
+    @StateStrategyType(RemoveEndTagStrategy::class, tag = TAG_QUERY)
+    fun hideQuery()
+
     @StateStrategyType(OneExecutionStateStrategy::class)
-    fun showBottomMessage(message: Text, action: Text? = null, actionListener: (() -> Unit)? = null)
+    fun showBottomMessage(message: Text, action: Action? = null)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showToast(message: Text)

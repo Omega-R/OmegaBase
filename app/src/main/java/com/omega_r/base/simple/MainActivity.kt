@@ -6,7 +6,6 @@ import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
-import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
 import com.omega_r.libs.omegatypes.Text
 
 @OmegaContentView(R.layout.activity_main)
