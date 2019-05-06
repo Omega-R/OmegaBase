@@ -20,13 +20,13 @@ interface OmegaView : MvpView {
     }
 
     @StateStrategyType(OneExecutionStateStrategy::class)
-    fun showMessage(message: Text)
+    fun showMessage(message: Text, action: Action? = null)
 
     @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY)
     fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
 
     @StateStrategyType(RemoveEndTagStrategy::class, tag = TAG_QUERY)
-    fun hideQuery()
+    fun hideQueryOrMessage()
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showBottomMessage(message: Text, action: Action? = null)

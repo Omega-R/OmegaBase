@@ -1,5 +1,6 @@
 package com.omega_r.base.components
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.IdRes
@@ -13,13 +14,16 @@ import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
 import com.omega_r.base.mvp.findAnnotation
+import com.omega_r.base.mvp.model.Action
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatFragment
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
+abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
+
+    private val dialogList = mutableListOf<Dialog>()
 
     override val clickManager = ClickManager()
 
@@ -121,6 +125,35 @@ open class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     protected open fun onClickView(view: View) {
         // nothing
+    }
+
+    override fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+        createQuery(message, positiveAction, negativeAction, neutralAction).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun hideQueryOrMessage() {
+        dialogList.lastOrNull()?.let {
+            it.dismiss()
+            dialogList.remove(it)
+        }
+    }
+
+    override fun showMessage(message: Text, action: Action?) {
+        createMessage(message, action).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dialogList.forEach {
+            it.setOnDismissListener(null)
+            it.dismiss()
+        }
     }
 
     override fun exit() {

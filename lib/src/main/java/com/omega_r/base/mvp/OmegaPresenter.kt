@@ -37,6 +37,10 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         }
     }
 
+    fun hideQueryOrMessage() {
+        viewState.hideQueryOrMessage()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()

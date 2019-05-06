@@ -7,9 +7,13 @@ import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.mvp.presenter.InjectPresenter
 
 @OmegaContentView(R.layout.activity_main)
-class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Item> {
+class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Item>, MainView {
+
+    @InjectPresenter
+    override lateinit var presenter: MainPresenter
 
     private val adapter = OmegaAutoAdapter.create(R.layout.item_test, this) {
         bind(R.id.textview_test, Item::text)

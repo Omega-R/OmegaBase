@@ -1,5 +1,7 @@
 package com.omega_r.base.components
 
+import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -17,7 +19,10 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
+import com.omega_r.base.mvp.OmegaPresenter
+import com.omega_r.base.mvp.OmegaView
 import com.omega_r.base.mvp.findAnnotation
+import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatActivity
@@ -28,7 +33,9 @@ import com.omegar.mvp.MvpAppCompatActivity
 
 const val DELAY_SHOW_WAITING = 555L
 
-open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+
+    private val dialogList = mutableListOf<Dialog>()
 
     override val clickManager = ClickManager()
 
@@ -194,8 +201,38 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         // nothing
     }
 
+    override fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+        createQuery(message, positiveAction, negativeAction, neutralAction).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun hideQueryOrMessage() {
+        dialogList.lastOrNull()?.let {
+            it.dismiss()
+            dialogList.remove(it)
+        }
+    }
+
+    override fun showMessage(message: Text, action: Action?) {
+        createMessage(message, action).apply {
+            dialogList += this
+            show()
+        }
+    }
+
     override fun exit() {
         finish()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        waitingDialog?.dismiss()
+        dialogList.forEach {
+            it.setOnDismissListener(null)
+            it.dismiss()
+        }
     }
 
 }
