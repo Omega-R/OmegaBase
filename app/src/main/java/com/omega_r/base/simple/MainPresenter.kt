@@ -12,8 +12,9 @@ import com.omegar.mvp.InjectViewState
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {
-
-        viewState.showQuery(Text.from("test"), Action(Text.from("Yes")) {}, Action(Text.from("No")) {})
+        viewState.showMessage(Text.from("test"), Action(Text.from("Test")){
+            viewState.showToast(Text.from("test"))
+        })
     }
 
 }

@@ -25,6 +25,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
    fun createMessage(message: Text, action: Action? = null): Dialog {
         return MaterialAlertDialogBuilder(getContext()!!)
+            .setCancelable(true)
             .setMessage(message.getCharSequence(getContext()!!)).apply {
                 if (action == null) {
                     setPositiveButton(android.R.string.ok) { _, _ ->
@@ -32,6 +33,9 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
                     }
                 } else {
                     setPositiveButton(presenter, action)
+                    setOnCancelListener {
+                        action()
+                    }
                 }
             }
             .create()
@@ -40,6 +44,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
     fun createQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action?): Dialog {
         return MaterialAlertDialogBuilder(getContext()!!)
             .setMessage(message.getCharSequence(getContext()!!))
+            .setCancelable(false)
             .setButtons(presenter, positiveAction, negativeAction, neutralAction)
             .create()
     }

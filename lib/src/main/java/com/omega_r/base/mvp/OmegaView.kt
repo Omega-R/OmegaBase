@@ -16,16 +16,16 @@ import kotlin.reflect.KAnnotatedElement
 interface OmegaView : MvpView {
 
     companion object {
-        private const val TAG_QUERY= "query"
+        private const val TAG_QUERY_OR_MESSAGE= "queryOrMessage"
     }
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
     fun showMessage(message: Text, action: Action? = null)
 
-    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY)
+    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
     fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
 
-    @StateStrategyType(RemoveEndTagStrategy::class, tag = TAG_QUERY)
+    @StateStrategyType(RemoveEndTagStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
     fun hideQueryOrMessage()
 
     @StateStrategyType(OneExecutionStateStrategy::class)
