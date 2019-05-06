@@ -40,8 +40,7 @@ class OmegaAutoAdapter<M> (
         init {
             if (callback != null) {
                 setOnClickListener(itemView) {
-                    val adapterPosition = adapterPosition
-                    callback.onClickItem(list[adapterPosition], adapterPosition)
+                    callback.onClickItem(list[adapterPosition])
                 }
             }
         }
@@ -51,7 +50,7 @@ class OmegaAutoAdapter<M> (
     }
 
     interface Callback<M> {
-        fun onClickItem(item: M, position: Int)
+        fun onClickItem(item: M)
     }
 
 }

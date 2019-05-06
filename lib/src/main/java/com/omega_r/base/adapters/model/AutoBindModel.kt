@@ -57,8 +57,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     }
 
 
-    class Builder<M>() {
-        private val list: MutableList<Binder<*, M>> = mutableListOf()
+    class Builder<M>(parentModel: AutoBindModel<M>? = null) {
+        private val list: MutableList<Binder<*, M>> = parentModel?.list?.let { ArrayList(it) } ?: mutableListOf()
 
         fun <V : View> bindCustom(
             @IdRes id: Int,
