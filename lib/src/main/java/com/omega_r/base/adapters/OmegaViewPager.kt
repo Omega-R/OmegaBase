@@ -18,7 +18,7 @@ import com.omega_r.base.launchers.FragmentLauncher
 private const val KEY_LIST = "internalList"
 private const val KEY_SUPER = "internalSuper"
 
-class ViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+class ViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     var list: List<FragmentLauncher> = emptyList()
         set(value) {

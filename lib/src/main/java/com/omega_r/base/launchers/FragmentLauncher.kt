@@ -11,7 +11,6 @@ import com.omega_r.base.tools.bundleOf
 import com.omega_r.base.tools.equalsBundle
 import com.omega_r.base.tools.hashCodeBundle
 import kotlinx.android.parcel.Parcelize
-import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.

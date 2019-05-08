@@ -30,8 +30,8 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
         showToast(Text.from(it.id.toString()))
     }
 
-    override fun onClickItem(item: Item, position: Int) {
-        showToast(Text.from("Click $position"))
+    override fun onClickItem(item: Item) {
+        showToast(Text.from("Click $item"))
     }
 
     data class Item (val text: String = "123", val list: List<SubItem> = listOf(SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem()))

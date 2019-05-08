@@ -12,8 +12,6 @@ import com.omega_r.base.R
 import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
-import com.omega_r.libs.omegarecyclerview.header.HeaderFooterWrapperAdapter
-import com.omega_r.libs.omegarecyclerview.pagination.WrapperAdapter
 import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.setImage
@@ -24,19 +22,18 @@ import kotlin.reflect.KProperty
  * Created by Anton Knyazev on 27.02.2019.
  */
 
-class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
+class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, private val list: List<Binder<*, M>>) {
 
     companion object {
 
         inline fun <M> create(block: Builder<M>.() -> Unit): AutoBindModel<M> {
-            val builder = Builder<M>()
-            block(builder)
-            return builder.build()
+            return Builder<M>()
+                .apply(block)
+                .build()
         }
-
     }
 
-    constructor(vararg binder: Binder<*, M>) : this(binder.toList())
+    constructor(vararg binder: Binder<*, M>) : this(null, binder.toList())
 
     fun bind(view: View, item: M) {
         @Suppress("UNCHECKED_CAST")
@@ -45,6 +42,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             viewCache = mutableMapOf()
             view.setTag(R.id.omega_autobind, viewCache)
         }
+
+        parentModel?.bind(view, item)
+
         list.forEach {
             var bindView = viewCache[it.id]
             if (bindView == null) {
@@ -57,8 +57,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     }
 
 
-    class Builder<M>(parentModel: AutoBindModel<M>? = null) {
-        private val list: MutableList<Binder<*, M>> = parentModel?.list?.let { ArrayList(it) } ?: mutableListOf()
+    class Builder<M>(private val parentModel: AutoBindModel<M>? = null) {
+
+        private val list: MutableList<Binder<*, M>> = mutableListOf()
 
         fun <V : View> bindCustom(
             @IdRes id: Int,
@@ -152,7 +153,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         fun bindClick(@IdRes id: Int, block: (M) -> Unit) = bindBinder(ClickBinder(id, block))
 
-        fun build() = AutoBindModel(list)
+        fun build() = AutoBindModel(parentModel, list)
 
     }
 
@@ -315,12 +316,12 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun getAdapter(itemView: RecyclerView): OmegaAutoAdapter<SM> {
+        private fun getAdapter(itemView: RecyclerView): OmegaAutoAdapter<SM, *> {
             val adapter = when (itemView) {
                 is OmegaRecyclerView -> itemView.realAdapter
                 else -> itemView.adapter
             }
-            return adapter as OmegaAutoAdapter<SM>
+            return adapter as OmegaAutoAdapter<SM, *>
         }
     }
 

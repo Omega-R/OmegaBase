@@ -9,20 +9,20 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.libs.omegarecyclerview.BaseListAdapter
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
+import com.omega_r.libs.omegarecyclerview.swipe_menu.SwipeViewHolder
 import kotlin.reflect.full.findAnnotation
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
+
+private typealias OmegaSwipeViewHolder = SwipeViewHolder
+
 abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Adapter<VH>() {
 
     open class ViewHolder: OmegaRecyclerView.ViewHolder, OmegaClickable {
 
-        override val clickManager = object:ClickManager() {
-            override fun canClickHandle(): Boolean {
-                return adapterPosition != RecyclerView.NO_POSITION && super.canClickHandle()
-            }
-        }
+        override val clickManager: ClickManager by lazy { AdapterClickManager(this) }
 
         constructor(parent: ViewGroup?, res: Int) : super(parent, res)
 
@@ -41,5 +41,39 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
         }
 
     }
+
+    open class SwipeViewHolder constructor(
+        parent: ViewGroup,
+        contentRes: Int,
+        swipeLeftMenuRes: Int = NO_ID,
+        swipeRightMenuRes: Int = NO_ID
+    ) : OmegaSwipeViewHolder(parent, contentRes, swipeLeftMenuRes, swipeRightMenuRes), OmegaClickable {
+
+        companion object {
+            const val NO_ID = OmegaSwipeViewHolder.NO_ID
+        }
+
+        override val clickManager: ClickManager by lazy { AdapterClickManager(this) }
+
+        init {
+            this::class.findAnnotation<OmegaClickViews>()?.let {
+                setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            }
+        }
+
+        protected open fun onClickView(view: View) {
+            // nothing
+        }
+
+    }
+
+    private class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder): ClickManager() {
+
+        override fun canClickHandle(): Boolean {
+            return viewHolder.adapterPosition != RecyclerView.NO_POSITION && super.canClickHandle()
+        }
+
+    }
+
 
 }
