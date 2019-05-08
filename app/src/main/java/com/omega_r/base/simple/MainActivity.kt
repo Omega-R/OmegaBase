@@ -15,8 +15,11 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
     @InjectPresenter
     override lateinit var presenter: MainPresenter
 
-    private val adapter = OmegaAutoAdapter.create(R.layout.item_test, this) {
+    private val adapter = OmegaAutoAdapter.create(R.layout.item_test, R.layout.item_test2, this) {
         bind(R.id.textview_test, Item::text)
+        bindClick(R.id.textview_test1) {
+            showToast(Text.from("MENU!"))
+        }
         bindRecycler(R.id.recyclerview, R.layout.item_test, Item::list) {
             bind(R.id.textview_test, SubItem::text)
         }

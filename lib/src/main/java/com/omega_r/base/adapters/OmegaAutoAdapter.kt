@@ -77,13 +77,12 @@ open class OmegaAutoAdapter<M, VH>(
     ) : OmegaListAdapter.SwipeViewHolder<M>(
         parent,
         adapter.layoutRes,
-        adapter.swipeMenuLayoutRes,
         adapter.swipeMenuLayoutRes
     ) {
 
         init {
             if (adapter.callback != null) {
-                setOnClickListener(itemView) {
+                setOnClickListener(contentView) {
                     adapter.callback.onClickItem(adapter.list[adapterPosition])
                 }
             }
@@ -112,9 +111,8 @@ open class OmegaAutoAdapter<M, VH>(
         override fun createViewHolder(
             parent: ViewGroup,
             adapter: OmegaAutoAdapter<M, SwipeViewHolder<M>>
-        ): SwipeViewHolder<M> {
-            return SwipeViewHolder(parent, adapter)
-        }
+        ) = SwipeViewHolder(parent, adapter)
+
 
     }
 

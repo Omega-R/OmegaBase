@@ -42,12 +42,19 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
 
     }
 
-    open class SwipeViewHolder constructor(
-        parent: ViewGroup,
-        contentRes: Int,
-        swipeLeftMenuRes: Int = NO_ID,
-        swipeRightMenuRes: Int = NO_ID
-    ) : OmegaSwipeViewHolder(parent, contentRes, swipeLeftMenuRes, swipeRightMenuRes), OmegaClickable {
+    open class SwipeViewHolder : OmegaSwipeViewHolder, OmegaClickable {
+
+        constructor(parent: ViewGroup?, contentRes: Int, swipeLeftMenuRes: Int, swipeRightMenuRes: Int) : super(
+            parent,
+            contentRes,
+            swipeLeftMenuRes,
+            swipeRightMenuRes
+        )
+
+        constructor(parent: ViewGroup?, contentRes: Int, swipeMenuRes: Int) : super(parent, contentRes, swipeMenuRes)
+
+        constructor(parent: ViewGroup?, contentRes: Int) : super(parent, contentRes)
+
 
         companion object {
             const val NO_ID = OmegaSwipeViewHolder.NO_ID
@@ -67,7 +74,7 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
 
     }
 
-    private class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder): ClickManager() {
+    class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder): ClickManager() {
 
         override fun canClickHandle(): Boolean {
             return viewHolder.adapterPosition != RecyclerView.NO_POSITION && super.canClickHandle()

@@ -32,12 +32,18 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>()
         constructor(itemView: View?) : super(itemView)
     }
 
-    abstract class SwipeViewHolder<M>(
-        parent: ViewGroup,
-        contentRes: Int,
-        swipeLeftMenuRes: Int = NO_ID,
-        swipeRightMenuRes: Int = NO_ID
-    ) : OmegaAdapter.SwipeViewHolder(parent, contentRes, swipeLeftMenuRes, swipeRightMenuRes), ViewHolderBindable<M>
+    abstract class SwipeViewHolder<M> : OmegaAdapter.SwipeViewHolder, ViewHolderBindable<M> {
+
+        constructor(parent: ViewGroup?, contentRes: Int, swipeLeftMenuRes: Int, swipeRightMenuRes: Int) : super(
+            parent,
+            contentRes,
+            swipeLeftMenuRes,
+            swipeRightMenuRes
+        )
+
+        constructor(parent: ViewGroup?, contentRes: Int, swipeMenuRes: Int) : super(parent, contentRes, swipeMenuRes)
+        constructor(parent: ViewGroup?, contentRes: Int) : super(parent, contentRes)
+    }
 
     interface ViewHolderBindable<M> {
 
