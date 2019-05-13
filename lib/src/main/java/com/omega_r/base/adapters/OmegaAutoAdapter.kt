@@ -5,16 +5,13 @@ import androidx.annotation.LayoutRes
 import com.omega_r.base.Identifiable
 import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
+import kotlin.reflect.KClass
 
 /**
  * Created by Anton Knyazev on 07.04.2019.
  */
 open class OmegaAutoAdapter<M, VH>(
-    @LayoutRes private val layoutRes: Int,
-    @LayoutRes private val swipeMenuLayoutRes: Int = NO_ID,
-    private val bindModel: AutoBindModel<M>,
-    private val viewHolderFactory: Factory<M, VH>,
-    private val callback: Callback<M>? = null
+    private val viewHolderFactory: Factory<M, VH>
 ) : OmegaListAdapter<M, VH>() where VH : OmegaRecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
     companion object {
@@ -27,7 +24,7 @@ open class OmegaAutoAdapter<M, VH>(
             block: AutoBindModel.Builder<M>.() -> Unit
         ): OmegaAutoAdapter<M, ViewHolder<M>> {
             val bindModel = AutoBindModel.create(block)
-            return OmegaAutoAdapter(layoutRes, NO_ID, bindModel, ViewHolderFactory(), callback)
+            return OmegaAutoAdapter(ViewHolderFactory(layoutRes, bindModel, callback))
         }
 
         fun <M> create(
@@ -37,11 +34,10 @@ open class OmegaAutoAdapter<M, VH>(
             block: AutoBindModel.Builder<M>.() -> Unit
         ): OmegaAutoAdapter<M, SwipeViewHolder<M>> {
             val bindModel = AutoBindModel.create(block)
-            return OmegaAutoAdapter(layoutRes, swipeMenuLayoutRes, bindModel, SwipeViewHolderFactory(), callback)
+            return OmegaAutoAdapter(SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, bindModel, callback))
         }
 
     }
-
 
     override fun getItemId(position: Int): Long {
         return when (val item = list[position]) {
@@ -50,69 +46,184 @@ open class OmegaAutoAdapter<M, VH>(
         }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return viewHolderFactory.getItemViewType(position, this)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        return viewHolderFactory.createViewHolder(parent, this)
+        return viewHolderFactory.createViewHolder(parent, this, viewType)
     }
 
     class ViewHolder<M>(
         viewGroup: ViewGroup,
-        private val adapter: OmegaAutoAdapter<M, *>
-    ) : OmegaListAdapter.ViewHolder<M>(viewGroup, adapter.layoutRes) {
+        private val layoutRes: Int,
+        private val bindModel: AutoBindModel<M>,
+        private val callback: Callback<M>? = null
+    ) : OmegaListAdapter.ViewHolder<M>(viewGroup, layoutRes) {
+
+        private var item: M? = null
 
         init {
-            if (adapter.callback != null) {
+            if (callback != null) {
                 setOnClickListener(itemView) {
-                    adapter.callback.onClickItem(adapter.list[adapterPosition])
+                    item?.let {
+                        callback.onClickItem(it)
+                    }
                 }
             }
         }
 
-        override fun bind(item: M) = adapter.bindModel.bind(itemView, item)
+        override fun bind(item: M) {
+            this.item = item
+            bindModel.bind(itemView, item)
+        }
 
     }
 
     class SwipeViewHolder<M>(
         parent: ViewGroup,
-        private val adapter: OmegaAutoAdapter<M, *>
+        @LayoutRes layoutRes: Int,
+        @LayoutRes swipeMenuLayoutRes: Int,
+        private val bindModel: AutoBindModel<M>,
+        private val callback: Callback<M>? = null
     ) : OmegaListAdapter.SwipeViewHolder<M>(
         parent,
-        adapter.layoutRes,
-        adapter.swipeMenuLayoutRes
+        layoutRes,
+        swipeMenuLayoutRes
     ) {
 
+        private var item: M? = null
+
         init {
-            if (adapter.callback != null) {
+            if (callback != null) {
                 setOnClickListener(contentView) {
-                    adapter.callback.onClickItem(adapter.list[adapterPosition])
+                    item?.let {
+                        callback.onClickItem(it)
+                    }
                 }
             }
         }
 
-        override fun bind(item: M) = adapter.bindModel.bind(itemView, item)
-
-    }
-
-    interface Factory<M, VH> where VH : OmegaRecyclerView.ViewHolder, VH : ViewHolderBindable<M> {
-
-        fun createViewHolder(parent: ViewGroup, adapter: OmegaAutoAdapter<M, VH>): VH
-
-    }
-
-    class ViewHolderFactory<M> : Factory<M, ViewHolder<M>> {
-
-        override fun createViewHolder(parent: ViewGroup, adapter: OmegaAutoAdapter<M, ViewHolder<M>>): ViewHolder<M> {
-            return ViewHolder(parent, adapter)
+        override fun bind(item: M) {
+            this.item = item
+            bindModel.bind(itemView, item)
         }
 
     }
 
-    class SwipeViewHolderFactory<M> : Factory<M, SwipeViewHolder<M>> {
+    abstract class Factory<M, VH> where VH : OmegaRecyclerView.ViewHolder, VH : ViewHolderBindable<M> {
+
+        open fun getItemViewType(
+            position: Int,
+            adapter: OmegaAutoAdapter<M, VH>
+        ): Int = 0
+
+        abstract fun createViewHolder(
+            parent: ViewGroup,
+            adapter: OmegaAutoAdapter<M, VH>,
+            viewType: Int
+        ): VH
+
+    }
+
+    open class ViewHolderFactory<M>(
+        private val layoutRes: Int,
+        private val bindModel: AutoBindModel<M>,
+        private val callback: Callback<M>? = null
+    ) : Factory<M, ViewHolder<M>>() {
 
         override fun createViewHolder(
             parent: ViewGroup,
-            adapter: OmegaAutoAdapter<M, SwipeViewHolder<M>>
-        ) = SwipeViewHolder(parent, adapter)
+            adapter: OmegaAutoAdapter<M, ViewHolder<M>>,
+            viewType: Int
+        ): ViewHolder<M> {
+            return ViewHolder(parent, layoutRes, bindModel, callback)
+        }
 
+    }
+
+    open class SwipeViewHolderFactory<M>(
+        @LayoutRes private val layoutRes: Int,
+        @LayoutRes private val swipeMenuLayoutRes: Int,
+        private val bindModel: AutoBindModel<M>,
+        private val callback: Callback<M>? = null
+    ) : Factory<M, SwipeViewHolder<M>>() {
+
+        override fun createViewHolder(
+            parent: ViewGroup,
+            adapter: OmegaAutoAdapter<M, SwipeViewHolder<M>>,
+            viewType: Int
+        ) = SwipeViewHolder(parent, layoutRes, swipeMenuLayoutRes, bindModel, callback)
+
+    }
+
+    open class MultiHolderFactory<M : Any, VH>(
+        private val map: Map<KClass<M>, Factory<M, VH>>
+    ) : Factory<M, VH>() where VH : OmegaRecyclerView.ViewHolder, VH : ViewHolderBindable<M> {
+
+        override fun getItemViewType(
+            position: Int,
+            adapter: OmegaAutoAdapter<M, VH>
+        ): Int {
+            val item = adapter.list[position]
+            map.keys.forEachIndexed { index: Int, kClass: KClass<*> ->
+                if (kClass.isInstance(item)) {
+                    return index
+                }
+            }
+
+            throw IllegalStateException("Unknown class for item = $item")
+        }
+
+        override fun createViewHolder(
+            parent: ViewGroup,
+            adapter: OmegaAutoAdapter<M, VH>,
+            viewType: Int
+        ): VH {
+            return map[map.keys.elementAt(viewType)]!!.createViewHolder(parent, adapter, viewType)
+        }
+    }
+
+    class MultiAutoAdapterBuilder<M: Any, VH>  where VH : OmegaRecyclerView.ViewHolder, VH : ViewHolderBindable<M> {
+
+        private val map = mutableMapOf<KClass<*>, Factory<*, *>>()
+
+        fun <M2 : M> add(
+            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            callback: Callback<M2>? = null,
+            block: AutoBindModel.Builder<M2>.() -> Unit
+        ): MultiAutoAdapterBuilder<M, VH> = apply {
+            map[kClass] = ViewHolderFactory(layoutRes, AutoBindModel.create(block), callback)
+        }
+
+        fun <M2 : M> add(
+            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            model: AutoBindModel<M2>,
+            callback: Callback<M2>? = null
+        ) = apply {
+            map[kClass] = ViewHolderFactory(layoutRes, model, callback)
+        }
+
+        fun <M2 : M> add(
+            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            @LayoutRes swipeMenuLayoutRes: Int,
+            callback: Callback<M2>? = null,
+            block: AutoBindModel.Builder<M2>.() -> Unit
+        ) = apply {
+            map[kClass] = SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, AutoBindModel.create(block), callback)
+        }
+
+        fun <M2 : M> add(
+            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            @LayoutRes swipeMenuLayoutRes: Int,
+            model: AutoBindModel<M2>,
+            callback: Callback<M2>? = null
+        ) = apply {
+            map[kClass] = SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, model, callback)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        fun build()= OmegaAutoAdapter(MultiHolderFactory(map as Map<KClass<M>, Factory<M, VH>>) as Factory<M, VH>)
 
     }
 

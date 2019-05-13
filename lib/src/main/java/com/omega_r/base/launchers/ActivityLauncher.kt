@@ -36,14 +36,12 @@ class ActivityLauncher(private val activityClass: Class<Activity>,
         }
     }
 
-    fun addFlags(flag: Int): Launcher {
+    fun addFlags(flag: Int) = apply {
         flags = flags or flag
-        return this
     }
 
-    fun removeFlags(flag: Int): Launcher {
+    fun removeFlags(flag: Int) = apply {
         flags = flags and (flag.inv())
-        return this
     }
 
     fun launch(context: Context, option: Bundle? = null) {
