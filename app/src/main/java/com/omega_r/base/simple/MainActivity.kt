@@ -10,12 +10,12 @@ import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.presenter.InjectPresenter
 
 @OmegaContentView(R.layout.activity_main)
-class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Item>, MainView {
+class MainActivity : OmegaActivity(), MainView {
 
     @InjectPresenter
     override lateinit var presenter: MainPresenter
 
-    private val adapter = OmegaAutoAdapter.create(R.layout.item_test, R.layout.item_test2, this) {
+    private val adapter = OmegaAutoAdapter.create(R.layout.item_test, R.layout.item_test2, ::onClickItem) {
         bind(R.id.textview_test, Item::text)
         bindClick(R.id.textview_test1) {
             showToast(Text.from("MENU!"))
@@ -33,7 +33,7 @@ class MainActivity : OmegaActivity(), OmegaAutoAdapter.Callback<MainActivity.Ite
         showToast(Text.from(it.id.toString()))
     }
 
-    override fun onClickItem(item: Item) {
+    private fun onClickItem(item: Item) {
         showToast(Text.from("Click $item"))
     }
 

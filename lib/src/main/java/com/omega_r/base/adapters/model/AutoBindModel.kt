@@ -112,7 +112,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             @IdRes id: Int,
             layoutRes: Int,
             property: KProperty<List<SM>>,
-            callback: OmegaAutoAdapter.Callback<SM>? = null,
+            callback: ((SM) -> Unit)? = null,
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
             return bindRecycler(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
@@ -122,7 +122,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             @IdRes id: Int,
             layoutRes: Int,
             vararg properties: KProperty<*>,
-            callback: OmegaAutoAdapter.Callback<SM>? = null,
+            callback: ((SM) -> Unit)? = null,
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
             list += RecyclerBinder(id, *properties, layoutRes = layoutRes, block = block, callback = callback)
@@ -300,7 +300,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         override val id: Int,
         private vararg val properties: KProperty<*>,
         private val layoutRes: Int,
-        private val callback: OmegaAutoAdapter.Callback<SM>? = null,
+        private val callback: ((SM) -> Unit)? = null,
         private val block: Builder<SM>.() -> Unit
     ) : Binder<RecyclerView, M>() {
 

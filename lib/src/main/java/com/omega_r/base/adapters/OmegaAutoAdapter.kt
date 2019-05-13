@@ -10,12 +10,14 @@ import kotlin.reflect.KClass
 /**
  * Created by Anton Knyazev on 07.04.2019.
  */
+
+
 open class OmegaAutoAdapter<M, VH>(
     private val viewHolderFactory: Factory<M, VH>
 ) : OmegaListAdapter<M, VH>() where VH : OmegaRecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
     companion object {
-
+        
         const val NO_ID = OmegaAdapter.SwipeViewHolder.NO_ID
 
         fun <M> create(
