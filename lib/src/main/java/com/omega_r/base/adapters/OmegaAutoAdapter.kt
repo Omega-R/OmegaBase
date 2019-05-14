@@ -224,6 +224,13 @@ open class OmegaAutoAdapter<M, VH>(
             map[kClass] = SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, model, callback)
         }
 
+        fun <M2 : M> add(
+            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            factory: Factory<M2, *>
+        ) = apply {
+            map[kClass] = factory
+        }
+
         @Suppress("UNCHECKED_CAST")
         fun build() = OmegaAutoAdapter(MultiHolderFactory(map as Map<KClass<M>, Factory<M, VH>>) as Factory<M, VH>)
 
