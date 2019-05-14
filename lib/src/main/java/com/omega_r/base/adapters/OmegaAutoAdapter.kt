@@ -191,7 +191,8 @@ open class OmegaAutoAdapter<M, VH>(
         private val map = mutableMapOf<KClass<*>, Factory<*, *>>()
 
         fun <M2 : M> add(
-            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            kClass: KClass<M2>,
+            @LayoutRes layoutRes: Int,
             callback: ((M2) -> Unit)? = null,
             block: AutoBindModel.Builder<M2>.() -> Unit
         ): MultiAutoAdapterBuilder<M, VH> = apply {
@@ -199,7 +200,8 @@ open class OmegaAutoAdapter<M, VH>(
         }
 
         fun <M2 : M> add(
-            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            kClass: KClass<M2>,
+            @LayoutRes layoutRes: Int,
             model: AutoBindModel<M2>,
             callback: ((M2) -> Unit)? = null
         ) = apply {
@@ -207,7 +209,8 @@ open class OmegaAutoAdapter<M, VH>(
         }
 
         fun <M2 : M> add(
-            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            kClass: KClass<M2>,
+            @LayoutRes layoutRes: Int,
             @LayoutRes swipeMenuLayoutRes: Int,
             callback: ((M2) -> Unit)? = null,
             block: AutoBindModel.Builder<M2>.() -> Unit
@@ -216,7 +219,8 @@ open class OmegaAutoAdapter<M, VH>(
         }
 
         fun <M2 : M> add(
-            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            kClass: KClass<M2>,
+            @LayoutRes layoutRes: Int,
             @LayoutRes swipeMenuLayoutRes: Int,
             model: AutoBindModel<M2>,
             callback: ((M2) -> Unit)? = null
@@ -225,7 +229,7 @@ open class OmegaAutoAdapter<M, VH>(
         }
 
         fun <M2 : M> add(
-            kClass: KClass<M2>, @LayoutRes layoutRes: Int,
+            kClass: KClass<M2>,
             factory: Factory<M2, *>
         ) = apply {
             map[kClass] = factory
