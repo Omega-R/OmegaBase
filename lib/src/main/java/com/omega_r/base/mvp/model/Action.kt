@@ -1,5 +1,6 @@
 package com.omega_r.base.mvp.model
 
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.mvp.OmegaPresenter
@@ -15,6 +16,8 @@ data class Action(
 ) {
 
     constructor(action: Action, callback: () -> Unit) : this(action.name, callback)
+
+    constructor(@StringRes nameRes: Int, callback: () -> Unit): this(Text.from(nameRes), callback)
 
     operator fun invoke() {
         callback()
