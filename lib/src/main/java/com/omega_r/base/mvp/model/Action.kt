@@ -10,16 +10,15 @@ import com.omega_r.libs.omegatypes.Text
 /**
  * Created by Anton Knyazev on 04.05.2019.
  */
-data class Action(
-    val name: Text,
-    val callback: () -> Unit
-) {
+data class Action(val name: Text, val callback: () -> Unit) {
 
     constructor(action: Action, callback: () -> Unit) : this(action.name, callback)
 
     constructor(@StringRes nameRes: Int, callback: () -> Unit): this(Text.from(nameRes), callback)
 
     constructor(name: String, callback: () -> Unit): this(Text.from(name), callback)
+
+    constructor(@StringRes nameRes: Int): this(Text.from(nameRes), {})
 
 
     operator fun invoke() {
