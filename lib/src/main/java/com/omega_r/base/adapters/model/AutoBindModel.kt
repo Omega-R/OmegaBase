@@ -26,10 +26,14 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
     companion object {
 
-        inline fun <M> create(block: Builder<M>.() -> Unit): AutoBindModel<M> {
-            return Builder<M>()
+        inline fun <M> create(parentModel: AutoBindModel<M>? = null,  block: Builder<M>.() -> Unit): AutoBindModel<M> {
+            return Builder(parentModel)
                 .apply(block)
                 .build()
+        }
+
+        inline fun <M> create(block: Builder<M>.() -> Unit): AutoBindModel<M> {
+            return create(null, block)
         }
     }
 
