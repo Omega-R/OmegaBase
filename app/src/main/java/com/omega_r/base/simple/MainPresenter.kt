@@ -15,6 +15,13 @@ class MainPresenter : OmegaPresenter<MainView>() {
         viewState.showMessage(Text.from("test"), Action(Text.from("Test")){
             viewState.showToast(Text.from("test"))
         })
+
+        viewState.showQuery(Text.from("message"), positiveAction = Action("Yes") {
+
+        }, negativeAction = Action("No", {
+
+        }))
+
     }
 
 }

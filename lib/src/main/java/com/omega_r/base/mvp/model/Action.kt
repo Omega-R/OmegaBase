@@ -19,6 +19,9 @@ data class Action(
 
     constructor(@StringRes nameRes: Int, callback: () -> Unit): this(Text.from(nameRes), callback)
 
+    constructor(name: String, callback: () -> Unit): this(Text.from(name), callback)
+
+
     operator fun invoke() {
         callback()
     }

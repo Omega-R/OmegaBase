@@ -124,8 +124,8 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         // nothing
     }
 
-    override fun showQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
-        createQuery(message, positiveAction, negativeAction, neutralAction).apply {
+    override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
             dialogList += this
             show()
         }

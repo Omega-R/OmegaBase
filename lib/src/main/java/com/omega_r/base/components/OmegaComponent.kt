@@ -41,8 +41,9 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
             .create()
     }
 
-    fun createQuery(message: Text, positiveAction: Action, negativeAction: Action, neutralAction: Action?): Dialog {
+    fun createQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?): Dialog {
         return MaterialAlertDialogBuilder(getContext()!!)
+            .setTitle(title?.getCharSequence(getContext()!!))
             .setMessage(message.getCharSequence(getContext()!!))
             .setCancelable(false)
             .setButtons(presenter, positiveAction, negativeAction, neutralAction)
