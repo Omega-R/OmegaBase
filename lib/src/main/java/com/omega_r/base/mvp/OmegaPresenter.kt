@@ -10,7 +10,6 @@ import kotlin.coroutines.CoroutineContext
 open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope {
 
     private val handler = CoroutineExceptionHandler { _, exception ->
-        viewState.setWaiting(false)
         handleErrors(exception)
     }
 
@@ -32,8 +31,11 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
     protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) {
         viewState.setWaiting(true)
         launch {
-            block()
-            viewState.setWaiting(false)
+            try {
+                block()
+            } finally {
+                viewState.setWaiting(false)
+            }
         }
     }
 
