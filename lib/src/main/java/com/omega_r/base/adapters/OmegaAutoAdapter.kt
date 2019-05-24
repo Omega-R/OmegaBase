@@ -98,7 +98,7 @@ open class OmegaAutoAdapter<M, VH>(
 
         init {
             callback?.let {
-                setOnClickListener(itemView) {
+                setOnClickListener(contentView) {
                     item?.let {
                         callback(it)
                     }
