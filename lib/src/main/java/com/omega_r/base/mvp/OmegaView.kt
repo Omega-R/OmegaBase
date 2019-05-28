@@ -1,5 +1,6 @@
 package com.omega_r.base.mvp
 
+import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.strategies.RemoveEndTagStrategy
 import com.omega_r.libs.omegatypes.Text
@@ -8,6 +9,7 @@ import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.omegar.mvp.viewstate.strategy.AddToEndStrategy
 import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
+import java.io.Serializable
 import kotlin.reflect.KAnnotatedElement
 
 /**
@@ -36,6 +38,15 @@ interface OmegaView : MvpView {
 
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun setWaiting(waiting: Boolean, text: Text? = null)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun launch(launcher: ActivityLauncher)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun launchForResult(launcher: ActivityLauncher, requestCode: Int)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun setResult(success: Boolean, data: Serializable?)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun exit()

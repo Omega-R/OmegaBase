@@ -1,7 +1,12 @@
 package com.omega_r.base.mvp
 
+import com.omega_r.base.data.OmegaRepository
+import com.omega_r.base.data.sources.Source
+import com.omega_r.base.launchers.ActivityLauncher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
+import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -9,9 +14,7 @@ import kotlin.coroutines.CoroutineContext
  */
 open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope {
 
-    private val handler = CoroutineExceptionHandler { _, exception ->
-        handleErrors(exception)
-    }
+    private val handler = CoroutineExceptionHandler { _, throwable -> handleErrors(throwable) }
 
     private val job = SupervisorJob()
 
@@ -21,26 +24,82 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         throwable.printStackTrace()
     }
 
-    protected suspend fun <T> CoroutineScope.withWaiting(block: suspend () -> T): T {
-        viewState.setWaiting(true)
-        val result = block()
-        viewState.setWaiting(false)
-        return result
+    protected suspend fun <T> withWaiting(block: suspend () -> T): T = with(viewState) {
+        setWaiting(true)
+        try {
+            block()
+        } finally {
+            setWaiting(false)
+        }
     }
 
-    protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) {
-        viewState.setWaiting(true)
+    protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) = with(viewState) {
         launch {
             try {
                 block()
             } finally {
-                viewState.setWaiting(false)
+                setWaiting(false)
             }
         }
     }
 
-    fun hideQueryOrMessage() {
-        viewState.hideQueryOrMessage()
+
+    protected fun <R> ReceiveChannel<R>.request(waiting: Boolean = true, block: suspend View.(R) -> Unit) {
+        if (waiting) viewState.setWaiting(true)
+        val channel = this
+        launch {
+            var hideWaiting = waiting
+            try {
+                for (item in channel) {
+                    block(viewState, item)
+
+                    if (hideWaiting) {
+                        hideWaiting = false
+                        viewState.setWaiting(false)
+                    }
+                }
+            } finally {
+                if (hideWaiting) {
+                    viewState.setWaiting(false)
+                }
+            }
+        }
+    }
+
+    protected fun <S : Source, R> OmegaRepository<S>.request(
+        sourceBlock: suspend S.() -> R,
+        strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
+        waiting: Boolean = true,
+        viewStateBlock: suspend View.(R) -> Unit
+    ) {
+        createChannel(strategy, sourceBlock).request(waiting = waiting, block = viewStateBlock)
+    }
+
+    fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
+
+    protected open fun ActivityLauncher.launch() {
+        viewState.launch(this)
+    }
+
+    protected fun ActivityLauncher.DefaultCompanion.launch() {
+        viewState.launch(createLauncher())
+    }
+
+    protected fun ActivityLauncher.launchForResult(requestCode: Int) {
+        viewState.launchForResult(this, requestCode)
+    }
+
+    internal open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
+        return false
+    }
+
+    protected fun setResult(success: Boolean, data: Serializable? = null) {
+        viewState.setResult(success, data)
+    }
+
+    protected fun exit(success: Boolean = false, data: Serializable? = null) {
+        setResult(success, data)
+        viewState.exit()
     }
 
     override fun onDestroy() {

@@ -1,6 +1,7 @@
 package com.omega_r.base.components
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.IdRes
@@ -145,6 +146,16 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         createMessage(message, action).apply {
             dialogList += this
             show()
+        }
+    }
+
+    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+        launcher.launchForResult(this, requestCode)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onLaunchResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 

@@ -1,13 +1,15 @@
 package com.omega_r.base.components
 
+import android.app.Activity
 import android.app.Dialog
-import android.content.DialogInterface
+import android.content.Intent
 import android.view.View
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.clickers.OmegaClickable
+import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.mvp.OmegaPresenter
 import com.omega_r.base.mvp.OmegaView
 import com.omega_r.base.mvp.model.Action
@@ -15,10 +17,14 @@ import com.omega_r.base.mvp.model.setAction
 import com.omega_r.base.mvp.model.setButtons
 import com.omega_r.base.mvp.model.setPositiveButton
 import com.omega_r.libs.omegatypes.Text
+import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 26.04.2019.
  */
+
+private const val KEY_RESULT = "resultData"
+
 interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
     val presenter: OmegaPresenter<out OmegaView>
@@ -62,5 +68,27 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
         Toast.makeText(getContext(), message.getCharSequence(getContext()!!), Toast.LENGTH_LONG).show()
     }
 
+    override fun launch(launcher: ActivityLauncher) {
+        launcher.launch(getContext()!!)
+    }
+
+    fun onLaunchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        return presenter.onLaunchResult(requestCode, resultCode == Activity.RESULT_OK,
+            data?.getSerializableExtra(KEY_RESULT)
+        )
+    }
+
+    override fun setResult(success: Boolean, data: Serializable?) {
+        val resultCode = if (success) Activity.RESULT_OK  else Activity.RESULT_CANCELED
+        if (data != null) {
+            setResult(resultCode, Intent().putExtra(KEY_RESULT, data))
+        } else {
+            setResult(resultCode)
+        }
+    }
+
+    fun setResult(resultCode: Int)
+
+    fun setResult(resultCode: Int, intent: Intent)
 
 }

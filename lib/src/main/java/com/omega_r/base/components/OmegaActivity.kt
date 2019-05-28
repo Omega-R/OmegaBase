@@ -1,6 +1,5 @@
 package com.omega_r.base.components
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -19,8 +18,6 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.mvp.OmegaPresenter
-import com.omega_r.base.mvp.OmegaView
 import com.omega_r.base.mvp.findAnnotation
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.tools.WaitingDialog
@@ -98,8 +95,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             supportActionBar?.let { supportActionBar ->
                 val homeIndicator = this::class.findAnnotation<OmegaHomeIndicator>()
                 if (homeIndicator == null) {
-                    supportActionBar.setDisplayHomeAsUpEnabled(!intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
-                            Intent.ACTION_MAIN != intent.action && !isTaskRoot)
+                    supportActionBar.setDisplayHomeAsUpEnabled(
+                        !intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
+                                Intent.ACTION_MAIN != intent.action && !isTaskRoot
+                    )
                 } else {
                     val iconRes = homeIndicator.iconRes
                     if (iconRes != -1) {
@@ -201,7 +200,13 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         // nothing
     }
 
-    override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+    override fun showQuery(
+        message: Text,
+        title: Text?,
+        positiveAction: Action,
+        negativeAction: Action,
+        neutralAction: Action?
+    ) {
         createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
             dialogList += this
             show()
@@ -219,6 +224,16 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         createMessage(message, action).apply {
             dialogList += this
             show()
+        }
+    }
+
+    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+        launcher.launchForResult(this, requestCode)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onLaunchResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
