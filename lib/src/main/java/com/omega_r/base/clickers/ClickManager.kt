@@ -70,4 +70,5 @@ open class ClickManager(private val minimumInterval: Long = 555L) {
         clickListenerMap.remove(id)
     }
 
+
 }

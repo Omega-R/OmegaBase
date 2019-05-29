@@ -6,18 +6,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.AndroidRuntimeException
 import androidx.fragment.app.Fragment
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
+import com.omega_r.base.tools.equalsBundle
+import com.omega_r.base.tools.hashCodeBundle
+import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
-data class ActivityLauncher(private val activityClass: Class<Activity>,
+@Parcelize
+class ActivityLauncher(private val activityClass: Class<Activity>,
                                            private val bundle: Bundle? = null,
-                                           private var flags: Int = 0) : Launcher, Serializable {
+                                           private var flags: Int = 0) : Launcher, Parcelable {
 
     constructor(activityClass: Class<Activity>, vararg extraParams: BundlePair, flags: Int = 0)
             : this(activityClass, bundleOf(*extraParams), flags)
@@ -31,14 +36,12 @@ data class ActivityLauncher(private val activityClass: Class<Activity>,
         }
     }
 
-    fun addFlags(flag: Int): Launcher {
+    fun addFlags(flag: Int) = apply {
         flags = flags or flag
-        return this
     }
 
-    fun removeFlags(flag: Int): Launcher {
+    fun removeFlags(flag: Int) = apply {
         flags = flags and (flag.inv())
-        return this
     }
 
     fun launch(context: Context, option: Bundle? = null) {
@@ -78,6 +81,31 @@ data class ActivityLauncher(private val activityClass: Class<Activity>,
 
     fun launchForResult(fragment: Fragment, requestCode: Int, option: Bundle? = null) {
         fragment.startActivityForResult(createIntent(fragment.context!!), requestCode, option)
+    }
+
+    fun isOurActivity(activity: Activity): Boolean {
+        return activityClass.isInstance(activity)
+                && activity.intent.extras.equalsBundle(bundle)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ActivityLauncher
+
+        if (activityClass != other.activityClass) return false
+        if (!bundle.equalsBundle(other.bundle)) return false
+        if (flags != other.flags) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = activityClass.hashCode()
+        result = 31 * result + (bundle?.hashCodeBundle() ?: 0)
+        result = 31 * result + flags
+        return result
     }
 
     interface DefaultCompanion {

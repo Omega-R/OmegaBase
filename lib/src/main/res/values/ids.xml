@@ -5,5 +5,7 @@
 
     <item type="id" name="omega_autobind" />
 
+    <item type="id" name="omega_click_bind" />
+
 
 </resources>
