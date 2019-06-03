@@ -3,6 +3,7 @@ package com.omega_r.base.adapters.model
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
+import android.util.SparseArray
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -41,23 +42,45 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
     fun bind(view: View, item: M) {
         @Suppress("UNCHECKED_CAST")
-        var viewCache = view.getTag(R.id.omega_autobind) as? MutableMap<Int, View>
+        var viewCache = view.getTag(R.id.omega_autobind) as? SparseArray<View>
         if (viewCache == null) {
-            viewCache = mutableMapOf()
+            viewCache = SparseArray()
             view.setTag(R.id.omega_autobind, viewCache)
         }
 
         parentModel?.bind(view, item)
 
-        list.forEach {
-            var bindView = viewCache[it.id]
-            if (bindView == null) {
-                bindView = view.findViewById(it.id)!!
-                it.dispatchOnCreateView(bindView)
-                viewCache[it.id] = bindView
+        list.forEach { binder ->
+            when (binder) {
+                is MultiViewBinder -> {
+                    val sparseArray = SparseArray<View>(binder.ids.size)
+
+                    binder.ids.forEach {id->
+                        sparseArray.put(id, findView(viewCache, id, view, binder))
+                    }
+
+                    binder.dispatchBind(sparseArray, item)
+                }
+                else -> {
+                    binder.dispatchBind(findView(viewCache, binder.id, view, binder)!!, item)
+                }
             }
-            it.dispatchBind(bindView, item)
         }
+    }
+
+    private fun findView(
+        viewCache: SparseArray<View>,
+        id: Int,
+        view: View,
+        binder: Binder<*, M>
+    ): View? {
+        var bindView = viewCache[id]
+        if (bindView == null) {
+            bindView = view.findViewById(id)!!
+            binder.dispatchOnCreateView(bindView)
+            viewCache.put(id, bindView)
+        }
+        return bindView
     }
 
 
@@ -193,6 +216,25 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             return obj?.let { it as T }
         }
 
+
+    }
+
+    abstract class MultiViewBinder<V : View, M>(override val id: Int, vararg ids: Int): Binder<V, M>() {
+
+        val ids = listOf(id, *ids.toTypedArray())
+
+
+        @Suppress("UNCHECKED_CAST")
+        fun dispatchBind(views: SparseArray<View>, item: M) {
+            bind(views[id] as V, item)
+            bind(views as SparseArray<V>, item)
+        }
+
+        override fun bind(itemView: V, item: M) {
+            // nothing
+        }
+
+        abstract fun bind(views: SparseArray<V>, item: M)
 
     }
 
