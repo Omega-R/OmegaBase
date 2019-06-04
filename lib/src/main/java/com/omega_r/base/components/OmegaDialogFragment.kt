@@ -163,8 +163,9 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
             it.dismiss()
         }
     }
+    
     override fun exit() {
-        activity!!.finish()
+        dismiss()
     }
 
 }
