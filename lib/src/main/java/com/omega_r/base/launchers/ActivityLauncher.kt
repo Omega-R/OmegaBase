@@ -8,21 +8,23 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AndroidRuntimeException
+import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.Fragment
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
 import com.omega_r.base.tools.equalsBundle
 import com.omega_r.base.tools.hashCodeBundle
 import kotlinx.android.parcel.Parcelize
-import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
 @Parcelize
-class ActivityLauncher(private val activityClass: Class<Activity>,
-                                           private val bundle: Bundle? = null,
-                                           private var flags: Int = 0) : Launcher, Parcelable {
+class ActivityLauncher(
+    private val activityClass: Class<Activity>,
+    private val bundle: Bundle? = null,
+    private var flags: Int = 0
+) : Launcher, Parcelable {
 
     constructor(activityClass: Class<Activity>, vararg extraParams: BundlePair, flags: Int = 0)
             : this(activityClass, bundleOf(*extraParams), flags)
@@ -54,7 +56,7 @@ class ActivityLauncher(private val activityClass: Class<Activity>,
         }
     }
 
-    private fun Context.compatStartActivity(intent: Intent,  option: Bundle? = null) {
+    private fun Context.compatStartActivity(intent: Intent, option: Bundle? = null) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             startActivity(intent)
         } else {
@@ -70,9 +72,20 @@ class ActivityLauncher(private val activityClass: Class<Activity>,
         }
     }
 
-    fun getPendingIntent(context: Context, requestCode: Int = 0,
-                         flags: Int = PendingIntent.FLAG_UPDATE_CURRENT): PendingIntent {
+    fun getPendingIntent(
+        context: Context, requestCode: Int = 0,
+        flags: Int = PendingIntent.FLAG_UPDATE_CURRENT
+    ): PendingIntent {
         return PendingIntent.getActivity(context, requestCode, createIntent(context), flags)
+    }
+
+    fun getPendingIntentWithParentStack(
+        context: Context, requestCode: Int = 0,
+        flags: Int = PendingIntent.FLAG_UPDATE_CURRENT
+    ): PendingIntent {
+        return TaskStackBuilder.create(context)
+            .addNextIntentWithParentStack(createIntent(context))
+            .getPendingIntent(requestCode, flags)!!
     }
 
     fun launchForResult(activity: Activity, requestCode: Int, option: Bundle? = null) {
@@ -122,8 +135,10 @@ class ActivityLauncher(private val activityClass: Class<Activity>,
 }
 
 @Suppress("UNCHECKED_CAST")
-inline fun <reified T> T.createActivityLauncher(vararg extra: BundlePair,
-                                                flags: Int = 0): ActivityLauncher {
+inline fun <reified T> T.createActivityLauncher(
+    vararg extra: BundlePair,
+    flags: Int = 0
+): ActivityLauncher {
     val declaringClass = T::class.java.declaringClass
     return ActivityLauncher(declaringClass as Class<Activity>, *extra, flags = flags)
 }

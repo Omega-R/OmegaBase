@@ -50,6 +50,8 @@ dependencies {
     implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
     implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:ae42598df9'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:7ce4c69'
+    implementation 'com.github.Omega-R.OmegaTypes:glide:7ce4c69'
+
 
 }

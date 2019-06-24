@@ -12,7 +12,7 @@ import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
-import com.omega_r.base.mvp.findAnnotation
+import com.omega_r.base.mvp.views.findAnnotation
 
 /**
  * Created by Anton Knyazev on 04.04.2019.

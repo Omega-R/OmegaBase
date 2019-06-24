@@ -3,6 +3,7 @@ package com.omega_r.base.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.clickers.ClickManager
@@ -19,6 +20,20 @@ import kotlin.reflect.full.findAnnotation
 private typealias OmegaSwipeViewHolder = SwipeViewHolder
 
 abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Adapter<VH>() {
+
+    protected open var watcher: Watcher? = null
+
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+        watcher?.bindPosition(position, recyclerView!!)
+    }
+
+    interface Watcher {
+
+        fun bindPosition(position: Int, recyclerView: RecyclerView)
+
+    }
 
     open class ViewHolder: OmegaRecyclerView.ViewHolder, OmegaClickable {
 

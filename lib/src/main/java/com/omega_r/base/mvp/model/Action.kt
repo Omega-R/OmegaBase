@@ -3,8 +3,7 @@ package com.omega_r.base.mvp.model
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
-import com.omega_r.base.mvp.OmegaPresenter
-import com.omega_r.libs.omegatypes.Image
+import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.libs.omegatypes.Text
 
 /**

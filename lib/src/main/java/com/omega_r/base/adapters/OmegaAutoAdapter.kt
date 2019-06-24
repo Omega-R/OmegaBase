@@ -2,8 +2,8 @@ package com.omega_r.base.adapters
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import com.omega_r.base.Identifiable
 import com.omega_r.base.adapters.model.AutoBindModel
+import com.omega_r.base.enitity.Identifiable
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
 import kotlin.reflect.KClass
 
@@ -17,7 +17,7 @@ open class OmegaAutoAdapter<M, VH>(
 ) : OmegaListAdapter<M, VH>() where VH : OmegaRecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
     companion object {
-        
+
         const val NO_ID = OmegaAdapter.SwipeViewHolder.NO_ID
 
         fun <M> create(
@@ -39,7 +39,26 @@ open class OmegaAutoAdapter<M, VH>(
             return OmegaAutoAdapter(SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, bindModel, callback))
         }
 
+        fun <M> create(
+            @LayoutRes layoutRes: Int,
+            bindModel: AutoBindModel<M>,
+            callback: ((M) -> Unit)? = null
+        ): OmegaAutoAdapter<M, ViewHolder<M>> {
+            return OmegaAutoAdapter(ViewHolderFactory(layoutRes, bindModel, callback))
+        }
+
+        fun <M> create(
+            @LayoutRes layoutRes: Int,
+            @LayoutRes swipeMenuLayoutRes: Int,
+            bindModel: AutoBindModel<M>,
+            callback: ((M) -> Unit)? = null
+        ): OmegaAutoAdapter<M, SwipeViewHolder<M>> {
+            return OmegaAutoAdapter(SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, bindModel, callback))
+        }
+
     }
+
+    public override var watcher: Watcher? = null
 
     override fun getItemId(position: Int): Long {
         return when (val item = list[position]) {

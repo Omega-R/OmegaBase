@@ -77,6 +77,15 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         var bindView = viewCache[id]
         if (bindView == null) {
             bindView = view.findViewById(id)!!
+            list.forEach {
+                when (it) {
+                    is MultiViewBinder<*,*> ->
+                        if (it.ids.contains(id)) {
+                            it.dispatchOnCreateView(bindView)
+                        }
+                    else -> if (it.id == id) it.dispatchOnCreateView(bindView)
+                }
+            }
             binder.dispatchOnCreateView(bindView)
             viewCache.put(id, bindView)
         }

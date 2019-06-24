@@ -10,8 +10,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
-import com.omega_r.base.mvp.OmegaPresenter
-import com.omega_r.base.mvp.OmegaView
+import com.omega_r.base.mvp.presenters.OmegaPresenter
+import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.model.setAction
 import com.omega_r.base.mvp.model.setButtons

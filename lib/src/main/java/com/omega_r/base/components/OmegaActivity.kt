@@ -18,7 +18,7 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.mvp.findAnnotation
+import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
@@ -194,6 +194,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null) {
         launch(supportFragmentManager, tag)
+    }
+
+    override fun launch(launcher: DialogFragmentLauncher) {
+        launcher.launch(supportFragmentManager)
     }
 
     protected open fun onClickView(view: View) {

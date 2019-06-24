@@ -1,4 +1,4 @@
-package com.omega_r.base
+package com.omega_r.base.enitity
 
 import com.omega_r.base.tools.toLongHash
 

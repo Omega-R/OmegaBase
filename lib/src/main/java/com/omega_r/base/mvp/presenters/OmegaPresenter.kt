@@ -1,8 +1,9 @@
-package com.omega_r.base.mvp
+package com.omega_r.base.mvp.presenters
 
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.mvp.views.OmegaView
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
