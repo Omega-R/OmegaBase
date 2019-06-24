@@ -90,7 +90,7 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         viewState.launchForResult(this, requestCode)
     }
 
-    internal open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
+    open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
         return false
     }
 
