@@ -174,7 +174,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             trueVisibility: Int = View.VISIBLE,
             falseVisibility: Int = View.GONE,
             nullVisibility: Int = View.GONE,
-            property: KProperty<Int?>
+            property: KProperty<Boolean?>
         ) = bindVisible(id, trueVisibility, falseVisibility, nullVisibility, *arrayOf(property))
 
         fun bindVisible(
@@ -324,11 +324,12 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
     ) : Binder<View, M>() {
 
         override fun bind(itemView: View, item: M) {
-            val obj: Boolean? = item.findValue(item, properties)
+            val obj: Any? = item.findValue(item, properties)
             itemView.visibility = when (obj) {
                 true -> trueVisibility
                 false -> falseVisibility
                 null -> nullVisibility
+                else -> trueVisibility
             }
         }
     }
