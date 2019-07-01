@@ -23,9 +23,10 @@ open class OmegaAutoAdapter<M, VH>(
         fun <M> create(
             @LayoutRes layoutRes: Int,
             callback: ((M) -> Unit)? = null,
+            parentModel: AutoBindModel<M>? = null,
             block: AutoBindModel.Builder<M>.() -> Unit
         ): OmegaAutoAdapter<M, ViewHolder<M>> {
-            val bindModel = AutoBindModel.create(block)
+            val bindModel = AutoBindModel.create(parentModel, block)
             return OmegaAutoAdapter(ViewHolderFactory(layoutRes, bindModel, callback))
         }
 
@@ -33,9 +34,10 @@ open class OmegaAutoAdapter<M, VH>(
             @LayoutRes layoutRes: Int,
             @LayoutRes swipeMenuLayoutRes: Int,
             callback: ((M) -> Unit)? = null,
+            parentModel: AutoBindModel<M>? = null,
             block: AutoBindModel.Builder<M>.() -> Unit
         ): OmegaAutoAdapter<M, SwipeViewHolder<M>> {
-            val bindModel = AutoBindModel.create(block)
+            val bindModel = AutoBindModel.create(parentModel, block)
             return OmegaAutoAdapter(SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, bindModel, callback))
         }
 

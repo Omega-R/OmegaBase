@@ -189,9 +189,11 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             layoutRes: Int,
             vararg properties: KProperty<*>,
             callback: ((SM) -> Unit)? = null,
+            parentModel: AutoBindModel<SM>? = null,
+
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
-            list += RecyclerBinder(id, *properties, layoutRes = layoutRes, block = block, callback = callback)
+            list += RecyclerBinder(id, *properties, layoutRes = layoutRes, block = block, parentModel = parentModel, callback = callback)
             return this
         }
 
@@ -410,11 +412,12 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         private vararg val properties: KProperty<*>,
         private val layoutRes: Int,
         private val callback: ((SM) -> Unit)? = null,
+        private val parentModel: AutoBindModel<SM>? = null,
         private val block: Builder<SM>.() -> Unit
     ) : Binder<RecyclerView, M>() {
 
         override fun onCreateView(itemView: RecyclerView) {
-            itemView.adapter = OmegaAutoAdapter.create(layoutRes, callback, block)
+            itemView.adapter = OmegaAutoAdapter.create(layoutRes, callback, parentModel, block)
         }
 
         @Suppress("UNCHECKED_CAST")
