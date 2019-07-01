@@ -5,6 +5,7 @@ package com.omega_r.base.adapters.model
  */
 import android.util.SparseArray
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
@@ -177,6 +178,15 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             property: KProperty<Boolean?>
         ) = bindVisible(id, trueVisibility, falseVisibility, nullVisibility, *arrayOf(property))
 
+        fun bindAnyVisible(
+            @IdRes id: Int,
+            trueVisibility: Int = View.VISIBLE,
+            falseVisibility: Int = View.GONE,
+            nullVisibility: Int = View.GONE,
+            property: KProperty<*>
+        ) = bindVisible(id, trueVisibility, falseVisibility, nullVisibility, *arrayOf(property))
+
+
         fun bindVisible(
             @IdRes id: Int,
             trueVisibility: Int = View.VISIBLE,
@@ -188,6 +198,12 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         )
 
         fun bindClick(@IdRes id: Int, block: (M) -> Unit) = bindBinder(ClickBinder(id, block))
+
+        fun bindViewState( id: Int,
+                           viewStateFunction: (View, Boolean) -> Unit,
+                           selector: (M) -> Boolean) =  bindBinder(ViewStateBinder(id, viewStateFunction, selector))
+
+        fun bindChecked(id: Int, properties: KProperty<*>) =  bindBinder(CompoundBinder(id, properties))
 
         fun build() = AutoBindModel(parentModel, list)
 
@@ -387,6 +403,32 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         override fun bind(itemView: V, item: M) = binder(itemView, item)
 
     }
+
+    open class ViewStateBinder<E>(
+        override val id: Int,
+        private val viewStateFunction: (View, Boolean) -> Unit,
+        private val selector: (E) -> Boolean
+
+    ) : AutoBindModel.Binder<View, E>() {
+
+        override fun bind(itemView: View, item: E) {
+            viewStateFunction(itemView, selector(item))
+        }
+
+    }
+
+    open class CompoundBinder<E>(
+        override val id: Int,
+        private vararg val properties: KProperty<*>
+    ) : AutoBindModel.Binder<CompoundButton, E>() {
+
+        override fun bind(itemView: CompoundButton, item: E) {
+            val checked: Boolean? = item.findValue(item, properties)
+            itemView.isChecked = checked ?: false
+        }
+
+    }
+
 
 
 }
