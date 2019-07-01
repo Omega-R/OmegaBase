@@ -37,9 +37,15 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         inline fun <M> create(block: Builder<M>.() -> Unit): AutoBindModel<M> {
             return create(null, block)
         }
+
+        fun <M> create(model1: AutoBindModel<M>, model2: AutoBindModel<M>): AutoBindModel<M> {
+            return AutoBindModel(model1, model2.list)
+        }
+
     }
 
     constructor(vararg binder: Binder<*, M>) : this(null, binder.toList())
+
 
     fun bind(view: View, item: M) {
         @Suppress("UNCHECKED_CAST")
