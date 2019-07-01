@@ -246,10 +246,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             selector: (M) -> Boolean
         ) = bindBinder(ViewStateBinder(id, viewStateFunction, selector))
 
-        fun bindChecked(id: Int, properties: KProperty<*>) = bindBinder(CompoundBinder(id, properties))
-
-        fun bindCheckListener(id: Int, block: (M, Boolean) -> Unit) = bindBinder(CompoundListenerBinder(id, block))
-
+        fun bindChecked(id: Int, callback: ((M, Boolean) -> Unit)?, vararg properties: KProperty<*>) =
+            bindBinder(CompoundBinder(id, *properties, block = callback))
+        
         fun optionally() = apply {
             list.last().viewOptionally = true
         }
@@ -471,26 +470,22 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     open class CompoundBinder<E>(
         override val id: Int,
-        private vararg val properties: KProperty<*>
+        private vararg val properties: KProperty<*>,
+        private val block: ((E, Boolean) -> Unit)? = null
     ) : AutoBindModel.Binder<CompoundButton, E>() {
 
         override fun bind(itemView: CompoundButton, item: E) {
             val checked: Boolean? = item.findValue(item, properties)
+            block?.let { itemView.setOnCheckedChangeListener(null) }
+
             itemView.isChecked = checked ?: false
-        }
-    }
-
-    open class CompoundListenerBinder<E>(
-        override val id: Int,
-        private val block: (E, Boolean) -> Unit
-    ) : AutoBindModel.Binder<CompoundButton, E>() {
-
-        override fun bind(itemView: CompoundButton, item: E) {
-            itemView.setOnCheckedChangeListener { _, checked: Boolean ->
-                block(item, checked)
+            block?.let {
+                itemView.setOnCheckedChangeListener { _, checked: Boolean ->
+                    it(item, checked)
+                }
             }
-        }
 
+        }
     }
 
 
