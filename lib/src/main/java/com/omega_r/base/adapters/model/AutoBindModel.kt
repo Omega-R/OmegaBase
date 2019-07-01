@@ -44,7 +44,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     }
 
-    constructor(parentModel: AutoBindModel<M>? = null, list: List<Binder<*, M>>): this(list + (parentModel?.list ?: emptyList<Binder<*, M>>()))
+    constructor(parentModel: AutoBindModel<M>? = null, list: List<Binder<*, M>>) : this(
+        list + (parentModel?.list ?: emptyList<Binder<*, M>>())
+    )
 
     constructor(vararg binder: Binder<*, M>) : this(binder.toList())
 
@@ -58,7 +60,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         view.getTag(R.id.omega_autobind) as? Set<View>
-        
+
         var optionallySet = view.getTag(R.id.omega_optionally_id) as? MutableSet<Int>
 
         list.forEach { binder ->
@@ -106,7 +108,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         var bindView = viewCache[id]
         if (bindView == null) {
             bindView = view.findViewById(id) ?: if (binder.viewOptionally) return null else throw IllegalStateException(
-                "View with R.id.${view.context.resources.getResourceEntryName(id)} not found")
+                "View with R.id.${view.context.resources.getResourceEntryName(id)} not found"
+            )
             list.forEach {
                 when (it) {
                     is MultiViewBinder<*, *> ->
@@ -193,7 +196,14 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
-            list += RecyclerBinder(id, *properties, layoutRes = layoutRes, block = block, parentModel = parentModel, callback = callback)
+            list += RecyclerBinder(
+                id,
+                *properties,
+                layoutRes = layoutRes,
+                block = block,
+                parentModel = parentModel,
+                callback = callback
+            )
             return this
         }
 
@@ -237,6 +247,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         ) = bindBinder(ViewStateBinder(id, viewStateFunction, selector))
 
         fun bindChecked(id: Int, properties: KProperty<*>) = bindBinder(CompoundBinder(id, properties))
+
+        fun bindCheckListener(id: Int, block: (M, Boolean) -> Unit) = bindBinder(CompoundListenerBinder(id, block))
 
         fun optionally() = apply {
             list.last().viewOptionally = true
@@ -465,6 +477,18 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         override fun bind(itemView: CompoundButton, item: E) {
             val checked: Boolean? = item.findValue(item, properties)
             itemView.isChecked = checked ?: false
+        }
+    }
+
+    open class CompoundListenerBinder<E>(
+        override val id: Int,
+        private val block: (E, Boolean) -> Unit
+    ) : AutoBindModel.Binder<CompoundButton, E>() {
+
+        override fun bind(itemView: CompoundButton, item: E) {
+            itemView.setOnCheckedChangeListener { _, checked: Boolean ->
+                block(item, checked)
+            }
         }
 
     }
