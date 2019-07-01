@@ -24,7 +24,7 @@ import kotlin.reflect.KProperty
  * Created by Anton Knyazev on 27.02.2019.
  */
 
-class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, private val list: List<Binder<*, M>>) {
+class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
     companion object {
 
@@ -44,7 +44,9 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
     }
 
-    constructor(vararg binder: Binder<*, M>) : this(null, binder.toList())
+    constructor(parentModel: AutoBindModel<M>? = null, list: List<Binder<*, M>>): this(list + (parentModel?.list ?: emptyList<Binder<*, M>>()))
+
+    constructor(vararg binder: Binder<*, M>) : this(binder.toList())
 
 
     fun bind(view: View, item: M) {
@@ -56,9 +58,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         }
 
         view.getTag(R.id.omega_autobind) as? Set<View>
-
-        parentModel?.bind(view, item)
-
+        
         var optionallySet = view.getTag(R.id.omega_optionally_id) as? MutableSet<Int>
 
         list.forEach { binder ->
