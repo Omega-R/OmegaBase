@@ -145,17 +145,17 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
         fun bindText(@IdRes id: Int, vararg properties: KProperty<*>) = bindBinder(TextBinder(id, *properties))
 
-        fun <SM> bindRecycler(
+        fun <SM> bindList(
             @IdRes id: Int,
             layoutRes: Int,
             property: KProperty<List<SM>>,
             callback: ((SM) -> Unit)? = null,
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
-            return bindRecycler(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
+            return bindList(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
         }
 
-        fun <SM> bindRecycler(
+        fun <SM> bindList(
             @IdRes id: Int,
             layoutRes: Int,
             vararg properties: KProperty<*>,
