@@ -7,5 +7,6 @@
 
     <item type="id" name="omega_click_bind" />
 
+    <item type="id" name="omega_optionally_id" />
 
 </resources>

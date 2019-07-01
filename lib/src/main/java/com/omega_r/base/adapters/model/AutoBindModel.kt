@@ -28,7 +28,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
     companion object {
 
-        inline fun <M> create(parentModel: AutoBindModel<M>? = null,  block: Builder<M>.() -> Unit): AutoBindModel<M> {
+        inline fun <M> create(parentModel: AutoBindModel<M>? = null, block: Builder<M>.() -> Unit): AutoBindModel<M> {
             return Builder(parentModel)
                 .apply(block)
                 .build()
@@ -55,24 +55,46 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
             view.setTag(R.id.omega_autobind, viewCache)
         }
 
+        view.getTag(R.id.omega_autobind) as? Set<View>
+
         parentModel?.bind(view, item)
+
+        var optionallySet = view.getTag(R.id.omega_optionally_id) as? MutableSet<Int>
 
         list.forEach { binder ->
             when (binder) {
                 is MultiViewBinder -> {
                     val sparseArray = SparseArray<View>(binder.ids.size)
 
-                    binder.ids.forEach {id->
+                    binder.ids.forEach { id ->
                         sparseArray.put(id, findView(viewCache, id, view, binder))
                     }
 
                     binder.dispatchBind(sparseArray, item)
                 }
                 else -> {
-                    binder.dispatchBind(findView(viewCache, binder.id, view, binder)!!, item)
+                    if (optionallySet?.contains(binder.id) != true) {
+                        val childView = findView(viewCache, binder.id, view, binder)
+                        if (childView == null) {
+                            optionallySet = addOptionallyBinder(view, binder.id, optionallySet)
+                        } else {
+                            binder.dispatchBind(childView, item)
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private fun addOptionallyBinder(view: View, viewId: Int, optinallySet: MutableSet<Int>?): MutableSet<Int> {
+        var viewOptionally = optinallySet
+        if (viewOptionally == null) {
+            viewOptionally = HashSet()
+            view.setTag(R.id.omega_optionally_id, viewOptionally)
+        }
+
+        viewOptionally.add(viewId)
+        return viewOptionally
     }
 
     private fun findView(
@@ -83,10 +105,11 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
     ): View? {
         var bindView = viewCache[id]
         if (bindView == null) {
-            bindView = view.findViewById(id)!!
+            bindView = view.findViewById(id) ?: if (binder.viewOptionally) return null else throw IllegalStateException(
+                "View with R.id.${view.context.resources.getResourceEntryName(id)} not found")
             list.forEach {
                 when (it) {
-                    is MultiViewBinder<*,*> ->
+                    is MultiViewBinder<*, *> ->
                         if (it.ids.contains(id)) {
                             it.dispatchOnCreateView(bindView)
                         }
@@ -205,11 +228,17 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
         fun bindClick(@IdRes id: Int, block: (M) -> Unit) = bindBinder(ClickBinder(id, block))
 
-        fun bindViewState( id: Int,
-                           viewStateFunction: (View, Boolean) -> Unit,
-                           selector: (M) -> Boolean) =  bindBinder(ViewStateBinder(id, viewStateFunction, selector))
+        fun bindViewState(
+            id: Int,
+            viewStateFunction: (View, Boolean) -> Unit,
+            selector: (M) -> Boolean
+        ) = bindBinder(ViewStateBinder(id, viewStateFunction, selector))
 
-        fun bindChecked(id: Int, properties: KProperty<*>) =  bindBinder(CompoundBinder(id, properties))
+        fun bindChecked(id: Int, properties: KProperty<*>) = bindBinder(CompoundBinder(id, properties))
+
+        fun optionally() = apply {
+            list.last().viewOptionally = true
+        }
 
         fun build() = AutoBindModel(parentModel, list)
 
@@ -218,6 +247,8 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
     abstract class Binder<V : View, M> {
 
         abstract val id: Int
+
+        var viewOptionally: Boolean = false
 
         internal fun dispatchOnCreateView(view: View) {
             @Suppress("UNCHECKED_CAST")
@@ -250,7 +281,7 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
 
     }
 
-    abstract class MultiViewBinder<V : View, M>(override val id: Int, vararg ids: Int): Binder<V, M>() {
+    abstract class MultiViewBinder<V : View, M>(override val id: Int, vararg ids: Int) : Binder<V, M>() {
 
         val ids = listOf(id, *ids.toTypedArray())
 
@@ -434,7 +465,6 @@ class AutoBindModel<M>(private val parentModel: AutoBindModel<M>? = null, privat
         }
 
     }
-
 
 
 }
