@@ -211,8 +211,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         fun <SM> bindList(
             id: Int,
-            vararg properties: KProperty<*>,
             layoutRes: Int = android.R.layout.simple_spinner_item,
+            vararg properties: KProperty<*>,
             nonSelectedItem: SM? = null,
             callback: ((M, SM?, Int) -> Unit)? = null,
             selector: (M) -> SM?,
