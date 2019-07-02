@@ -3,6 +3,8 @@ package com.omega_r.base.adapters.model
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.SparseArray
 import android.view.View
 import android.widget.CompoundButton
@@ -248,7 +250,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         fun bindChecked(id: Int, callback: ((M, Boolean) -> Unit)?, vararg properties: KProperty<*>) =
             bindBinder(CompoundBinder(id, *properties, block = callback))
-        
+
+        fun bindTextChanged(id: Int, textChangedBlock: ((M, String) -> Unit)) = bindBinder(TextChangedBinder(id, textChangedBlock))
+
         fun optionally() = apply {
             list.last().viewOptionally = true
         }
@@ -488,5 +492,26 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
     }
 
+    open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) : AutoBindModel.Binder<TextView, E>() {
+
+        override fun bind(itemView: TextView, item: E) {
+            itemView.addTextChangedListener(object : TextWatcher {
+
+                override fun afterTextChanged(s: Editable?) {
+                    // nothing
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    // nothing
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    block(item, s.toString())
+                }
+
+            })
+        }
+
+    }
 
 }
