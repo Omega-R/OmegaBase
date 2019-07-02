@@ -3,17 +3,17 @@ package com.omega_r.base.adapters.model
 /**
  * Created by Anton Knyazev on 06.04.2019.
  */
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.SparseArray
 import android.view.View
-import android.widget.CompoundButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.adapters.OmegaAutoAdapter
+import com.omega_r.base.adapters.OmegaSpinnerAdapter
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
 import com.omega_r.libs.omegatypes.Image
@@ -198,7 +198,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
             block: Builder<SM>.() -> Unit
         ): Builder<M> {
-            list += RecyclerBinder(
+            list += RecyclerViewListBinder(
                 id,
                 *properties,
                 layoutRes = layoutRes,
@@ -208,6 +208,26 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             )
             return this
         }
+
+        fun <SM> bindList(
+            id: Int,
+            vararg properties: KProperty<*>,
+            layoutRes: Int,
+            nonSelectedItem: SM? = null,
+            callback: ((M, SM?, Int) -> Unit)? = null,
+            selector: (M) -> SM?,
+            converter: (Context, SM) -> CharSequence
+        ) = bindBinder(
+            SpinnerListBinder(
+                id,
+                layoutRes,
+                *properties,
+                nonSelectedItem = nonSelectedItem,
+                callback = callback,
+                selector = selector,
+                converter = converter
+            )
+        )
 
         fun bindBinder(binder: Binder<*, M>) = apply {
             list += binder
@@ -251,7 +271,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         fun bindChecked(id: Int, callback: ((M, Boolean) -> Unit)?, vararg properties: KProperty<*>) =
             bindBinder(CompoundBinder(id, *properties, block = callback))
 
-        fun bindTextChanged(id: Int, textChangedBlock: ((M, String) -> Unit)) = bindBinder(TextChangedBinder(id, textChangedBlock))
+        fun bindTextChanged(id: Int, textChangedBlock: ((M, String) -> Unit)) =
+            bindBinder(TextChangedBinder(id, textChangedBlock))
 
         fun optionally() = apply {
             list.last().viewOptionally = true
@@ -422,7 +443,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
     }
 
-    open class RecyclerBinder<M, SM>(
+    open class RecyclerViewListBinder<M, SM>(
         override val id: Int,
         private vararg val properties: KProperty<*>,
         private val layoutRes: Int,
@@ -492,7 +513,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
     }
 
-    open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) : AutoBindModel.Binder<TextView, E>() {
+    open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) :
+        AutoBindModel.Binder<TextView, E>() {
 
         override fun bind(itemView: TextView, item: E) {
             itemView.addTextChangedListener(object : TextWatcher {
@@ -510,6 +532,52 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 }
 
             })
+        }
+    }
+
+    open class SpinnerListBinder<M, SM>(
+        override val id: Int,
+        private val layoutRes: Int,
+        private vararg val properties: KProperty<*>,
+        private val nonSelectedItem: SM? = null,
+        private val callback: ((M, SM?, Int) -> Unit)? = null,
+        private val selector: (M) -> SM?,
+        private val converter: (Context, SM) -> CharSequence
+    ) : Binder<Spinner, M>() {
+
+        override fun onCreateView(itemView: Spinner) {
+            itemView.adapter = OmegaSpinnerAdapter.Custom(itemView.context, layoutRes, converter).also {
+                it.nonSelectedItem = nonSelectedItem
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST", "PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+        override fun bind(spinner: Spinner, item: M) {
+            val list: List<SM>? = item.findValue(item, properties)
+
+            val adapter = spinner.adapter as OmegaSpinnerAdapter.Custom<SM>
+
+            adapter.list = list ?: emptyList()
+
+            if (callback != null) {
+                spinner.onItemSelectedListener = null
+            }
+
+            adapter.setSelection(spinner, selector(item))
+
+            if (callback != null) {
+
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // nothing
+                    }
+
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        callback.invoke(item, adapter.getSelection(spinner), adapter.getSelectionPosition(spinner))
+                    }
+
+                }
+            }
         }
 
     }
