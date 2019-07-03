@@ -526,7 +526,10 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         override fun onCreateView(itemView: TextView) {
-            getTextWatcher(itemView).callbacks.add(block)
+            getTextWatcher(itemView).let {
+                it.callbacks.add(block)
+                itemView.addTextChangedListener(it)
+            }
         }
 
         override fun bind(itemView: TextView, item: E) {
