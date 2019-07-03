@@ -135,7 +135,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         fun <V : View> bindCustom(
             @IdRes id: Int,
             binder: (view: V, item: M) -> Unit
-        ) = bindBinder(CustomBinder(id, binder))
+        ) = bindBinder(StringBinder.CustomBinder(id, binder))
 
         fun bind(@IdRes id: Int, property: KProperty<Image?>, placeholderRes: Int = 0): Builder<M> {
             return bindImage(id, property, placeholderRes = placeholderRes)
@@ -356,7 +356,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private val formatter: ((Any?) -> String?)? = null
     ) : Binder<TextView, M>() {
 
-        override fun bind(itemView: TextView, item: M) {
+        override fun bind(itemView: TextView, item: M) = BinderTextWatcher.runTextChangedTransaction(itemView) {
             val obj: Any? = item.findValue(item, properties)
 
             if (formatter == null) {
@@ -372,7 +372,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private vararg val properties: KProperty<*>
     ) : Binder<TextView, M>() {
 
-        override fun bind(itemView: TextView, item: M) {
+        override fun bind(itemView: TextView, item: M) = BinderTextWatcher.runTextChangedTransaction(itemView) {
             val obj: Int? = item.findValue(item, properties)
 
             if (obj != null) itemView.setText(obj) else itemView.text = null
@@ -384,7 +384,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private vararg val properties: KProperty<*>
     ) : Binder<TextView, M>() {
 
-        override fun bind(itemView: TextView, item: M) {
+        override fun bind(itemView: TextView, item: M) = BinderTextWatcher.runTextChangedTransaction(itemView) {
             val charSequence: CharSequence? = item.findValue(item, properties)
             itemView.text = charSequence
         }
@@ -396,8 +396,9 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private vararg val properties: KProperty<*>
     ) : Binder<TextView, M>() {
 
-        override fun bind(itemView: TextView, item: M) {
+        override fun bind(itemView: TextView, item: M) = BinderTextWatcher.runTextChangedTransaction(itemView) {
             val text: Text? = item.findValue(item, properties)
+
             if (text != null) {
                 itemView.setText(text)
             } else {
@@ -516,46 +517,66 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) :
         AutoBindModel.Binder<TextView, E>() {
 
-        @Suppress("UNCHECKED_CAST")
-        private fun getTextWatcher(view: View): BinderTextWatcher<E> {
-            return view.getTag(R.id.omega_text_watcher) as? BinderTextWatcher<E> ?: let {
-                BinderTextWatcher<E>().also {
-                    view.setTag(R.id.omega_text_watcher, it)
-                }
-            }
-        }
 
         override fun onCreateView(itemView: TextView) {
-            getTextWatcher(itemView).let {
+            BinderTextWatcher.from<E>(itemView).let {
                 it.callbacks.add(block)
                 itemView.addTextChangedListener(it)
             }
         }
 
         override fun bind(itemView: TextView, item: E) {
-            getTextWatcher(itemView).item = item
+            BinderTextWatcher.from<E>(itemView).item = item
         }
 
-        private class BinderTextWatcher<E> : TextWatcher {
-            var item: E? = null
-            val callbacks: MutableList<(E, String) -> Unit> = mutableListOf()
+    }
 
-            override fun afterTextChanged(s: Editable?) {
-                // nothing
+    private class BinderTextWatcher<E> : TextWatcher {
+
+        companion object {
+
+            fun <E> from(view: View): BinderTextWatcher<E> {
+                return fromOrNull(view) ?: let {
+                    BinderTextWatcher<E>().also {
+                        view.setTag(R.id.omega_text_watcher, it)
+                    }
+                }
             }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // nothing
+            @Suppress("UNCHECKED_CAST")
+            fun <E> fromOrNull(view: View): BinderTextWatcher<E>? {
+                return view.getTag(R.id.omega_text_watcher) as? BinderTextWatcher<E>
             }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            inline fun runTextChangedTransaction(textView: TextView, block: () -> Unit) {
+                val textWatcher = fromOrNull<Any>(textView)
+                textWatcher?.enabled = false
+                block()
+                textWatcher?.enabled = true
+            }
+
+        }
+
+        var item: E? = null
+        val callbacks: MutableList<(E, String) -> Unit> = mutableListOf()
+
+        var enabled: Boolean = true
+
+        override fun afterTextChanged(s: Editable?) {
+            // nothing
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            // nothing
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (enabled) {
                 item?.let { item ->
                     callbacks.forEach { it(item, s.toString()) }
                 }
             }
-
         }
-
     }
 
     open class SpinnerListBinder<M, SM>(
