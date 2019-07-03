@@ -135,7 +135,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         fun <V : View> bindCustom(
             @IdRes id: Int,
             binder: (view: V, item: M) -> Unit
-        ) = bindBinder(StringBinder.CustomBinder(id, binder))
+        ) = bindBinder(CustomBinder(id, binder))
 
         fun bind(@IdRes id: Int, property: KProperty<Image?>, placeholderRes: Int = 0): Builder<M> {
             return bindImage(id, property, placeholderRes = placeholderRes)
