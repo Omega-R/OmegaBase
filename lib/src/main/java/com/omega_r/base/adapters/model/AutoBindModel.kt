@@ -516,23 +516,43 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) :
         AutoBindModel.Binder<TextView, E>() {
 
-        override fun bind(itemView: TextView, item: E) {
-            itemView.addTextChangedListener(object : TextWatcher {
-
-                override fun afterTextChanged(s: Editable?) {
-                    // nothing
+        @Suppress("UNCHECKED_CAST")
+        private fun getTextWatcher(view: View): BinderTextWatcher<E> {
+            return view.getTag(R.id.omega_text_watcher) as? BinderTextWatcher<E> ?: let {
+                BinderTextWatcher<E>().also {
+                    view.setTag(R.id.omega_text_watcher, it)
                 }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // nothing
-                }
-
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    block(item, s.toString())
-                }
-
-            })
+            }
         }
+
+        override fun onCreateView(itemView: TextView) {
+            getTextWatcher(itemView).callbacks.add(block)
+        }
+
+        override fun bind(itemView: TextView, item: E) {
+            getTextWatcher(itemView).item = item
+        }
+
+        private class BinderTextWatcher<E> : TextWatcher {
+            var item: E? = null
+            val callbacks: MutableList<(E, String) -> Unit> = mutableListOf()
+
+            override fun afterTextChanged(s: Editable?) {
+                // nothing
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                item?.let { item ->
+                    callbacks.forEach { it(item, s.toString()) }
+                }
+            }
+
+        }
+
     }
 
     open class SpinnerListBinder<M, SM>(
