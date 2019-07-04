@@ -246,9 +246,11 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             // nothing
         }
 
+        @Suppress("UNCHECKED_CAST")
         internal open fun dispatchBind(viewCache: SparseArray<View>, item: M) {
-            @Suppress("UNCHECKED_CAST")
-            bind(viewCache[id] as V, item)
+            viewCache[id]?.let { view ->
+                bind(view as V, item)
+            }
         }
 
         abstract fun bind(itemView: V, item: M)
