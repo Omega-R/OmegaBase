@@ -94,6 +94,7 @@ open class OmegaAutoAdapter<M, VH>(
                     }
                 }
             }
+            bindModel.onCreateView(itemView)
         }
 
         override fun bind(item: M) {
@@ -125,6 +126,7 @@ open class OmegaAutoAdapter<M, VH>(
                     }
                 }
             }
+            bindModel.onCreateView(itemView)
         }
 
         override fun bind(item: M) {

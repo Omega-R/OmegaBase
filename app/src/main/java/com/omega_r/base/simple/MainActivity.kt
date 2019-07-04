@@ -4,6 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.adapters.OmegaListAdapter
+import com.omega_r.base.adapters.OmegaViewPagerAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity

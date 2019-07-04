@@ -53,80 +53,39 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     constructor(vararg binder: Binder<*, M>) : this(binder.toList())
 
 
+    fun onCreateView(view: View) {
+        val viewCache = SparseArray<View>()
+        val array = SparseArray<MutableSet<Binder<*, *>>>()
+        view.setTag(R.id.omega_autobind, viewCache)
+
+        list.forEach { it.addToSet(array) }
+
+        for (i in 0 until array.size()) {
+            val id = array.keyAt(i)
+            val binders = array.valueAt(i)
+            val childView: View? = view.findViewById(id)
+            if (childView == null) {
+                binders.forEach {
+                    if (!it.viewOptionally) {
+                        throw IllegalStateException(
+                            "View with R.id.${view.context.resources.getResourceEntryName(id)} not found"
+                        )
+                    }
+                }
+            } else {
+                viewCache.put(id, childView)
+                array[id].forEach { it.dispatchOnCreateView(childView) }
+            }
+        }
+
+    }
+
     fun bind(view: View, item: M) {
         @Suppress("UNCHECKED_CAST")
-        var viewCache = view.getTag(R.id.omega_autobind) as? SparseArray<View>
-        if (viewCache == null) {
-            viewCache = SparseArray()
-            view.setTag(R.id.omega_autobind, viewCache)
-        }
+        val viewCache = view.getTag(R.id.omega_autobind) as SparseArray<View>
 
-        view.getTag(R.id.omega_autobind) as? Set<View>
-
-        var optionallySet = view.getTag(R.id.omega_optionally_id) as? MutableSet<Int>
-
-        list.forEach { binder ->
-            when (binder) {
-                is MultiViewBinder -> {
-                    val sparseArray = SparseArray<View>(binder.ids.size)
-
-                    binder.ids.forEach { id ->
-                        sparseArray.put(id, findView(viewCache, id, view, binder))
-                    }
-
-                    binder.dispatchBind(sparseArray, item)
-                }
-                else -> {
-                    if (optionallySet?.contains(binder.id) != true) {
-                        val childView = findView(viewCache, binder.id, view, binder)
-                        if (childView == null) {
-                            optionallySet = addOptionallyBinder(view, binder.id, optionallySet)
-                        } else {
-                            binder.dispatchBind(childView, item)
-                        }
-                    }
-                }
-            }
-        }
+        list.forEach { binder -> binder.dispatchBind(viewCache, item) }
     }
-
-    private fun addOptionallyBinder(view: View, viewId: Int, optinallySet: MutableSet<Int>?): MutableSet<Int> {
-        var viewOptionally = optinallySet
-        if (viewOptionally == null) {
-            viewOptionally = HashSet()
-            view.setTag(R.id.omega_optionally_id, viewOptionally)
-        }
-
-        viewOptionally.add(viewId)
-        return viewOptionally
-    }
-
-    private fun findView(
-        viewCache: SparseArray<View>,
-        id: Int,
-        view: View,
-        binder: Binder<*, M>
-    ): View? {
-        var bindView = viewCache[id]
-        if (bindView == null) {
-            bindView = view.findViewById(id) ?: if (binder.viewOptionally) return null else throw IllegalStateException(
-                "View with R.id.${view.context.resources.getResourceEntryName(id)} not found"
-            )
-            list.forEach {
-                when (it) {
-                    is MultiViewBinder<*, *> ->
-                        if (it.ids.contains(id)) {
-                            it.dispatchOnCreateView(bindView)
-                        }
-                    else -> if (it.id == id) it.dispatchOnCreateView(bindView)
-                }
-            }
-            binder.dispatchOnCreateView(bindView)
-            viewCache.put(id, bindView)
-        }
-        return bindView
-    }
-
 
     class Builder<M>(private val parentModel: AutoBindModel<M>? = null) {
 
@@ -137,17 +96,15 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             binder: (view: V, item: M) -> Unit
         ) = bindBinder(CustomBinder(id, binder))
 
-        fun bind(@IdRes id: Int, property: KProperty<Image?>, placeholderRes: Int = 0): Builder<M> {
-            return bindImage(id, property, placeholderRes = placeholderRes)
-        }
+        fun bind(@IdRes id: Int, property: KProperty<Image?>, placeholderRes: Int = 0) =
+            bindImage(id, property, placeholderRes = placeholderRes)
 
-        fun bindImage(@IdRes id: Int, vararg properties: KProperty<*>, placeholderRes: Int = 0) = apply {
-            list += ImageBinder(id, *properties, placeholderResId = placeholderRes)
-        }
+        fun bindImage(@IdRes id: Int, vararg properties: KProperty<*>, placeholderRes: Int = 0) =
+            bindBinder(ImageBinder(id, *properties, placeholderResId = placeholderRes))
 
-        fun bind(@IdRes id: Int, property: KProperty<String?>, formatter: ((Any?) -> String?)? = null): Builder<M> {
-            return bindString(id, property, formatter = formatter)
-        }
+
+        fun bind(@IdRes id: Int, property: KProperty<String?>, formatter: ((Any?) -> String?)? = null) =
+            bindString(id, property, formatter = formatter)
 
         fun bindString(
             @IdRes id: Int,
@@ -156,26 +113,22 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         ) = bindBinder(StringBinder(id, *properties, formatter = formatter))
 
 
-        fun bindStringRes(@IdRes id: Int, property: KProperty<Int?>): Builder<M> {
-            return bindStringRes(id, *arrayOf(property))
-        }
+        fun bindStringRes(@IdRes id: Int, property: KProperty<Int?>) = bindStringRes(id, *arrayOf(property))
 
-        fun bindStringRes(@IdRes id: Int, vararg properties: KProperty<*>) = apply {
-            list += StringResBinder(id, *properties)
-        }
 
-        fun bindCharSequence(@IdRes id: Int, property: KProperty<CharSequence?>): Builder<M> {
-            return bindCharSequence(id, *arrayOf(property))
-        }
+        fun bindStringRes(@IdRes id: Int, vararg properties: KProperty<*>) =
+            bindBinder(StringResBinder(id, *properties))
+
+
+        fun bindCharSequence(@IdRes id: Int, property: KProperty<CharSequence?>) =
+            bindCharSequence(id, *arrayOf(property))
 
         fun bindCharSequence(
             @IdRes id: Int,
             vararg properties: KProperty<*>
         ) = bindBinder(CharSequenceBinder(id, *properties))
 
-        fun bind(@IdRes id: Int, property: KProperty<Text?>): Builder<M> {
-            return bindText(id, property)
-        }
+        fun bind(@IdRes id: Int, property: KProperty<Text?>) = bindText(id, property)
 
         fun bindText(@IdRes id: Int, vararg properties: KProperty<*>) = bindBinder(TextBinder(id, *properties))
 
@@ -229,7 +182,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             )
         )
 
-        fun bindBinder(binder: Binder<*, M>) = apply {
+        fun <B : Binder<*, M>> bindBinder(binder: B) = binder.apply {
             list += binder
         }
 
@@ -274,10 +227,6 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         fun bindTextChanged(id: Int, textChangedBlock: ((M, String) -> Unit)) =
             bindBinder(TextChangedBinder(id, textChangedBlock))
 
-        fun optionally() = apply {
-            list.last().viewOptionally = true
-        }
-
         fun build() = AutoBindModel(parentModel, list)
 
     }
@@ -297,12 +246,22 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             // nothing
         }
 
-        internal fun dispatchBind(view: View, item: M) {
+        internal open fun dispatchBind(viewCache: SparseArray<View>, item: M) {
             @Suppress("UNCHECKED_CAST")
-            bind(view as V, item)
+            bind(viewCache[id] as V, item)
         }
 
         abstract fun bind(itemView: V, item: M)
+
+        protected fun SparseArray<MutableSet<Binder<*, *>>>.getSet(id: Int) = this[id] ?: let {
+            HashSet<Binder<*, *>>().also {
+                put(id, it)
+            }
+        }
+
+        internal open fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
+            array.getSet(id) += this
+        }
 
         @Suppress("UNCHECKED_CAST")
         protected fun <T> Any?.findValue(item: Any?, properties: Array<out KProperty<*>>): T? {
@@ -316,18 +275,24 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             return obj?.let { it as T }
         }
 
+        fun optionally() {
+            viewOptionally = true
+        }
+
 
     }
 
-    abstract class MultiViewBinder<V : View, M>(override val id: Int, vararg ids: Int) : Binder<V, M>() {
+    abstract class MultiViewBinder<V : View, M>(final override val id: Int, vararg ids: Int) : Binder<V, M>() {
 
         val ids = listOf(id, *ids.toTypedArray())
 
 
         @Suppress("UNCHECKED_CAST")
-        fun dispatchBind(views: SparseArray<View>, item: M) {
-            bind(views[id] as V, item)
-            bind(views as SparseArray<V>, item)
+        override fun dispatchBind(viewCache: SparseArray<View>, item: M) {
+            bind(viewCache[id] as V, item)
+            val array = SparseArray<V>(ids.size)
+            ids.forEach { array.put(it, viewCache[it] as V) }
+            bind(array, item)
         }
 
         override fun bind(itemView: V, item: M) {
@@ -335,6 +300,10 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         abstract fun bind(views: SparseArray<V>, item: M)
+
+        override fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
+            ids.forEach { id -> array.getSet(id) += this }
+        }
 
     }
 
@@ -517,6 +486,12 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) :
         AutoBindModel.Binder<TextView, E>() {
 
+        private val binders = mutableListOf<Binder<*,E>>()
+
+        override fun dispatchBind(viewCache: SparseArray<View>, item: E) {
+            super.dispatchBind(viewCache, item)
+            binders.forEach { it.dispatchBind(viewCache, item) }
+        }
 
         override fun onCreateView(itemView: TextView) {
             BinderTextWatcher.from<E>(itemView).let {
@@ -529,9 +504,14 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             BinderTextWatcher.from<E>(itemView).item = item
         }
 
+
+        fun addAutoUpdateBinder(vararg binders: Binder<*, E>) {
+            this.binders += binders
+        }
+
     }
 
-    private class BinderTextWatcher<E> : TextWatcher {
+    class BinderTextWatcher<E> : TextWatcher {
 
         companion object {
 
@@ -577,6 +557,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 }
             }
         }
+
     }
 
     open class SpinnerListBinder<M, SM>(
