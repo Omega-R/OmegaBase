@@ -74,7 +74,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 }
             } else {
                 viewCache.put(id, childView)
-                array[id].forEach { it.dispatchOnCreateView(childView) }
+                array[id].forEach { it.dispatchOnCreateView(childView, viewCache) }
             }
         }
 
@@ -237,7 +237,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         var viewOptionally: Boolean = false
 
-        internal fun dispatchOnCreateView(view: View) {
+        internal open fun dispatchOnCreateView(view: View, viewCache: SparseArray<View>) {
             @Suppress("UNCHECKED_CAST")
             onCreateView(view as V)
         }
@@ -486,11 +486,17 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     open class TextChangedBinder<E>(override val id: Int, private val block: (E, String) -> Unit) :
         AutoBindModel.Binder<TextView, E>() {
 
-        private val binders = mutableListOf<Binder<*,E>>()
+        private val autoBinders = mutableListOf<Binder<*, E>>()
 
-        override fun dispatchBind(viewCache: SparseArray<View>, item: E) {
-            super.dispatchBind(viewCache, item)
-            binders.forEach { it.dispatchBind(viewCache, item) }
+        override fun dispatchOnCreateView(view: View, viewCache: SparseArray<View>) {
+            super.dispatchOnCreateView(view, viewCache)
+            if (autoBinders.isNotEmpty()) {
+                BinderTextWatcher.from<E>(view).let {
+                    it.callbacks.add { item: E, _ ->
+                        autoBinders.forEach { it.dispatchBind(viewCache, item) }
+                    }
+                }
+            }
         }
 
         override fun onCreateView(itemView: TextView) {
@@ -504,9 +510,8 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             BinderTextWatcher.from<E>(itemView).item = item
         }
 
-
         fun addAutoUpdateBinder(vararg binders: Binder<*, E>) {
-            this.binders += binders
+            autoBinders += binders
         }
 
     }
