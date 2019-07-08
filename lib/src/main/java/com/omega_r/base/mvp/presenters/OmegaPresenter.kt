@@ -3,6 +3,7 @@ package com.omega_r.base.mvp.presenters
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.Launcher
 import com.omega_r.base.mvp.views.OmegaView
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
@@ -78,7 +79,7 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
 
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
 
-    protected open fun ActivityLauncher.launch() {
+    protected open fun Launcher.launch() {
         viewState.launch(this)
     }
 

@@ -1,5 +1,6 @@
 package com.omega_r.base.launchers
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.annotation.IdRes
@@ -21,6 +22,10 @@ class FragmentLauncher(private val fragmentClass: Class<Fragment>,
 
     constructor(fragmentClass: Class<Fragment>, vararg extraParams: BundlePair)
             : this(fragmentClass, bundleOf(*extraParams))
+
+    override fun launch(context: Context) {
+        throw IllegalAccessException("No supported")
+    }
 
     fun createFragment(): Fragment {
         val fragment = fragmentClass.newInstance()

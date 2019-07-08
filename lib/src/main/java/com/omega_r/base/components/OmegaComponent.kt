@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.Launcher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.base.mvp.model.Action
@@ -68,7 +69,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
         Toast.makeText(getContext(), message.getCharSequence(getContext()!!), Toast.LENGTH_LONG).show()
     }
 
-    override fun launch(launcher: ActivityLauncher) {
+    override fun launch(launcher: Launcher) {
         launcher.launch(getContext()!!)
     }
 

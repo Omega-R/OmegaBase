@@ -46,6 +46,10 @@ class ActivityLauncher(
         flags = flags and (flag.inv())
     }
 
+    override fun launch(context: Context) {
+        launch(context, null)
+    }
+
     fun launch(context: Context, option: Bundle? = null) {
         val intent = createIntent(context)
         try {

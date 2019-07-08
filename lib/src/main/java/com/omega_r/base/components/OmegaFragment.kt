@@ -14,6 +14,7 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
+import com.omega_r.base.launchers.Launcher
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.libs.omegatypes.Text

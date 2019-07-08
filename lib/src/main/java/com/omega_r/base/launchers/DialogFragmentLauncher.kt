@@ -1,7 +1,10 @@
 package com.omega_r.base.launchers
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -11,7 +14,7 @@ import com.omega_r.base.tools.bundleOf
 import com.omega_r.base.tools.equalsBundle
 import com.omega_r.base.tools.hashCodeBundle
 import kotlinx.android.parcel.Parcelize
-import java.io.Serializable
+import java.lang.IllegalArgumentException
 
 /**
  * Created by Anton Knyazev on 30.04.19.
@@ -27,6 +30,14 @@ class DialogFragmentLauncher(private val fragmentClass: Class<DialogFragment>, p
         val fragment = fragmentClass.newInstance()
         fragment.arguments = bundle
         return fragment
+    }
+
+    override fun launch(context: Context) {
+        if (context is AppCompatActivity) {
+            launch(context.supportFragmentManager)
+        } else {
+            throw IllegalArgumentException("Launch support only context as AppCompatActivity")
+        }
     }
 
     fun isOurDialogFragment(fragment: DialogFragment): Boolean {
