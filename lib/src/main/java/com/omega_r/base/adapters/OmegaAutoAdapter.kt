@@ -60,6 +60,10 @@ open class OmegaAutoAdapter<M, VH>(
 
     }
 
+    @Suppress("UNCHECKED_CAST")
+    val callback: ((M) -> Unit)?
+        get() = (viewHolderFactory as? Callbackable<M>)?.callback
+
     public override var watcher: Watcher? = null
 
     override fun getItemId(position: Int): Long {
@@ -136,7 +140,12 @@ open class OmegaAutoAdapter<M, VH>(
 
     }
 
+    interface Callbackable<M> {
+        val callback: ((M) -> Unit)?
+    }
+
     abstract class Factory<M, VH> where VH : OmegaRecyclerView.ViewHolder, VH : ViewHolderBindable<M> {
+
 
         open fun getItemViewType(
             position: Int,
@@ -154,8 +163,8 @@ open class OmegaAutoAdapter<M, VH>(
     open class ViewHolderFactory<M>(
         private val layoutRes: Int,
         private val bindModel: AutoBindModel<M>,
-        private val callback: ((M) -> Unit)? = null
-    ) : Factory<M, ViewHolder<M>>() {
+        override val callback: ((M) -> Unit)? = null
+    ) : Factory<M, ViewHolder<M>>(), Callbackable<M> {
 
         override fun createViewHolder(
             parent: ViewGroup,
@@ -171,8 +180,8 @@ open class OmegaAutoAdapter<M, VH>(
         @LayoutRes private val layoutRes: Int,
         @LayoutRes private val swipeMenuLayoutRes: Int,
         private val bindModel: AutoBindModel<M>,
-        private val callback: ((M) -> Unit)? = null
-    ) : Factory<M, SwipeViewHolder<M>>() {
+        override val callback: ((M) -> Unit)? = null
+    ) : Factory<M, SwipeViewHolder<M>>(), Callbackable<M> {
 
         override fun createViewHolder(
             parent: ViewGroup,
@@ -233,7 +242,7 @@ open class OmegaAutoAdapter<M, VH>(
             callback: ((M2) -> Unit)? = null,
             parentModel: AutoBindModel<M2>? = this.parentModel as? AutoBindModel<M2>
         ) = apply {
-            val modifiedModel = if (parentModel != null) AutoBindModel.create(parentModel , model) else model
+            val modifiedModel = if (parentModel != null) AutoBindModel.create(parentModel, model) else model
             map[kClass] = ViewHolderFactory(layoutRes, modifiedModel, callback)
         }
 
@@ -245,7 +254,12 @@ open class OmegaAutoAdapter<M, VH>(
             parentModel: AutoBindModel<M2>? = this.parentModel as? AutoBindModel<M2>,
             block: AutoBindModel.Builder<M2>.() -> Unit
         ) = apply {
-            map[kClass] = SwipeViewHolderFactory(layoutRes, swipeMenuLayoutRes, AutoBindModel.create(parentModel, block), callback)
+            map[kClass] = SwipeViewHolderFactory(
+                layoutRes,
+                swipeMenuLayoutRes,
+                AutoBindModel.create(parentModel, block),
+                callback
+            )
         }
 
         fun <M2 : M> add(

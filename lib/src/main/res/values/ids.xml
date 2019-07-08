@@ -7,8 +7,6 @@
 
     <item type="id" name="omega_click_bind" />
 
-    <item type="id" name="omega_optionally_id" />
-
     <item type="id" name="omega_text_watcher" />
 
 </resources>

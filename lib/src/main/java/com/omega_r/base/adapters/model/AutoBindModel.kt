@@ -136,22 +136,20 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             @IdRes id: Int,
             layoutRes: Int,
             property: KProperty<List<SM>>,
-            callback: ((SM) -> Unit)? = null,
+            callback: ((M, SM) -> Unit)? = null,
             block: Builder<SM>.() -> Unit
-        ): Builder<M> {
-            return bindList(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
-        }
+        ) = bindList(id, layoutRes, properties = *arrayOf(property), block = block, callback = callback)
+
 
         fun <SM> bindList(
             @IdRes id: Int,
             layoutRes: Int,
             vararg properties: KProperty<*>,
-            callback: ((SM) -> Unit)? = null,
+            callback: ((M, SM) -> Unit)? = null,
             parentModel: AutoBindModel<SM>? = null,
-
             block: Builder<SM>.() -> Unit
-        ): Builder<M> {
-            list += RecyclerViewListBinder(
+        ) = bindBinder(
+            RecyclerViewListBinder(
                 id,
                 *properties,
                 layoutRes = layoutRes,
@@ -159,8 +157,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 parentModel = parentModel,
                 callback = callback
             )
-            return this
-        }
+        )
 
         fun <SM> bindList(
             id: Int,
@@ -419,20 +416,24 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         override val id: Int,
         private vararg val properties: KProperty<*>,
         private val layoutRes: Int,
-        private val callback: ((SM) -> Unit)? = null,
+        private val callback: ((M, SM) -> Unit)? = null,
         private val parentModel: AutoBindModel<SM>? = null,
         private val block: Builder<SM>.() -> Unit
     ) : Binder<RecyclerView, M>() {
 
         override fun onCreateView(itemView: RecyclerView) {
-            itemView.adapter = OmegaAutoAdapter.create(layoutRes, callback, parentModel, block)
+            itemView.adapter = OmegaAutoAdapter.create(layoutRes, callback?.let { Callback(callback) }, parentModel, block)
         }
 
         @Suppress("UNCHECKED_CAST")
         override fun bind(itemView: RecyclerView, item: M) {
             val list: List<SM>? = item.findValue(item, properties)
-
-            getAdapter(itemView).list = list ?: emptyList()
+            getAdapter(itemView).also {
+                it.list = list ?: emptyList()
+                (it.callback as? Callback<M, SM>)?.run {
+                    model = item
+                }
+            }
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -442,6 +443,19 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 else -> itemView.adapter
             }
             return adapter as OmegaAutoAdapter<SM, *>
+        }
+
+        class Callback <M, SM>(private val block: (M, SM) -> Unit) : (SM) -> Unit {
+
+            var model: M? = null
+
+            override fun invoke(subModel: SM) {
+                model?.let {
+                    block(it, subModel)
+                }
+
+            }
+
         }
     }
 
@@ -471,17 +485,30 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private val block: ((E, Boolean) -> Unit)? = null
     ) : AutoBindModel.Binder<CompoundButton, E>() {
 
+        private val autoBinders = mutableListOf<Binder<*, E>>()
+
+        override fun dispatchBind(viewCache: SparseArray<View>, item: E) {
+            super.dispatchBind(viewCache, item)
+            viewCache[id]?.let { view ->
+                val itemView = view as CompoundButton
+                block?.let {
+                    itemView.setOnCheckedChangeListener { _, checked: Boolean ->
+                        it(item, checked)
+                        autoBinders.forEach { it.dispatchBind(viewCache, item) }
+                    }
+                }
+            }
+        }
+
         override fun bind(itemView: CompoundButton, item: E) {
             val checked: Boolean? = item.findValue(item, properties)
             block?.let { itemView.setOnCheckedChangeListener(null) }
 
             itemView.isChecked = checked ?: false
-            block?.let {
-                itemView.setOnCheckedChangeListener { _, checked: Boolean ->
-                    it(item, checked)
-                }
-            }
+        }
 
+        fun addAutoUpdateBinder(vararg binders: Binder<*, E>) {
+            autoBinders += binders
         }
     }
 
@@ -611,7 +638,6 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
                 }
             }
         }
-
     }
 
 }
