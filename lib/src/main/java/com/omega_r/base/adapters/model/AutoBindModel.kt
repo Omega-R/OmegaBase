@@ -185,13 +185,13 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         fun bindVisible(
             @IdRes id: Int,
+            property: KProperty<Boolean?>,
             trueVisibility: Int = View.VISIBLE,
             falseVisibility: Int = View.GONE,
-            nullVisibility: Int = View.GONE,
-            property: KProperty<Boolean?>
+            nullVisibility: Int = View.GONE
         ) = bindVisible(id, trueVisibility, falseVisibility, nullVisibility, *arrayOf(property))
 
-        fun bindAnyVisible(
+        fun bindNonNullVisible(
             @IdRes id: Int,
             trueVisibility: Int = View.VISIBLE,
             falseVisibility: Int = View.GONE,
