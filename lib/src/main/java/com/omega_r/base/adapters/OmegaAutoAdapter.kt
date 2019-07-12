@@ -283,7 +283,9 @@ open class OmegaAutoAdapter<M, VH>(
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun build() = OmegaAutoAdapter(MultiHolderFactory(map as Map<KClass<M>, Factory<M, VH>>) as Factory<M, VH>)
+        fun createFactory() = MultiHolderFactory(map as Map<KClass<M>, Factory<M, VH>>) as Factory<M, VH>
+
+        fun build() = OmegaAutoAdapter(createFactory())
 
     }
 
