@@ -4,17 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.enitity.Imageable
 import com.omega_r.libs.omegatypes.Image
-import java.util.*
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>()
+abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
         where VH : RecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
-    var list: List<M> = listOf()
+    override var list: List<M> = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()

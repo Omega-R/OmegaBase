@@ -18,7 +18,7 @@ open class OmegaAutoAdapter<M, VH>(
 
     companion object {
 
-        const val NO_ID = OmegaAdapter.SwipeViewHolder.NO_ID
+        const val SWIPE_NO_ID = OmegaAdapter.SwipeViewHolder.NO_ID
 
         fun <M> create(
             @LayoutRes layoutRes: Int,

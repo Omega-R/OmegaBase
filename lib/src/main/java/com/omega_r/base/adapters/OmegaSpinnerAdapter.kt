@@ -15,9 +15,9 @@ abstract class OmegaSpinnerAdapter<M>(
     context: Context,
     @LayoutRes res: Int = android.R.layout.simple_spinner_item,
     list: List<M> = Collections.emptyList()
-) : ArrayAdapter<CharSequence>(context, res, Collections.emptyList()) {
+) : ArrayAdapter<CharSequence>(context, res, Collections.emptyList()), ListableAdapter<M> {
 
-    var list: List<M> = list
+    override var list: List<M> = list
         set(value) {
             field = value
             notifyDataSetChanged()

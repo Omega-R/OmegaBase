@@ -18,10 +18,10 @@ import com.omega_r.base.launchers.FragmentLauncher
 private const val KEY_LIST = "internalList"
 private const val KEY_SUPER = "internalSuper"
 
-class OmegaViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT), Iterable<Fragment> {
+class OmegaViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
+    Iterable<Fragment>, ListableAdapter<FragmentLauncher> {
 
-
-    var list: List<FragmentLauncher> = emptyList()
+    override var list: List<FragmentLauncher> = emptyList()
         set(value) {
             if (field != value) {
                 field = value.toList()
