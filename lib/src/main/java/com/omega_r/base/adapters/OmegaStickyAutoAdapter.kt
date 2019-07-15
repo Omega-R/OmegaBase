@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
+import com.omega_r.libs.omegarecyclerview.sticky_decoration.BaseStickyDecoration
 import com.omega_r.libs.omegarecyclerview.sticky_decoration.StickyAdapter
 
 /**
@@ -18,6 +19,9 @@ open class OmegaStickyAutoAdapter<M, VH>(
         where VH : OmegaRecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
     companion object {
+
+        val NO_STICKY_ID: Long
+            get() = BaseStickyDecoration.NO_STICKY_ID
 
         fun <M : Any> create(
             @LayoutRes stickyLayoutRes: Int,

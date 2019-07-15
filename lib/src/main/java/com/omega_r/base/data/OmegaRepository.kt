@@ -190,7 +190,8 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             if (memoryCacheSource != null) {
                 ignoreSourceException {
                     val result = block(memoryCacheSource as SOURCE)
-                    if (!isClosedForSend) {
+
+                    if (isActive && !isClosedForSend) {
                         send(result)
                     }
                     return@async true
@@ -199,17 +200,17 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             if (fileCacheSource != null) {
                 ignoreSourceException {
                     val result = block(fileCacheSource as SOURCE)
-                    if (!isClosedForSend) {
+                    if (isActive && !isClosedForSend) {
                         send(result)
+                        memoryCacheSource?.update(result)
                     }
-                    memoryCacheSource?.update(result)
                     return@async true
                 }
             }
 
             if (defaultSource != null) {
                 ignoreSourceException {
-                    if (!isClosedForSend) {
+                    if (isActive && !isClosedForSend) {
                         send(block(defaultSource))
                     }
                     return@async true
@@ -225,6 +226,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
                 send(result)
                 memoryCacheSource?.update(result)
                 fileCacheSource?.update(result)
+                cacheReturnDeferred.cancel()
                 return
             }
         } else {
