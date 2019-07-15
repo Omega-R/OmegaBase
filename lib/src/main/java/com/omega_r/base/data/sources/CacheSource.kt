@@ -7,7 +7,9 @@ interface CacheSource : Source {
 
     fun updateItem(data: Any?)
 
-    fun updateItems(data: List<*>?) = data?.forEach { updateItem(it) }
+    fun updateItems(data: List<*>?) {
+        data?.forEach { updateItem(it) }
+    }
 
     fun update(data: Any?) {
         if (data is List<*>) {
