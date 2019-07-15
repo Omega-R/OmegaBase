@@ -223,10 +223,11 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         val remoteException = if (remoteSource != null) {
             ignoreSourceException {
                 val result = block(remoteSource)
+                cacheReturnDeferred.cancel()
                 send(result)
+                channel.close()
                 memoryCacheSource?.update(result)
                 fileCacheSource?.update(result)
-                cacheReturnDeferred.cancel()
                 return
             }
         } else {
