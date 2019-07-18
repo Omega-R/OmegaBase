@@ -14,15 +14,12 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.mvp.MvpAppCompatDialogFragment
+import com.omegar.mvp.MvpBottomSheetDialogFragment
 
-/**
- * Created by Anton Knyazev on 04.04.2019.
- */
-abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
+abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
     private val dialogList = mutableListOf<Dialog>()
 
@@ -91,7 +88,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
-        launchForResult(this@OmegaDialogFragment, requestCode, option)
+        launchForResult(this@OmegaBottomSheetDialogFragment, requestCode, option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
@@ -101,23 +98,23 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
         createLauncher()
-            .launchForResult(this@OmegaDialogFragment, requestCode, option)
+            .launchForResult(this@OmegaBottomSheetDialogFragment, requestCode, option)
     }
 
     fun FragmentLauncher.replaceFragment(@IdRes containerViewId: Int) {
-        replace(this@OmegaDialogFragment, containerViewId)
+        replace(this@OmegaBottomSheetDialogFragment, containerViewId)
     }
 
     fun FragmentLauncher.addFragment(@IdRes containerViewId: Int) {
-        add(this@OmegaDialogFragment, containerViewId)
+        add(this@OmegaBottomSheetDialogFragment, containerViewId)
     }
 
     fun DialogFragmentLauncher.launch(tag: String? = null, requestCode: Int? = null) {
-        launch(childFragmentManager, tag, this@OmegaDialogFragment, requestCode)
+        launch(childFragmentManager, tag, this@OmegaBottomSheetDialogFragment, requestCode)
     }
 
     fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null, requestCode: Int? = null) {
-        launch(childFragmentManager, tag, this@OmegaDialogFragment, requestCode)
+        launch(childFragmentManager, tag, this@OmegaBottomSheetDialogFragment, requestCode)
     }
 
     override fun launch(launcher: DialogFragmentLauncher) {
