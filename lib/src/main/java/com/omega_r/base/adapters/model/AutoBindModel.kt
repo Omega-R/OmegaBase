@@ -234,7 +234,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         var viewOptionally: Boolean = false
 
-        internal open fun dispatchOnCreateView(view: View, viewCache: SparseArray<View>) {
+        open fun dispatchOnCreateView(view: View, viewCache: SparseArray<View>) {
             @Suppress("UNCHECKED_CAST")
             onCreateView(view as V)
         }
