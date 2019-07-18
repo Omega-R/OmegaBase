@@ -29,16 +29,9 @@ interface OmegaBindable: OmegaContext, OmegaViewFindable {
         recyclerView
     }
 
-    fun <T: ViewPager> bind(@IdRes res: Int, adapter: PagerAdapter)  = bindersManager.bind(RESETTABLE_WITH_AUTO_INIT) {
-        val viewPager: T = findViewById(res) ?: error("Bind is not found R.id.${resources.getResourceEntryName(res)} (${this::class.java.name})")
-        viewPager.adapter = adapter
-        viewPager
-    }
-
     fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = bindersManager.bind(RESETTABLE_WITH_AUTO_INIT) {
-        val view = findViewById<T>(res) ?: error("Bind is not found R.id.${resources.getResourceEntryName(res)} (${this::class.java.name})")
-        initBlock(view)
-        view
+       findViewById<T>(res)?.also(initBlock)
+           ?: error("Bind is not found R.id.${resources.getResourceEntryName(res)} (${this::class.java.name})")
     }
 
     fun <T : View> bind(@IdRes res: Int) = bindersManager.bind(RESETTABLE) {
@@ -103,6 +96,14 @@ interface OmegaBindable: OmegaContext, OmegaViewFindable {
         }
 
         map
+    }
+
+    fun <T: View> bindOrNull(@IdRes res: Int) = bindersManager.bind(RESETTABLE) {
+        findViewById<T>(res)
+    }
+
+    fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = bindersManager.bind(RESETTABLE_WITH_AUTO_INIT) {
+       findViewById<T>(res)?.also(initBlock)
     }
 
     fun bindColor(@ColorRes res: Int) = bindersManager.bind  {

@@ -68,7 +68,7 @@ infix fun String.put(value: Array<out Parcelable>) = BundlePair { it[this] = val
 infix fun String.put(value: SparseArray<out Parcelable>) = BundlePair { it[this] = value }
 
 //for null
-infix fun String.put(n: Void?) = BundlePair { it[this] = null as Void? }
+infix fun String.put(@Suppress("UNUSED_PARAMETER") n: Void?) = BundlePair { it[this] = null as Void? }
 
 
 operator fun Bundle.set(key: String, value: Boolean) = putBoolean(key, value)

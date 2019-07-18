@@ -1,5 +1,6 @@
 package com.omega_r.base.components
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,20 +8,18 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
-import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
-import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
+import com.omega_r.base.mvp.views.findAnnotation
+import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpAppCompatActivity
@@ -31,7 +30,9 @@ import com.omegar.mvp.MvpAppCompatActivity
 
 const val DELAY_SHOW_WAITING = 555L
 
-open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+
+    private val dialogList = mutableListOf<Dialog>()
 
     override val clickManager = ClickManager()
 
@@ -94,8 +95,10 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             supportActionBar?.let { supportActionBar ->
                 val homeIndicator = this::class.findAnnotation<OmegaHomeIndicator>()
                 if (homeIndicator == null) {
-                    supportActionBar.setDisplayHomeAsUpEnabled(!intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
-                            Intent.ACTION_MAIN != intent.action && !isTaskRoot)
+                    supportActionBar.setDisplayHomeAsUpEnabled(
+                        !intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
+                                Intent.ACTION_MAIN != intent.action && !isTaskRoot
+                    )
                 } else {
                     val iconRes = homeIndicator.iconRes
                     if (iconRes != -1) {
@@ -185,12 +188,70 @@ open class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             .add(this@OmegaActivity, containerViewId)
     }
 
+    fun DialogFragmentLauncher.launch(tag: String? = null) {
+        launch(supportFragmentManager, tag)
+    }
+
+    fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null) {
+        launch(supportFragmentManager, tag)
+    }
+
+    override fun launch(launcher: DialogFragmentLauncher) {
+        launcher.launch(supportFragmentManager)
+    }
+
     protected open fun onClickView(view: View) {
         // nothing
     }
 
+    override fun showQuery(
+        message: Text,
+        title: Text?,
+        positiveAction: Action,
+        negativeAction: Action,
+        neutralAction: Action?
+    ) {
+        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun hideQueryOrMessage() {
+        dialogList.lastOrNull()?.let {
+            it.dismiss()
+            dialogList.remove(it)
+        }
+    }
+
+    override fun showMessage(message: Text, action: Action?) {
+        createMessage(message, action).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+        launcher.launchForResult(this, requestCode)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onLaunchResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
     override fun exit() {
         finish()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        waitingDialog?.dismiss()
+        dialogList.forEach {
+            it.setOnDismissListener(null)
+            it.dismiss()
+        }
     }
 
 }
