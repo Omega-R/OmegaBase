@@ -1,5 +1,7 @@
 package com.omega_r.base.components
 
+import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.IdRes
@@ -10,11 +12,16 @@ import com.omega_r.base.annotations.OmegaTheme
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.launchers.DialogFragmentLauncher
 import com.omega_r.base.launchers.FragmentLauncher
+import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.MvpBottomSheetDialogFragment
 
-open class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
+abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
+
+    private val dialogList = mutableListOf<Dialog>()
 
     override val clickManager = ClickManager()
 
@@ -102,12 +109,63 @@ open class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), Omeg
         add(this@OmegaBottomSheetDialogFragment, containerViewId)
     }
 
+    fun DialogFragmentLauncher.launch(tag: String? = null, requestCode: Int? = null) {
+        launch(childFragmentManager, tag, this@OmegaBottomSheetDialogFragment, requestCode)
+    }
+
+    fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null, requestCode: Int? = null) {
+        launch(childFragmentManager, tag, this@OmegaBottomSheetDialogFragment, requestCode)
+    }
+
+    override fun launch(launcher: DialogFragmentLauncher) {
+        launcher.launch(childFragmentManager)
+    }
+
     protected open fun onClickView(view: View) {
         // nothing
     }
 
+    override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun hideQueryOrMessage() {
+        dialogList.lastOrNull()?.let {
+            it.dismiss()
+            dialogList.remove(it)
+        }
+    }
+
+    override fun showMessage(message: Text, action: Action?) {
+        createMessage(message, action).apply {
+            dialogList += this
+            show()
+        }
+    }
+
+    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+        launcher.launchForResult(this, requestCode)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onLaunchResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dialogList.forEach {
+            it.setOnDismissListener(null)
+            it.dismiss()
+        }
+    }
+
     override fun exit() {
-        activity!!.finish()
+        dismiss()
     }
 
 }
