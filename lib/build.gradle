@@ -53,9 +53,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
-    implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
-    implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
+    implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.8'
+    implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.8'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.8'
 
     implementation "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     implementation 'com.github.Omega-R.OmegaTypes:omegatypes:7ce4c69'
