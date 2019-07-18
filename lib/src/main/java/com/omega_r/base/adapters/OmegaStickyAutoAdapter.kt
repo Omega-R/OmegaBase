@@ -52,7 +52,8 @@ open class OmegaStickyAutoAdapter<M, VH>(
         viewHolder.bind(list[position])
     }
 
-    override fun getStickyId(position: Int) = stickyIdExtractor(list[position])
+    override fun getStickyId(position: Int) =
+        if (position in 0 until list.size) stickyIdExtractor(list[position]) else NO_STICKY_ID
 
     class StickyAdapterBuilder<M : Any>(
         @LayoutRes val stickyLayoutRes: Int,
