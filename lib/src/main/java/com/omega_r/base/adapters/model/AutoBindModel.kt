@@ -258,7 +258,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             }
         }
 
-        internal open fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
+        open fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
             array.getSet(id) += this
         }
 
