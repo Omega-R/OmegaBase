@@ -58,7 +58,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         val array = SparseArray<MutableSet<Binder<*, *>>>()
         view.setTag(R.id.omega_autobind, viewCache)
 
-        list.forEach { it.addToSet(array) }
+        list.forEach { it.addViewId(array) }
 
         for (i in 0 until array.size()) {
             val id = array.keyAt(i)
@@ -244,7 +244,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         }
 
         @Suppress("UNCHECKED_CAST")
-        internal open fun dispatchBind(viewCache: SparseArray<View>, item: M) {
+        open fun dispatchBind(viewCache: SparseArray<View>, item: M) {
             viewCache[id]?.let { view ->
                 bind(view as V, item)
             }
@@ -258,7 +258,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             }
         }
 
-        open fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
+        open fun addViewId(array: SparseArray<MutableSet<Binder<*, *>>>) {
             array.getSet(id) += this
         }
 
@@ -300,7 +300,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         abstract fun bind(views: SparseArray<V>, item: M)
 
-        override fun addToSet(array: SparseArray<MutableSet<Binder<*, *>>>) {
+        override fun addViewId(array: SparseArray<MutableSet<Binder<*, *>>>) {
             ids.forEach { id -> array.getSet(id) += this }
         }
 
