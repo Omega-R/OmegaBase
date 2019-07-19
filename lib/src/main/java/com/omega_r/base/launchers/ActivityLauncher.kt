@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.AndroidRuntimeException
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
@@ -25,6 +26,16 @@ class ActivityLauncher(
     private val bundle: Bundle? = null,
     private var flags: Int = 0
 ) : Launcher, Parcelable {
+
+    companion object {
+
+        fun launch(context: Context, option: Bundle? = null, vararg launchers: ActivityLauncher) {
+            launchers
+                .lastOrNull()
+                ?.launch(context, option, *launchers.take(launchers.size - 1).toTypedArray())
+        }
+
+    }
 
     constructor(activityClass: Class<Activity>, vararg extraParams: BundlePair, flags: Int = 0)
             : this(activityClass, bundleOf(*extraParams), flags)
@@ -60,12 +71,19 @@ class ActivityLauncher(
         }
     }
 
+    fun launch(context: Context, vararg parentLaunchers: ActivityLauncher) {
+        launch(context, null, *parentLaunchers)
+    }
+
+    fun launch(context: Context, option: Bundle? = null, vararg parentLaunchers: ActivityLauncher) {
+        val list =
+            listOf(*parentLaunchers.map { it.createIntent(context) }.toTypedArray(), createIntent(context))
+
+        ContextCompat.startActivities(context, list.toTypedArray(), option)
+    }
+
     private fun Context.compatStartActivity(intent: Intent, option: Bundle? = null) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            startActivity(intent)
-        } else {
-            startActivity(intent, option)
-        }
+        ContextCompat.startActivity(this, intent, option)
     }
 
     private fun Activity.compatStartActivityForResult(intent: Intent, requestCode: Int, option: Bundle? = null) {
@@ -83,8 +101,22 @@ class ActivityLauncher(
         return PendingIntent.getActivity(context, requestCode, createIntent(context), flags)
     }
 
+    fun getPendingIntent(
+        context: Context,
+        requestCode: Int = 0,
+        flags: Int = PendingIntent.FLAG_UPDATE_CURRENT,
+        vararg parentLaunchers: ActivityLauncher
+
+    ): PendingIntent {
+        val list =
+            listOf(*parentLaunchers.map { it.createIntent(context) }.toTypedArray(), createIntent(context))
+
+        return PendingIntent.getActivities(context, requestCode, *list.toTypedArray(), flags)
+    }
+
     fun getPendingIntentWithParentStack(
-        context: Context, requestCode: Int = 0,
+        context: Context,
+        requestCode: Int = 0,
         flags: Int = PendingIntent.FLAG_UPDATE_CURRENT
     ): PendingIntent {
         return TaskStackBuilder.create(context)

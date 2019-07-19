@@ -25,9 +25,7 @@ class ServiceLauncher(
 
     private fun createIntent(context: Context): Intent {
         return Intent(context, serviceClass).apply {
-            if (bundle != null) {
-                putExtras(bundle)
-            }
+            bundle?.let(::putExtras)
         }
     }
 
