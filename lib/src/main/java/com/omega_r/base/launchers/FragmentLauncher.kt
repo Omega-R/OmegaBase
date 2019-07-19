@@ -7,6 +7,7 @@ import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.omega_r.base.R
 import com.omega_r.base.tools.BundlePair
 import com.omega_r.base.tools.bundleOf
 import com.omega_r.base.tools.equalsBundle
@@ -17,14 +18,20 @@ import kotlinx.android.parcel.Parcelize
  * Created by Anton Knyazev on 06.04.2019.
  */
 @Parcelize
-class FragmentLauncher(private val fragmentClass: Class<Fragment>,
-                       private val bundle: Bundle? = null): Launcher, Parcelable {
+class FragmentLauncher(
+    private val fragmentClass: Class<Fragment>,
+    private val bundle: Bundle? = null
+) : Launcher, Parcelable {
 
     constructor(fragmentClass: Class<Fragment>, vararg extraParams: BundlePair)
             : this(fragmentClass, bundleOf(*extraParams))
 
     override fun launch(context: Context) {
-        throw IllegalAccessException("No supported")
+        if (context is AppCompatActivity) {
+            replace(context, R.id.layout_container)
+        } else {
+            throw IllegalAccessException("No supported")
+        }
     }
 
     fun createFragment(): Fragment {

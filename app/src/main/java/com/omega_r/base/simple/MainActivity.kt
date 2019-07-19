@@ -7,6 +7,7 @@ import com.omega_r.base.adapters.OmegaListAdapter
 import com.omega_r.base.adapters.OmegaViewPagerAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
+import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.components.OmegaActivity
 import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
@@ -51,7 +52,9 @@ class MainActivity : OmegaActivity(), MainView {
         )
     }
 
-    private val recyclerView: RecyclerView by bind(R.id.recyclerview, adapter)
+    private val recyclerView: RecyclerView by bind(R.id.recyclerview, adapter) {
+        recyclerView.setHasFixedSize(true)
+    }
 
     private val maps: Map<Field, View> by bind(Field.values()) {
         showToast(Text.from(it.id.toString()))
