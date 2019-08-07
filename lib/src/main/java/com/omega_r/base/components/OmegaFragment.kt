@@ -13,13 +13,12 @@ import com.omega_r.base.annotations.OmegaTheme
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
-import com.omega_r.base.launchers.ActivityLauncher
-import com.omega_r.base.launchers.DialogFragmentLauncher
-import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.launchers.Launcher
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
+import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatFragment
 
 /**

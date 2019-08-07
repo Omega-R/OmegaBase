@@ -9,8 +9,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.clickers.OmegaClickable
-import com.omega_r.base.launchers.ActivityLauncher
-import com.omega_r.base.launchers.Launcher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.base.mvp.model.Action
@@ -18,6 +16,7 @@ import com.omega_r.base.mvp.model.setAction
 import com.omega_r.base.mvp.model.setButtons
 import com.omega_r.base.mvp.model.setPositiveButton
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.Launcher
 import java.io.Serializable
 
 /**

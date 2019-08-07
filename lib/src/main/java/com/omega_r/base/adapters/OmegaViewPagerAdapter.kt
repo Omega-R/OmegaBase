@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.omega_r.base.components.OmegaFragment
-import com.omega_r.base.launchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.FragmentLauncher
 
 /**
  * Created by Anton Knyazev on 27.04.2019.

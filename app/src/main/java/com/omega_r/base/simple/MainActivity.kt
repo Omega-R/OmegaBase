@@ -1,21 +1,32 @@
 package com.omega_r.base.simple
 
+import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.adapters.OmegaListAdapter
-import com.omega_r.base.adapters.OmegaViewPagerAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.OmegaBindable
 import com.omega_r.base.components.OmegaActivity
 import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.from
+import com.omegar.libs.omegalaunchers.createActivityLauncher
+import com.omegar.libs.omegalaunchers.tools.put
 import com.omegar.mvp.presenter.InjectPresenter
 
 @OmegaContentView(R.layout.activity_main)
 class MainActivity : OmegaActivity(), MainView {
+
+    companion object {
+
+        private const val EXTRA_TITLE = "title"
+
+        fun createLauncher(title: String) = createActivityLauncher(
+            EXTRA_TITLE put title
+        )
+
+    }
 
     @InjectPresenter
     override lateinit var presenter: MainPresenter
@@ -60,13 +71,37 @@ class MainActivity : OmegaActivity(), MainView {
         showToast(Text.from(it.id.toString()))
     }
 
-    private fun onClickItem(item: Image) {
-        showToast(Text.from("Click $item"))
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        title = intent.getStringExtra(EXTRA_TITLE)
     }
 
-    data class Item (val text: String = "123", val list: List<SubItem> = listOf(SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem(), SubItem()))
+    private fun onClickItem(item: Image) {
+        showToast(Text.from("Click $item"))
 
-    data class SubItem (val text: String = "123")
+//        ActivityLauncher.launch(this, null, createLauncher("1"), createLauncher("2"))
+
+        createLauncher("1").launch(this, createLauncher("2"))
+    }
+
+    data class Item(
+        val text: String = "123",
+        val list: List<SubItem> = listOf(
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem(),
+            SubItem()
+        )
+    )
+
+    data class SubItem(val text: String = "123")
 
     enum class Field(override val id: Int) : IdHolder {
         ITEM1(R.id.recyclerview),
