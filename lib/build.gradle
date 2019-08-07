@@ -60,8 +60,8 @@ dependencies {
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.8'
 
     implementation "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:7ce4c69'
-    implementation 'com.github.Omega-R.OmegaTypes:glide:7ce4c69'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:1.0.1'
+    implementation 'com.github.Omega-R.OmegaTypes:glide:1.0.1'
 
     implementation "com.squareup.retrofit2:retrofit:2.4.0"
     implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
