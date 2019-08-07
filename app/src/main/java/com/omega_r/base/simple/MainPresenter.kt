@@ -1,6 +1,6 @@
 package com.omega_r.base.simple
 
-import com.omega_r.base.mvp.OmegaPresenter
+import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.InjectViewState

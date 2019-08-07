@@ -4,14 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.omega_r.libs.omegatypes.Image
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>()
+abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
         where VH : RecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
-    var list: List<M> = listOf()
+    override var list: List<M> = listOf()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -48,6 +49,24 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>()
     interface ViewHolderBindable<M> {
 
         fun bind(item: M)
+
+    }
+
+    class ImagePreloadWatcher<M : Image>(private val adapter: OmegaListAdapter<M, *>) : Watcher {
+
+        private var lastPosition: Int = -1
+
+        override fun bindPosition(position: Int, recyclerView: RecyclerView) {
+            val childCount = recyclerView.childCount
+            val preloadPosition = if (lastPosition < position) {
+                position + childCount
+            } else {
+                position - childCount
+            }
+            adapter.list.getOrNull(preloadPosition)?.preload(recyclerView.context)
+
+            lastPosition = position
+        }
 
     }
 

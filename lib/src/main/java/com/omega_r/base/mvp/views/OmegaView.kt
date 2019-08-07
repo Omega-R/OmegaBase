@@ -1,9 +1,11 @@
-package com.omega_r.base.mvp
+package com.omega_r.base.mvp.views
 
-import com.omega_r.base.launchers.ActivityLauncher
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.strategies.RemoveEndTagStrategy
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
+import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpView
 import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.omegar.mvp.viewstate.strategy.AddToEndStrategy
@@ -40,7 +42,10 @@ interface OmegaView : MvpView {
     fun setWaiting(waiting: Boolean, text: Text? = null)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
-    fun launch(launcher: ActivityLauncher)
+    fun launch(launcher: Launcher)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun launch(launcher: DialogFragmentLauncher)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun launchForResult(launcher: ActivityLauncher, requestCode: Int)

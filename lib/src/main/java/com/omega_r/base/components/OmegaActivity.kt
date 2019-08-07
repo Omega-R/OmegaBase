@@ -8,20 +8,22 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.IdRes
+import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
+import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
-import com.omega_r.base.launchers.ActivityLauncher
-import com.omega_r.base.launchers.DialogFragmentLauncher
-import com.omega_r.base.launchers.FragmentLauncher
-import com.omega_r.base.mvp.findAnnotation
 import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.tools.WaitingDialog
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
+import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatActivity
 
 /**
@@ -196,6 +198,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         launch(supportFragmentManager, tag)
     }
 
+    override fun launch(launcher: DialogFragmentLauncher) {
+        launcher.launch(supportFragmentManager)
+    }
+
     protected open fun onClickView(view: View) {
         // nothing
     }
@@ -249,5 +255,50 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             it.dismiss()
         }
     }
+
+    final override fun <T> bind(init: () -> T) = super.bind(init)
+
+    final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)
+
+    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> = super.bind(ids)
+
+    final override fun <T : View> bind(@IdRes res: Int): Lazy<T> = super.bind(res)
+
+    final override fun <T : View> bind(@IdRes vararg ids: Int): Lazy<List<T>> = super.bind(*ids)
+
+    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) = super.bind<T>(res, adapter)
+
+    final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
+        super.bind(idsPair = *idsPair, initBlock = initBlock)
+
+    final override fun <T : View, IH : IdHolder> bind(
+        ids: Array<out IH>,
+        initBlock: T.(IdHolder) -> Unit
+    ) = super.bind(ids, initBlock)
+
+    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
+
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+        super.bind(ids = *ids, initBlock = initBlock)
+
+    final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =
+        super.bind(res, adapter, initBlock)
+
+    final override fun bindAnimation(@AnimRes res: Int) = super.bindAnimation(res)
+
+    final override fun bindColor(@ColorRes res: Int) = super.bindColor(res)
+
+    final override fun bindDimen(@DimenRes res: Int) = super.bindDimen(res)
+
+    final override fun bindDimenPixel(@DimenRes res: Int) = super.bindDimenPixel(res)
+
+    final override fun bindDrawable(@DrawableRes res: Int) = super.bindDrawable(res)
+
+    final override fun bindInt(@IntegerRes res: Int) = super.bindInt(res)
+
+    final override fun <T : View> bindOrNull(@IdRes res: Int) = super.bindOrNull<T>(res)
+
+    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
+
 
 }

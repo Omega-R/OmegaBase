@@ -32,6 +32,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions.jvmTarget = "1.8"
+
 }
 
 dependencies {
@@ -50,6 +52,9 @@ dependencies {
     implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
     implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:ae42598df9'
+    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:1.0.1'
+    implementation 'com.github.Omega-R.OmegaTypes:glide:1.0.1'
+    implementation 'com.github.Omega-R:OmegaLaunchers:1.0.1'
+
 
 }

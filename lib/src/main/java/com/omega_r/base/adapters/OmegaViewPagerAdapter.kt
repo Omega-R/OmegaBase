@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.omega_r.base.components.OmegaFragment
-import com.omega_r.base.launchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.FragmentLauncher
 
 /**
  * Created by Anton Knyazev on 27.04.2019.
@@ -18,9 +18,10 @@ import com.omega_r.base.launchers.FragmentLauncher
 private const val KEY_LIST = "internalList"
 private const val KEY_SUPER = "internalSuper"
 
-class ViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class OmegaViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
+    Iterable<Fragment>, ListableAdapter<FragmentLauncher> {
 
-    var list: List<FragmentLauncher> = emptyList()
+    override var list: List<FragmentLauncher> = emptyList()
         set(value) {
             if (field != value) {
                 field = value.toList()
@@ -74,6 +75,20 @@ class ViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm, BEHA
             super.restoreState(state.getParcelable(KEY_SUPER), loader)
         } else {
             super.restoreState(state, loader)
+        }
+    }
+
+    override fun iterator(): Iterator<Fragment> = IteratorImpl()
+
+    private open inner class IteratorImpl : Iterator<Fragment> {
+        /** the index of the item that will be returned on the next call to [next]`()` */
+        protected var index = 0
+
+        override fun hasNext(): Boolean = index < list.size
+
+        override fun next(): Fragment {
+            if (!hasNext()) throw NoSuchElementException()
+            return getCurrentFragment(index++)
         }
     }
 

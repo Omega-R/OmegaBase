@@ -1,8 +1,10 @@
-package com.omega_r.base.mvp
+package com.omega_r.base.mvp.presenters
 
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
-import com.omega_r.base.launchers.ActivityLauncher
+import com.omega_r.base.mvp.views.OmegaView
+import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -77,7 +79,7 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
 
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
 
-    protected open fun ActivityLauncher.launch() {
+    protected open fun Launcher.launch() {
         viewState.launch(this)
     }
 
@@ -89,7 +91,7 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         viewState.launchForResult(this, requestCode)
     }
 
-    internal open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
+    open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
         return false
     }
 
