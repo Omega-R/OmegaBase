@@ -14,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope {
+open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
     private val handler = CoroutineExceptionHandler { _, throwable -> handleErrors(throwable) }
 
@@ -46,14 +46,14 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
     }
 
 
-    protected fun <R> ReceiveChannel<R>.request(waiting: Boolean = true, block: suspend View.(R) -> Unit) {
+    protected fun <R> ReceiveChannel<R>.request(waiting: Boolean = true, block: (suspend View.(R) -> Unit)? = null) {
         if (waiting) viewState.setWaiting(true)
         val channel = this
         launch {
             var hideWaiting = waiting
             try {
                 for (item in channel) {
-                    block(viewState, item)
+                    block?.invoke(viewState, item)
 
                     if (hideWaiting) {
                         hideWaiting = false
@@ -75,6 +75,15 @@ open class OmegaPresenter<View: OmegaView>: MvpPresenter<View>(), CoroutineScope
         viewStateBlock: suspend View.(R) -> Unit
     ) {
         createChannel(strategy, sourceBlock).request(waiting = waiting, block = viewStateBlock)
+    }
+
+    protected fun <S : Source> OmegaRepository<S>.request(
+        strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
+        waiting: Boolean = true,
+        sourceBlock: suspend S.() -> Unit
+    ) {
+        createChannel(strategy, sourceBlock)
+            .request(waiting = waiting)
     }
 
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
