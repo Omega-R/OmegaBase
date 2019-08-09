@@ -3,7 +3,10 @@ package com.omega_r.base.mvp.presenters
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.mvp.views.OmegaView
+import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
+import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
 import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
@@ -21,6 +24,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     private val job = SupervisorJob()
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
+
+    protected val intentBuilder
+        get() = OmegaIntentBuilder
 
     protected open fun handleErrors(throwable: Throwable) {
         throwable.printStackTrace()
@@ -96,9 +102,13 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         viewState.launch(createLauncher())
     }
 
-    protected fun ActivityLauncher.launchForResult(requestCode: Int) {
+    protected fun BaseIntentLauncher.launchForResult(requestCode: Int) {
         viewState.launchForResult(this, requestCode)
     }
+
+    protected fun IntentBuilder.launch() = createLauncher().launch()
+
+    protected fun IntentBuilder.launchForResult(requestCode: Int) = createLauncher().launchForResult(requestCode)
 
     open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
         return false
@@ -117,5 +127,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         super.onDestroy()
         job.cancel()
     }
+
 
 }
