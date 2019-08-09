@@ -15,13 +15,12 @@ import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
-import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatDialogFragment
-import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -153,7 +152,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         }
     }
 
-    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+    override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
         launcher.launchForResult(this, requestCode)
     }
 

@@ -48,13 +48,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0-beta01'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
     implementation project(':lib')
-    implementation "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}"
-    implementation 'com.github.Omega-R.OmegaMoxy:moxy:1.5.7'
-    implementation 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.7'
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.7'
-    implementation 'com.github.Omega-R.OmegaTypes:omegatypes:1.0.1'
-    implementation 'com.github.Omega-R.OmegaTypes:glide:1.0.1'
-    implementation 'com.github.Omega-R:OmegaLaunchers:1.0.1'
 
 
 }

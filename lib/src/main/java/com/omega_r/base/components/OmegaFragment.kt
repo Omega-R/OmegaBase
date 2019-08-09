@@ -17,6 +17,7 @@ import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatFragment
@@ -155,7 +156,7 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         }
     }
 
-    override fun launchForResult(launcher: ActivityLauncher, requestCode: Int) {
+    override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
         launcher.launchForResult(this, requestCode)
     }
 
