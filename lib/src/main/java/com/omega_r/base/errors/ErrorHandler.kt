@@ -19,7 +19,7 @@ open class ErrorHandler : (Throwable) -> Exception, CoroutineExceptionHandler {
     protected open fun handleHttpException(httpException: HttpException): AppException {
         val response = httpException.response()
 
-        when (response.code()) {
+        when (response?.code()) {
             HTTP_INTERNAL_ERROR -> return AppException.ServerProblem(
                 "Internal server error",
                 httpException
