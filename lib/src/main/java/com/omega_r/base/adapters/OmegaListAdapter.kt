@@ -1,10 +1,14 @@
 package com.omega_r.base.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.libs.omegatypes.Image
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -52,20 +56,65 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
 
     }
 
-    class ImagePreloadWatcher<M : Image>(private val adapter: OmegaListAdapter<M, *>) : Watcher {
+    class ImagePreloadWatcher<M : Image>(
+        private val adapter: OmegaListAdapter<M, *>,
+        private val maxPreloadCount: Int = 4
+    ) : Watcher {
 
-        private var lastPosition: Int = -1
+        private var lastEnd: Int = 0
+        private var lastStart: Int = 0
+        private var lastFirstVisible = -1
 
         override fun bindPosition(position: Int, recyclerView: RecyclerView) {
-            val childCount = recyclerView.childCount
-            val preloadPosition = if (lastPosition < position) {
-                position + childCount
-            } else {
-                position - childCount
-            }
-            adapter.list.getOrNull(preloadPosition)?.preload(recyclerView.context)
+            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+            val context = recyclerView.context
+            val firstVisible = layoutManager.findFirstVisibleItemPosition()
+            val lastVisible = layoutManager.findLastVisibleItemPosition()
+            val visibleCount = lastVisible - firstVisible
 
-            lastPosition = position
+            val start: Int
+            val end: Int
+            if (firstVisible > lastFirstVisible) {
+                start = firstVisible + visibleCount
+                end = start + maxPreloadCount
+                preload(start, end, context)
+            } else if (firstVisible < lastFirstVisible) {
+                start = firstVisible
+                end = start - maxPreloadCount
+                preload(start, end, context)
+            }
+            lastFirstVisible = firstVisible
+        }
+
+        private fun preload(from: Int, to: Int, context: Context) {
+            val totalItemCount = adapter.list.size
+
+            var start: Int
+            var end: Int
+            if (from < to) {
+                start = max(lastEnd, from)
+                end = to
+            } else {
+                start = to
+                end = min(lastStart, from)
+            }
+            end = min(totalItemCount, end)
+            start = min(totalItemCount, Math.max(0, start))
+
+            if (from < to) {
+                // Increasing
+                for (i in start until end) {
+                    adapter.list.getOrNull(i)?.preload(context)
+                }
+            } else {
+                // Decreasing
+                for (i in end - 1 downTo start) {
+                    adapter.list.getOrNull(i)?.preload(context)
+                }
+            }
+
+            lastStart = start
+            lastEnd = end
         }
 
     }
