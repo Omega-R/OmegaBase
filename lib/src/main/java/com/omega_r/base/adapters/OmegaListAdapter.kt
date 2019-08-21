@@ -1,6 +1,7 @@
 package com.omega_r.base.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,32 +62,28 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
         private val maxPreloadCount: Int = 4
     ) : Watcher {
 
-        private var lastEnd: Int = 0
-        private var lastFirstVisible = -1
+        private var lastBindPosition = -1
 
         override fun bindPosition(position: Int, recyclerView: RecyclerView) {
-            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
             val context = recyclerView.context
-            val firstVisible = layoutManager.findFirstVisibleItemPosition()
-
             val from: Int
             val to: Int
-            if (firstVisible > lastFirstVisible) {
-                from = lastEnd
-                to = from + maxPreloadCount
+            if (position > lastBindPosition) {
+                from = position + 1
+                to = from + maxPreloadCount - 1
                 preload(from, to, context)
-            } else if (firstVisible < lastFirstVisible) {
-                from = firstVisible
-                to = from - maxPreloadCount
+            } else if (position < lastBindPosition) {
+                from = position - 1
+                to = from - maxPreloadCount + 1
                 preload(from, to, context)
             }
-            lastFirstVisible = firstVisible
+            lastBindPosition = position
         }
 
         private fun preload(from: Int, to: Int, context: Context) {
             val size = adapter.list.size
-            val start = max(0, min(from, size))
-            val end = max(0, min(to, size))
+            val start = max(0, min(from, size - 1))
+            val end = max(0, min(to, size - 1))
 
             if (from < to) {
                 // Increasing
@@ -95,13 +92,11 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
                 }
             } else {
                 // Decreasing
-                for (i in end - 1 downTo start) {
+                for (i in end downTo start) {
                     adapter.list.getOrNull(i)?.preload(context)
                 }
             }
-            lastEnd = end
         }
-
     }
 
 }
