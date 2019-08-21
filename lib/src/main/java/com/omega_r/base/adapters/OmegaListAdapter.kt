@@ -62,44 +62,31 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
     ) : Watcher {
 
         private var lastEnd: Int = 0
-        private var lastStart: Int = 0
         private var lastFirstVisible = -1
 
         override fun bindPosition(position: Int, recyclerView: RecyclerView) {
             val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
             val context = recyclerView.context
             val firstVisible = layoutManager.findFirstVisibleItemPosition()
-            val lastVisible = layoutManager.findLastVisibleItemPosition()
-            val visibleCount = lastVisible - firstVisible
 
-            val start: Int
-            val end: Int
+            val from: Int
+            val to: Int
             if (firstVisible > lastFirstVisible) {
-                start = firstVisible + visibleCount
-                end = start + maxPreloadCount
-                preload(start, end, context)
+                from = lastEnd
+                to = from + maxPreloadCount
+                preload(from, to, context)
             } else if (firstVisible < lastFirstVisible) {
-                start = firstVisible
-                end = start - maxPreloadCount
-                preload(start, end, context)
+                from = firstVisible
+                to = from - maxPreloadCount
+                preload(from, to, context)
             }
             lastFirstVisible = firstVisible
         }
 
         private fun preload(from: Int, to: Int, context: Context) {
-            val totalItemCount = adapter.list.size
-
-            var start: Int
-            var end: Int
-            if (from < to) {
-                start = max(lastEnd, from)
-                end = to
-            } else {
-                start = to
-                end = min(lastStart, from)
-            }
-            end = min(totalItemCount, end)
-            start = min(totalItemCount, Math.max(0, start))
+            val size = adapter.list.size
+            val start = max(0, min(from, size))
+            val end = max(0, min(to, size))
 
             if (from < to) {
                 // Increasing
@@ -112,8 +99,6 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
                     adapter.list.getOrNull(i)?.preload(context)
                 }
             }
-
-            lastStart = start
             lastEnd = end
         }
 
