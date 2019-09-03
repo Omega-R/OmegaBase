@@ -42,6 +42,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) = with(viewState) {
+        setWaiting(true)
         launch {
             try {
                 block()
