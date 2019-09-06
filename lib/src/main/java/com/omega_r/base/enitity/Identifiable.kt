@@ -17,3 +17,19 @@ interface Identifiable<T> {
             else -> id.hashCode().toLong()
         }
 }
+
+fun <T : Identifiable<I>, I> Iterable<T>.contains(id: I): Boolean {
+    return firstOrNull(predicate = { it.id == id }) != null
+}
+
+fun <T : Identifiable<I>, I> Iterable<T>.indexOfFirst(id: I): Int {
+    return indexOfFirst(predicate = { it.id == id })
+}
+
+fun <T : Identifiable<I>, I> Iterable<T>.indexOfLast(id: I): Int {
+    return indexOfLast(predicate = { it.id == id })
+}
+
+fun <T : Identifiable<I>, I> Iterable<T>.firstOrNull(id: I): T? {
+    return firstOrNull(predicate = { it.id == id })
+}
