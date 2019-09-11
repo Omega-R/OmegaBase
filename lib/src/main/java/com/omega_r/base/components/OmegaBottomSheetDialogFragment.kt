@@ -159,6 +159,14 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         }
     }
 
+    override fun setResult(resultCode: Int) {
+        activity?.setResult(resultCode)
+    }
+
+    override fun setResult(resultCode: Int, intent: Intent) {
+        activity?.setResult(resultCode, intent)
+    }
+
     override fun onStop() {
         super.onStop()
         dialogList.forEach {
