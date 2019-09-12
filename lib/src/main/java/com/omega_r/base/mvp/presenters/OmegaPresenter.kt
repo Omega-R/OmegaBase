@@ -13,6 +13,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -41,9 +42,12 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
-    protected inline fun launchWithWaiting(crossinline block: suspend () -> Unit) = with(viewState) {
+    protected inline fun launchWithWaiting(
+        context: CoroutineContext = EmptyCoroutineContext,
+        crossinline block: suspend () -> Unit
+    ) = with(viewState) {
         setWaiting(true)
-        launch {
+        launch(context) {
             try {
                 block()
             } finally {
@@ -53,7 +57,10 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
 
-    protected fun <R> ReceiveChannel<R>.request(waiting: Boolean = true, block: (suspend View.(R) -> Unit)? = null) {
+    protected fun <R> ReceiveChannel<R>.request(
+        waiting: Boolean = true,
+        block: (suspend View.(R) -> Unit)? = null
+    ) {
         if (waiting) viewState.setWaiting(true)
         val channel = this
         launch {
@@ -109,7 +116,8 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     protected fun IntentBuilder.launch() = createLauncher().launch()
 
-    protected fun IntentBuilder.launchForResult(requestCode: Int) = createLauncher().launchForResult(requestCode)
+    protected fun IntentBuilder.launchForResult(requestCode: Int) =
+        createLauncher().launchForResult(requestCode)
 
     open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
         return false
