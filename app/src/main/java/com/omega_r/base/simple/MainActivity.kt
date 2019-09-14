@@ -31,36 +31,37 @@ class MainActivity : OmegaActivity(), MainView {
     @InjectPresenter
     override lateinit var presenter: MainPresenter
 
+    private val images = listOf(
+        Image.from("https://images.wallpaperscraft.ru/image/gora_vershina_pik_146078_3840x2400.jpg"),
+        Image.from("https://hubblesite.org/uploads/image_file/image_attachment/31803/STSCI-H-p1935b-m-2000x1827.png"),
+        Image.from("https://hubblesite.org/uploads/image_file/image_attachment/31726/STSCI-H-p1918a-f-2000x2000.png"),
+        Image.from("https://images.wallpaperscraft.ru/image/basketbolnoe_koltso_shchitok_koltso_146103_3840x2160.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/kot_okno_vzgliad_146100_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/reka_obryv_skaly_146093_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/ozero_bereg_kamni_146091_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/gory_skaly_zasnezhennyj_146085_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/piatna_kraska_rzhavchina_146084_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/zdanie_arhitektura_minimalizm_146082_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/gora_vershina_pik_146078_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/setchatyj_struktura_relef_146075_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/zontiki_raznotsvetnyj_dekoratsiia_146072_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/tsvety_fioletovyj_buket_146070_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/okno_steklo_mokryj_146068_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/limon_dolki_pattern_146063_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/siluet_temnyj_zakat_146060_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/tsitata_chtenie_um_146059_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/devushka_siluet_solntse_146058_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/zdanie_arhitektura_sovremennyj_146056_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/mercedes_mashina_chernyj_146054_3840x2400.jpg"),
+        Image.from("https://images.wallpaperscraft.ru/image/kamen_skala_sneg_146052_3840x2400.jpg"),
+        Image.from("https://hubblesite.org/uploads/image_file/image_attachment/31803/STSCI-H-p1935b-m-2000x1827.png")
+    )
+
     private val adapter = OmegaAutoAdapter.create(R.layout.item_test_3, ::onClickItem) {
         bindImage(R.id.imageview)
     }.apply {
         watcher = OmegaListAdapter.ImagePreloadWatcher(this)
-        list = listOf(
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?156"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?256"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?35"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?45"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?56"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?64"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?79"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?85"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?91"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?102"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?113"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?124"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?135"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?146"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?1578"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?169"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?174"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?185"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?1956"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?201"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?212"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?2212"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?231"),
-            Image.from("https://i.pinimg.com/originals/d6/68/ab/d668abc72809303852c27275e6a56775.gif?242")
-        )
+        list = images
     }
 
     private val recyclerView: RecyclerView by bind(R.id.recyclerview, adapter) {

@@ -1,10 +1,15 @@
 package com.omega_r.base.adapters
 
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.libs.omegatypes.Image
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -52,22 +57,46 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
 
     }
 
-    class ImagePreloadWatcher<M : Image>(private val adapter: OmegaListAdapter<M, *>) : Watcher {
+    class ImagePreloadWatcher<M : Image>(
+        private val adapter: OmegaListAdapter<M, *>,
+        private val maxPreloadCount: Int = 4
+    ) : Watcher {
 
-        private var lastPosition: Int = -1
+        private var lastBindPosition = -1
 
         override fun bindPosition(position: Int, recyclerView: RecyclerView) {
-            val childCount = recyclerView.childCount
-            val preloadPosition = if (lastPosition < position) {
-                position + childCount
-            } else {
-                position - childCount
+            val context = recyclerView.context
+            val from: Int
+            val to: Int
+            if (position > lastBindPosition) {
+                from = position + 1
+                to = from + maxPreloadCount - 1
+                preload(from, to, context)
+            } else if (position < lastBindPosition) {
+                from = position - 1
+                to = from - maxPreloadCount + 1
+                preload(from, to, context)
             }
-            adapter.list.getOrNull(preloadPosition)?.preload(recyclerView.context)
-
-            lastPosition = position
+            lastBindPosition = position
         }
 
+        private fun preload(from: Int, to: Int, context: Context) {
+            val size = adapter.list.size
+            val start = max(0, min(from, size - 1))
+            val end = max(0, min(to, size - 1))
+
+            if (from < to) {
+                // Increasing
+                for (i in start until end) {
+                    adapter.list.getOrNull(i)?.preload(context)
+                }
+            } else {
+                // Decreasing
+                for (i in end downTo start) {
+                    adapter.list.getOrNull(i)?.preload(context)
+                }
+            }
+        }
     }
 
 }
