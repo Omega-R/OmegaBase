@@ -55,15 +55,21 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
         super.onCreate(savedInstanceState)
 
-        this::class.findAnnotation<OmegaTheme>()?.let {
-            setTheme(it.resId)
-        }
-        this::class.findAnnotation<OmegaContentView>()?.let {
-            setContentView(it.layoutRes)
-        }
-
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        this::class.annotations.forEach {
+            when (it) {
+                is OmegaTheme -> {
+                    setTheme(it.resId)
+                }
+                is OmegaContentView -> {
+                    setContentView(it.layoutRes)
+                }
+                is OmegaClickViews -> {
+                    setOnClickListeners(ids = *it.ids, block = this::onClickView)
+                }
+                is OmegaTitle -> {
+                    setTitle(it.resId)
+                }
+            }
         }
     }
 

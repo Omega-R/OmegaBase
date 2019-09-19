@@ -1,11 +1,13 @@
 package com.omega_r.base.mvp.presenters
 
+import android.view.View
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
 import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.ActivityLauncher.Companion.launch
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
@@ -34,11 +36,16 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected suspend fun <T> withWaiting(block: suspend () -> T): T = with(viewState) {
-        setWaiting(true)
+        withContext(Dispatchers.Main) {
+            setWaiting(true)
+        }
+
         try {
             block()
         } finally {
-            setWaiting(false)
+            withContext(Dispatchers.Main) {
+                setWaiting(false)
+            }
         }
     }
 
@@ -51,7 +58,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             try {
                 block()
             } finally {
-                setWaiting(false)
+                withContext(Dispatchers.Main) {
+                    setWaiting(false)
+                }
             }
         }
     }
