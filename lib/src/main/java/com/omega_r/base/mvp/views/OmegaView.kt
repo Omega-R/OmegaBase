@@ -54,6 +54,9 @@ interface OmegaView : MvpView {
     fun setResult(success: Boolean, data: Serializable?)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
+    fun requestPermissions(requestCode: Int, vararg permissions: String)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun exit()
 
 }

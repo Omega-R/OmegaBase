@@ -1,13 +1,12 @@
 package com.omega_r.base.mvp.presenters
 
-import android.view.View
+import android.content.pm.PackageManager
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
 import com.omegar.libs.omegalaunchers.ActivityLauncher
-import com.omegar.libs.omegalaunchers.ActivityLauncher.Companion.launch
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
@@ -144,6 +143,29 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    protected fun getPermissionState(permissionName: String): Boolean {
+        return false
+    }
+
+    fun onPermissionResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ): Boolean {
+        val permissionResults =
+            permissions.mapIndexed { index, permission -> permission to (grantResults[index] == PackageManager.PERMISSION_GRANTED) }
+                .toMap()
+        return onPermissionResult(requestCode, permissionResults)
+    }
+
+    protected open fun onPermissionResult(
+        requestCode: Int,
+        permissionResults: Map<String, Boolean>
+    ): Boolean {
+        return false
     }
 
 

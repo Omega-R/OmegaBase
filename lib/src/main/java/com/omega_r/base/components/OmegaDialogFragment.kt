@@ -162,6 +162,20 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         }
     }
 
+    override fun requestPermissions(requestCode: Int, vararg permissions: String) {
+        requestPermissions(permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         dialogList.forEach {

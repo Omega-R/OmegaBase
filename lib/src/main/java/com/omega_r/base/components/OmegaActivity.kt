@@ -3,6 +3,7 @@ package com.omega_r.base.components
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
@@ -20,6 +22,7 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.tools.WaitingDialog
+import com.omega_r.libs.extensions.context.getColorByAttribute
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -68,6 +71,21 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
                 }
                 is OmegaTitle -> {
                     setTitle(it.resId)
+                }
+                is OmegaWindowBackground -> {
+                    if (it.drawableRes > 0) {
+                        window.setBackgroundDrawable(
+                            ContextCompat.getDrawable(
+                                this,
+                                it.drawableRes
+                            )
+                        )
+                    } else if (it.colorAttrRes > 0) {
+                        window.setBackgroundDrawable(
+                            ColorDrawable(getColorByAttribute(it.colorAttrRes))
+                        )
+                    }
+
                 }
             }
         }
@@ -174,7 +192,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             .launch(this@OmegaActivity, option)
     }
 
-    fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
+    fun ActivityLauncher.DefaultCompanion.launchForResult(
+        requestCode: Int,
+        option: Bundle? = null
+    ) {
         createLauncher()
             .launchForResult(this@OmegaActivity, requestCode, option)
     }
@@ -250,6 +271,20 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         }
     }
 
+    override fun requestPermissions(requestCode: Int, vararg permissions: String) {
+        ActivityCompat.requestPermissions(this, permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
     override fun exit() {
         finish()
     }
@@ -267,13 +302,15 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)
 
-    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> = super.bind(ids)
+    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> =
+        super.bind(ids)
 
     final override fun <T : View> bind(@IdRes res: Int): Lazy<T> = super.bind(res)
 
     final override fun <T : View> bind(@IdRes vararg ids: Int): Lazy<List<T>> = super.bind(*ids)
 
-    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) = super.bind<T>(res, adapter)
+    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
+        super.bind<T>(res, adapter)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)
@@ -283,12 +320,17 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         initBlock: T.(IdHolder) -> Unit
     ) = super.bind(ids, initBlock)
 
-    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
+    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bind(res, initBlock)
 
-    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit) =
         super.bind(ids = *ids, initBlock = initBlock)
 
-    final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =
+    final override fun <T : RecyclerView> bind(
+        res: Int,
+        adapter: RecyclerView.Adapter<*>,
+        initBlock: T.() -> Unit
+    ) =
         super.bind(res, adapter, initBlock)
 
     final override fun bindAnimation(@AnimRes res: Int) = super.bindAnimation(res)
@@ -305,7 +347,8 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     final override fun <T : View> bindOrNull(@IdRes res: Int) = super.bindOrNull<T>(res)
 
-    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
+    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bindOrNull(res, initBlock)
 
 
 }
