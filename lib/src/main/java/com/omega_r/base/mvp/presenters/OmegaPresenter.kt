@@ -19,6 +19,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
+private const val REQUEST_PERMISSION_BASE = 10000
+
+
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
     private val handler = CoroutineExceptionHandler { _, throwable -> handleErrors(throwable) }
@@ -26,6 +29,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     private val job = SupervisorJob()
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
+
+    private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?> by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
+
 
     protected val intentBuilder
         get() = OmegaIntentBuilder
@@ -150,15 +156,34 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return false
     }
 
+    fun requestPermission(vararg permissions: String, resultCallback: (Boolean) -> Unit) {
+        val permissionList = permissions.toList()
+        permissionsCallbacks[permissionList] = resultCallback
+
+        viewState.requestPermissions(
+            REQUEST_PERMISSION_BASE + permissionsCallbacks.keys.indexOf(
+                permissionList
+            ), *permissions
+        )
+    }
+
     fun onPermissionResult(
         requestCode: Int,
-        permissions: Array<out String>,
+        permissions: Array<String>,
         grantResults: IntArray
     ): Boolean {
-        val permissionResults =
-            permissions.mapIndexed { index, permission -> permission to (grantResults[index] == PackageManager.PERMISSION_GRANTED) }
-                .toMap()
-        return onPermissionResult(requestCode, permissionResults)
+        val permissionList = permissions.toList()
+        if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)) {
+            permissionsCallbacks[permissionList]?.invoke(grantResults.firstOrNull { it != PackageManager.PERMISSION_GRANTED } == null)
+            permissionsCallbacks[permissionList] = null
+            return true
+        } else {
+            val permissionResults =
+                permissions.mapIndexed { index, permission -> permission to (grantResults[index] == PackageManager.PERMISSION_GRANTED) }
+                    .toMap()
+
+            return onPermissionResult(requestCode, permissionResults)
+        }
     }
 
     protected open fun onPermissionResult(
