@@ -277,7 +277,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
+        permissions: Array<String>,
         grantResults: IntArray
     ) {
         if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
