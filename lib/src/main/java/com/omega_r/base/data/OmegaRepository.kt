@@ -23,9 +23,11 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
     private val remoteSource = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
-    private val memoryCacheSource = sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
+    private val memoryCacheSource =
+        sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
 
-    private val fileCacheSource = sources.firstOrNull { it.type == Source.Type.FILE_CACHE } as? CacheSource
+    private val fileCacheSource =
+        sources.firstOrNull { it.type == Source.Type.FILE_CACHE } as? CacheSource
 
     private val defaultSource = sources.firstOrNull { it.type == Source.Type.DEFAULT }
 
@@ -118,15 +120,17 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             }
         }
 
+        var cacheException: Exception? = null
+
         if (memoryCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 send(block(memoryCacheSource as SOURCE))
                 return
             }
         }
 
         if (fileCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 val result = block(fileCacheSource as SOURCE)
                 send(result)
                 memoryCacheSource?.update(result)
@@ -135,24 +139,29 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         }
 
         if (defaultSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 return send(block(defaultSource))
             }
         }
-
-        remoteException?.let { throw it }
+        if (remoteSource == null) {
+            cacheException?.let { throw it }
+        } else {
+            remoteException?.let { throw it }
+        }
     }
 
     private suspend fun <R> ProducerScope<R>.applyCacheElseRemote(block: suspend SOURCE.() -> R) {
+
+        var cacheException: Exception? = null
+
         if (memoryCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 send(block(memoryCacheSource as SOURCE))
                 return
             }
         }
-
         if (fileCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 val result = block(fileCacheSource as SOURCE)
                 send(result)
                 memoryCacheSource?.update(result)
@@ -173,13 +182,15 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         }
 
         if (defaultSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 return send(block(defaultSource))
             }
         }
 
         if (remoteException != null) {
             throw remoteException
+        } else if (cacheException != null) {
+            throw cacheException
         } else {
             throwNoData("Cache sources is null")
         }
@@ -187,37 +198,38 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
     private suspend fun <R> ProducerScope<R>.applyCacheAndRemote(block: suspend SOURCE.() -> R) {
         val cacheReturnDeferred = async {
+            var cacheException: Exception? = null
             if (memoryCacheSource != null) {
-                ignoreException {
+                cacheException = ignoreException {
                     val result = block(memoryCacheSource as SOURCE)
 
                     if (isActive && !isClosedForSend) {
                         send(result)
                     }
-                    return@async true
+                    return@async null
                 }
             }
             if (fileCacheSource != null) {
-                ignoreException {
+                cacheException = ignoreException {
                     val result = block(fileCacheSource as SOURCE)
                     if (isActive && !isClosedForSend) {
                         send(result)
                         memoryCacheSource?.update(result)
                     }
-                    return@async true
+                    return@async null
                 }
             }
 
             if (defaultSource != null) {
-                ignoreException {
+                cacheException = ignoreException {
                     if (isActive && !isClosedForSend) {
                         send(block(defaultSource))
                     }
-                    return@async true
+                    return@async null
                 }
             }
 
-            return@async false
+            return@async cacheException
         }
 
         val remoteException = if (remoteSource != null) {
@@ -234,10 +246,17 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             null
         }
 
-        val cacheReturn = cacheReturnDeferred.await()
+        val cacheException = cacheReturnDeferred.await()
 
-        if (remoteException != null && (!cacheReturn || remoteException !is AppException.NoData))
-            throw remoteException
+        if (remoteSource == null) {
+            if (cacheException != null) {
+                throw cacheException
+            }
+        } else {
+            if (remoteException != null && (cacheException != null || remoteException !is AppException.NoData))
+                throw remoteException
+        }
+
     }
 
     fun clearCache() {
