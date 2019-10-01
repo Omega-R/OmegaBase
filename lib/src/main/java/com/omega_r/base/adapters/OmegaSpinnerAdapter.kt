@@ -119,7 +119,7 @@ abstract class OmegaSpinnerAdapter<M>(
         return position
     }
 
-    class Text(
+    class TextAdapter(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
         list: List<com.omega_r.libs.omegatypes.Text> = emptyList()
@@ -134,7 +134,7 @@ abstract class OmegaSpinnerAdapter<M>(
 
     }
 
-    class String(
+    class StringAdapter(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
         list: List<kotlin.String> = emptyList()
@@ -144,7 +144,7 @@ abstract class OmegaSpinnerAdapter<M>(
         override fun getItemName(item: kotlin.String, isDropDown: Boolean): CharSequence = item
     }
 
-    class Custom<M>(
+    class CustomAdapter<M>(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
         private val converter: (Context, item: M, isDropDown: Boolean) -> CharSequence,

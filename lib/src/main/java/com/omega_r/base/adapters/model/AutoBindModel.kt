@@ -602,7 +602,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     ) : Binder<Spinner, M>() {
 
         override fun onCreateView(itemView: Spinner) {
-            itemView.adapter = OmegaSpinnerAdapter.Custom(itemView.context, layoutRes, converter).also {
+            itemView.adapter = OmegaSpinnerAdapter.CustomAdapter(itemView.context, layoutRes, converter).also {
                 it.nonSelectedItem = nonSelectedItem
             }
         }
@@ -611,7 +611,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         override fun bind(spinner: Spinner, item: M) {
             val list: List<SM>? = item.findValue(item, properties)
 
-            val adapter = spinner.adapter as OmegaSpinnerAdapter.Custom<SM>
+            val adapter = spinner.adapter as OmegaSpinnerAdapter.CustomAdapter<SM>
 
             adapter.list = list ?: emptyList()
 
