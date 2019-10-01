@@ -87,7 +87,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         list.forEach { binder -> binder.dispatchBind(viewCache, item) }
     }
 
-    class Builder<M>(private val parentModel: AutoBindModel<M>? = null) {
+    open class Builder<M>(private val parentModel: AutoBindModel<M>? = null) {
 
         private val list: MutableList<Binder<*, M>> = mutableListOf()
 
@@ -166,7 +166,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             nonSelectedItem: SM? = null,
             callback: ((M, SM?, Int) -> Unit)? = null,
             selector: (M) -> SM?,
-            converter: (Context, SM) -> CharSequence
+            converter: (Context, SM, isDropDown: Boolean) -> CharSequence
         ) = bindBinder(
             SpinnerListBinder(
                 id,
@@ -428,16 +428,17 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         @Suppress("UNCHECKED_CAST")
         override fun bind(itemView: RecyclerView, item: M) {
             val list: List<SM>? = item.findValue(item, properties)
+            itemView.setTag(R.id.omega_recycler_model, item)
             getAdapter(itemView).also {
                 it.list = list ?: emptyList()
-                (it.callback as? Callback<M, SM>)?.run {
+                (it.callback as? Callback<M, SM>)?.apply {
                     model = item
                 }
             }
         }
 
         @Suppress("UNCHECKED_CAST")
-        private fun getAdapter(itemView: RecyclerView): OmegaAutoAdapter<SM, *> {
+        protected fun getAdapter(itemView: RecyclerView): OmegaAutoAdapter<SM, *> {
             val adapter = when (itemView) {
                 is OmegaRecyclerView -> itemView.realAdapter
                 else -> itemView.adapter
@@ -450,10 +451,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
             var model: M? = null
 
             override fun invoke(subModel: SM) {
-                model?.let {
-                    block(it, subModel)
-                }
-
+                block(model ?: return, subModel)
             }
 
         }
@@ -601,7 +599,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         private val nonSelectedItem: SM? = null,
         private val callback: ((M, SM?, Int) -> Unit)? = null,
         private val selector: (M) -> SM?,
-        private val converter: (Context, SM) -> CharSequence
+        private val converter: (Context, SM, isDropDown: Boolean) -> CharSequence
     ) : Binder<Spinner, M>() {
 
         override fun onCreateView(itemView: Spinner) {
