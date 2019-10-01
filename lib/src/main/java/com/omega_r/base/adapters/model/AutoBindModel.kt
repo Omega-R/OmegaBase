@@ -428,7 +428,6 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         @Suppress("UNCHECKED_CAST")
         override fun bind(itemView: RecyclerView, item: M) {
             val list: List<SM>? = item.findValue(item, properties)
-            itemView.setTag(R.id.omega_recycler_model, item)
             getAdapter(itemView).also {
                 it.list = list ?: emptyList()
                 (it.callback as? Callback<M, SM>)?.apply {
