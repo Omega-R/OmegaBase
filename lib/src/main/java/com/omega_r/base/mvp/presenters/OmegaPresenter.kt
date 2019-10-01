@@ -41,6 +41,14 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         throwable.printStackTrace()
     }
 
+    internal open fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
+        childPresenter.attachParentPresenter(this)
+    }
+
+    internal open fun attachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+        // nothing
+    }
+
     protected suspend fun <T> withWaiting(waitingText: Text? = null, block: suspend () -> T): T {
         withContext(Dispatchers.Main) {
             viewState.setWaiting(true, waitingText)

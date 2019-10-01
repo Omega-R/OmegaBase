@@ -13,6 +13,7 @@ import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
@@ -282,6 +283,15 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     ) {
         if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    override fun onAttachFragment(fragment: Fragment) {
+        super.onAttachFragment(fragment)
+        when (fragment) {
+            is OmegaFragment -> presenter.attachChildPresenter(fragment.presenter)
+            is OmegaDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
+            is OmegaBottomSheetDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
         }
     }
 
