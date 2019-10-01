@@ -1,10 +1,14 @@
 package com.omega_r.base.adapters
 
 import android.content.Context
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView.INVALID_POSITION
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.SpinnerAdapter
 import androidx.annotation.LayoutRes
+import com.omega_r.base.enitity.Identifiable
 import java.util.*
 
 /**
@@ -15,7 +19,8 @@ abstract class OmegaSpinnerAdapter<M>(
     context: Context,
     @LayoutRes res: Int = android.R.layout.simple_spinner_item,
     list: List<M> = Collections.emptyList()
-) : ArrayAdapter<CharSequence>(context, res, Collections.emptyList()), ListableAdapter<M> {
+) : ArrayAdapter<CharSequence>(context, res, Collections.emptyList()), ListableAdapter<M>,
+    SpinnerAdapter {
 
     override var list: List<M> = list
         set(value) {
@@ -29,16 +34,48 @@ abstract class OmegaSpinnerAdapter<M>(
             notifyDataSetChanged()
         }
 
-    abstract fun getItemName(item: M): CharSequence
+    private var hasStableId: Boolean? = null
+        get() {
+            if (field == null) {
+                field = (list.firstOrNull() is Identifiable<*>)
+            }
+            return field
+        }
+
+    private var viewPosition: Int = -1
+
+    abstract fun getItemName(item: M, isDropDown: Boolean): CharSequence
 
     override fun getItem(position: Int): CharSequence? {
-        if (nonSelectedItem == null) {
-            return getItemName(list[position])
-        } else if (position == 0) {
-            return getItemName(nonSelectedItem!!)
-        } else {
-            return getItemName(list[position - 1])
+        val isDropDown = if (position == viewPosition) {
+            viewPosition = -1
+            false
+        } else true
+        return when {
+            nonSelectedItem == null -> getItemName(list[position], isDropDown)
+            position == 0 -> getItemName(nonSelectedItem!!, isDropDown)
+            else -> getItemName(list[position - 1], isDropDown)
         }
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        viewPosition = position
+        return super.getView(position, convertView, parent)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return when (val item = list[position]) {
+            is Identifiable<*> -> item.idAsLong
+            else -> super.getItemId(position)
+        }
+    }
+
+    fun setHasStableId(hasStableId: Boolean) {
+        this.hasStableId = hasStableId
+    }
+
+    override fun hasStableIds(): Boolean {
+        return hasStableId!!
     }
 
     override fun getCount(): Int = list.size + (if (nonSelectedItem == null) 0 else 1)
@@ -50,7 +87,13 @@ abstract class OmegaSpinnerAdapter<M>(
         }
         for (i in list.indices) {
             val position = if (nonSelectedItem == null) i else i + 1
-            if (list[i] == item) {
+            val listItem = list[i]
+            if (listItem == item ||
+                (hasStableId!!
+                        && item is Identifiable<*>
+                        && listItem is Identifiable<*>
+                        && item.id == listItem.id)
+            ) {
                 setSelection(spinner, position)
                 return
             }
@@ -83,7 +126,11 @@ abstract class OmegaSpinnerAdapter<M>(
     ) :
         OmegaSpinnerAdapter<com.omega_r.libs.omegatypes.Text>(context, res, list) {
 
-        override fun getItemName(item: com.omega_r.libs.omegatypes.Text) = item.getCharSequence(context) ?: ""
+        override fun getItemName(
+            item: com.omega_r.libs.omegatypes.Text,
+            isDropDown: Boolean
+        ): CharSequence =
+            item.getCharSequence(context) ?: ""
 
     }
 
@@ -94,18 +141,19 @@ abstract class OmegaSpinnerAdapter<M>(
     ) :
         OmegaSpinnerAdapter<kotlin.String>(context, res, list) {
 
-        override fun getItemName(item: kotlin.String): CharSequence = item
+        override fun getItemName(item: kotlin.String, isDropDown: Boolean): CharSequence = item
     }
 
     class Custom<M>(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
-        private val converter: (Context, M) -> CharSequence,
+        private val converter: (Context, item: M, isDropDown: Boolean) -> CharSequence,
         list: List<M> = emptyList()
     ) :
         OmegaSpinnerAdapter<M>(context, res, list) {
 
-        override fun getItemName(item: M): CharSequence = converter(context, item)
+        override fun getItemName(item: M, isDropDown: Boolean): CharSequence =
+            converter(context, item, isDropDown)
     }
 
 
