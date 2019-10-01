@@ -6,6 +6,7 @@ import com.omega_r.base.data.sources.Source
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
+import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
@@ -40,31 +41,31 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         throwable.printStackTrace()
     }
 
-    protected suspend fun <T> withWaiting(block: suspend () -> T): T = with(viewState) {
+    protected suspend fun <T> withWaiting(waitingText: Text? = null, block: suspend () -> T): T {
         withContext(Dispatchers.Main) {
-            setWaiting(true)
+            viewState.setWaiting(true, waitingText)
         }
-
-        try {
+        return try {
             block()
         } finally {
             withContext(Dispatchers.Main) {
-                setWaiting(false)
+                viewState.setWaiting(false, waitingText)
             }
         }
     }
 
-    protected inline fun launchWithWaiting(
+    protected fun launchWithWaiting(
         context: CoroutineContext = EmptyCoroutineContext,
-        crossinline block: suspend () -> Unit
-    ) = with(viewState) {
-        setWaiting(true)
+        waitingText: Text? = null,
+        block: suspend () -> Unit
+    ) {
+        viewState.setWaiting(true, waitingText)
         launch(context) {
             try {
                 block()
             } finally {
                 withContext(Dispatchers.Main) {
-                    setWaiting(false)
+                    viewState.setWaiting(false, waitingText)
                 }
             }
         }
