@@ -53,10 +53,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
-    api 'com.github.Omega-R.OmegaMoxy:moxy:1.5.8'
-    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.5.8'
+    api "com.github.Omega-R.OmegaMoxy:moxy:82ddea6"
+    api "com.github.Omega-R.OmegaMoxy:moxy-androidx:82ddea6"
 
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.5.8'
+    kapt "com.github.Omega-R.OmegaMoxy:moxy-compiler:82ddea6"
 
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     api 'com.github.Omega-R.OmegaTypes:glide:1.0.2'
