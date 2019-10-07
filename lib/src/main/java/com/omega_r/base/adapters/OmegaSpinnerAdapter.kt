@@ -64,7 +64,8 @@ abstract class OmegaSpinnerAdapter<M>(
     }
 
     override fun getItemId(position: Int): Long {
-        return when (val item = list[position]) {
+        val newPosition = position + (if (nonSelectedItem == null) 0 else 1)
+        return when (val item = list.getOrNull(newPosition)) {
             is Identifiable<*> -> item.idAsLong
             else -> super.getItemId(position)
         }
