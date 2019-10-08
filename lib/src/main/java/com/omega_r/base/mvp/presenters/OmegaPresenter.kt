@@ -82,6 +82,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     protected fun <R> ReceiveChannel<R>.request(
         waiting: Boolean = true,
+        errorHandler: ((Throwable) -> Boolean)? = null,
         block: (suspend View.(R) -> Unit)? = null
     ) {
         if (waiting) viewState.setWaiting(true)
@@ -97,6 +98,11 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
                         viewState.setWaiting(false)
                     }
                 }
+            } catch (e: Throwable) {
+                val handle = errorHandler?.invoke(e)
+                if (handle != true) {
+                    handleErrors(e)
+                }
             } finally {
                 if (hideWaiting) {
                     viewState.setWaiting(false)
@@ -109,9 +115,14 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         sourceBlock: suspend S.() -> R,
         strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
         waiting: Boolean = true,
+        errorHandler: ((Throwable) -> Boolean)? = null,
         viewStateBlock: suspend View.(R) -> Unit
     ) {
-        createChannel(strategy, sourceBlock).request(waiting = waiting, block = viewStateBlock)
+        createChannel(strategy, sourceBlock).request(
+            waiting = waiting,
+            errorHandler = errorHandler,
+            block = viewStateBlock
+        )
     }
 
     protected fun <S : Source> OmegaRepository<S>.request(
