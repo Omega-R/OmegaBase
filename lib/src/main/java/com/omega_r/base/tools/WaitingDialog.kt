@@ -1,6 +1,9 @@
 package com.omega_r.base.tools
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,8 +20,8 @@ import com.omega_r.libs.omegatypes.setText
 class WaitingDialog(context: Context) : OmegaDialog(context) {
 
     private val handler = Handler(Looper.getMainLooper())
-
     private var view: View? = null
+    private var windowBackground: Drawable? = null
 
     var text: Text = Text.from(R.string.loading)
         set(value) {
@@ -26,16 +29,11 @@ class WaitingDialog(context: Context) : OmegaDialog(context) {
             view?.findViewById<TextView>(R.id.textview_loading)?.setText(field)
         }
 
-    var viewVisible: Boolean = true
-        set(value) {
-            field = value
-            view?.visibility = if (!field) View.INVISIBLE else View.GONE
-            updateWindowAttribute()
-        }
-
-    private val showRunnable = {
+    private val showRunnable = Runnable {
         try {
-            show()
+            window?.setBackgroundDrawable(windowBackground)
+            window?.setDimAmount(0.65f)
+            view?.visibility = View.VISIBLE
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -45,34 +43,29 @@ class WaitingDialog(context: Context) : OmegaDialog(context) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_waiting)
         view = findViewById(R.id.layout_content)
-        view!!.visibility = if (viewVisible) View.VISIBLE else View.GONE
         view?.findViewById<TextView>(R.id.textview_loading)!!.setText(text)
-        updateWindowAttribute()
         setCancelable(false)
         setCanceledOnTouchOutside(false)
+        windowBackground = window?.decorView?.background
     }
-
-    private fun updateWindowAttribute() {
-        if (!viewVisible) {
-            val lp = window!!.attributes
-            lp.dimAmount = 0.2f
-            window!!.attributes = lp
-        }
-    }
-
 
     fun postShow(delayMillis: Long) {
+        super.show()
+        window?.setDimAmount(0f)
         handler.removeCallbacksAndMessages(null)
+        view?.visibility = View.INVISIBLE
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         handler.postDelayed(showRunnable, delayMillis)
     }
 
     override fun show() {
-        handler.removeCallbacksAndMessages(null)
+        handler.removeCallbacks(showRunnable)
+        showRunnable.run()
         super.show()
     }
 
     override fun dismiss() {
-        handler.removeCallbacksAndMessages(null)
+        handler.removeCallbacks(showRunnable)
         super.dismiss()
     }
 

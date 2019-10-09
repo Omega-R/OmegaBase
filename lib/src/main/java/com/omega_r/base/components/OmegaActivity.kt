@@ -35,7 +35,6 @@ import com.omegar.mvp.MvpAppCompatActivity
  * Created by Anton Knyazev on 04.04.2019.
  */
 
-const val DELAY_SHOW_WAITING = 555L
 
 abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
@@ -46,6 +45,8 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     override val bindersManager = BindersManager()
 
     private var waitingDialog: WaitingDialog? = null
+
+    protected var showWaitingDelay = 555L
 
     override fun getContext(): Context = this
 
@@ -76,10 +77,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
                 is OmegaWindowBackground -> {
                     if (it.drawableRes > 0) {
                         window.setBackgroundDrawable(
-                            ContextCompat.getDrawable(
-                                this,
-                                it.drawableRes
-                            )
+                            ContextCompat.getDrawable(this, it.drawableRes)
                         )
                     } else if (it.colorAttrRes > 0) {
                         window.setBackgroundDrawable(
@@ -170,13 +168,14 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             if (waitingDialog == null) {
                 waitingDialog = WaitingDialog(this)
                 text?.let { waitingDialog!!.text = it }
-                waitingDialog!!.postShow(DELAY_SHOW_WAITING)
+                waitingDialog!!.postShow(showWaitingDelay)
             }
         } else {
-            if (waitingDialog != null) {
-                waitingDialog!!.dismiss()
+            waitingDialog?.let {
+                it.dismiss()
                 waitingDialog = null
             }
+
         }
     }
 
@@ -295,8 +294,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         }
     }
 
-    override fun exit() {
-        finish()
+
+    override fun onStart() {
+        super.onStart()
+        waitingDialog?.show()
     }
 
     override fun onStop() {
@@ -306,6 +307,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             it.setOnDismissListener(null)
             it.dismiss()
         }
+    }
+
+    override fun exit() {
+        finish()
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

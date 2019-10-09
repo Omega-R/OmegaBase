@@ -137,15 +137,27 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
 
     protected open fun Launcher.launch() {
-        viewState.launch(this)
+        try {
+            viewState.launch(this)
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
     }
 
     protected fun ActivityLauncher.DefaultCompanion.launch() {
-        viewState.launch(createLauncher())
+        try {
+            viewState.launch(createLauncher())
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
     }
 
     protected fun BaseIntentLauncher.launchForResult(requestCode: Int) {
-        viewState.launchForResult(this, requestCode)
+        try {
+            viewState.launchForResult(this, requestCode)
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
     }
 
     protected fun IntentBuilder.launch() = createLauncher().launch()
