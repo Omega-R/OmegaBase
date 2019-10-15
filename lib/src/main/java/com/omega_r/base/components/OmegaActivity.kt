@@ -1,6 +1,5 @@
 package com.omega_r.base.components
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -22,7 +21,7 @@ import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
-import com.omega_r.base.tools.WaitingDialog
+import com.omega_r.base.tools.DialogManager
 import com.omega_r.libs.extensions.context.getColorByAttribute
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
@@ -38,15 +37,11 @@ import com.omegar.mvp.MvpAppCompatActivity
 
 abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
-    private val dialogList = mutableListOf<Dialog>()
-
     override val clickManager = ClickManager()
 
     override val bindersManager = BindersManager()
 
-    private var waitingDialog: WaitingDialog? = null
-
-    protected var showWaitingDelay = 555L
+    protected val dialogManager by lazy { DialogManager(this) }
 
     override fun getContext(): Context = this
 
@@ -164,19 +159,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
-        if (waiting) {
-            if (waitingDialog == null) {
-                waitingDialog = WaitingDialog(this)
-                text?.let { waitingDialog!!.text = it }
-                waitingDialog!!.postShow(showWaitingDelay)
-            }
-        } else {
-            waitingDialog?.let {
-                it.dismiss()
-                waitingDialog = null
-            }
-
-        }
+        dialogManager.setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
@@ -242,21 +225,18 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         neutralAction: Action?
     ) {
         createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
+            dialogManager.addDialog(this)
             show()
         }
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.hideLastDialog()
     }
 
     override fun showMessage(message: Text, action: Action?) {
         createMessage(message, action).apply {
-            dialogList += this
+            dialogManager.addDialog(this)
             show()
         }
     }
@@ -297,16 +277,12 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     override fun onStart() {
         super.onStart()
-        waitingDialog?.show()
+        dialogManager.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        waitingDialog?.dismiss()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
-        }
+        dialogManager.onStop()
     }
 
     override fun exit() {

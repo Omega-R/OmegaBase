@@ -1,9 +1,13 @@
 package com.omega_r.base.simple
 
+import com.omega_r.base.enitity.contains
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.InjectViewState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.Serializable
 
 /**
@@ -13,20 +17,27 @@ import java.io.Serializable
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {
-        viewState.showMessage(Text.from("test"), Action(Text.from("Test")) {
-            viewState.showToast(Text.from("test"))
-        })
+        launch {
+            delay(5000)
+            viewState.showToast(Text.from("Go"))
+            viewState.setWaiting(true)
+            delay(5000)
+            viewState.setWaiting(false)
+        }
 
-        viewState.showQuery(
-            Text.from("message"),
-            Text.from("title"),
-            positiveAction = Action("Yes"),
-            negativeAction = Action("No")
-        )
 
-        intentBuilder.settings()
-            .application()
-            .launch()
+
+
+//        viewState.showMessage(Text.from("test"), Action(Text.from("Test")) {
+//            viewState.showToast(Text.from("test"))
+//        })
+//
+//        viewState.showQuery(
+//            Text.from("message"),
+//            Text.from("title"),
+//            positiveAction = Action("Yes"),
+//            negativeAction = Action("No")
+//        )
     }
 
     override fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {

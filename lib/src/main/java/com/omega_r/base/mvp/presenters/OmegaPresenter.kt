@@ -79,7 +79,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
-
     protected fun <R> ReceiveChannel<R>.request(
         waiting: Boolean = true,
         errorHandler: ((Throwable) -> Boolean)? = null,
