@@ -16,9 +16,9 @@ import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.adapters.OmegaSpinnerAdapter
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
-import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
-import com.omega_r.libs.omegatypes.setImage
+import com.omega_r.libs.omegatypes.image.Image
+import com.omega_r.libs.omegatypes.image.setImage
 import com.omega_r.libs.omegatypes.setText
 import kotlin.reflect.KProperty
 
