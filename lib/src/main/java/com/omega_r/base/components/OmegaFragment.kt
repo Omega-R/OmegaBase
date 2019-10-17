@@ -13,8 +13,8 @@ import com.omega_r.base.annotations.OmegaTheme
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
-import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -59,7 +59,11 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
         val view = if (contentView != null) {
             var themedInflater = inflater
@@ -106,7 +110,10 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
             .launch(context!!, option)
     }
 
-    fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
+    fun ActivityLauncher.DefaultCompanion.launchForResult(
+        requestCode: Int,
+        option: Bundle? = null
+    ) {
         createLauncher()
             .launchForResult(this@OmegaFragment, requestCode, option)
     }
@@ -123,7 +130,10 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         launch(childFragmentManager, tag, this@OmegaFragment, requestCode)
     }
 
-    fun DialogFragmentLauncher.DefaultCompanion.launch(tag: String? = null, requestCode: Int? = null) {
+    fun DialogFragmentLauncher.DefaultCompanion.launch(
+        tag: String? = null,
+        requestCode: Int? = null
+    ) {
         launch(childFragmentManager, tag, this@OmegaFragment, requestCode)
     }
 
@@ -135,7 +145,13 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         // nothing
     }
 
-    override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
+    override fun showQuery(
+        message: Text,
+        title: Text?,
+        positiveAction: Action,
+        negativeAction: Action,
+        neutralAction: Action?
+    ) {
         createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
             dialogList += this
             show()
@@ -166,6 +182,20 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         }
     }
 
+    override fun requestPermissions(requestCode: Int, vararg permissions: String) {
+        requestPermissions(permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         dialogList.forEach {
@@ -173,6 +203,7 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
             it.dismiss()
         }
     }
+
 
     override fun exit() {
         activity!!.finish()
@@ -190,13 +221,15 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)
 
-    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> = super.bind(ids)
+    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> =
+        super.bind(ids)
 
     final override fun <T : View> bind(@IdRes res: Int): Lazy<T> = super.bind(res)
 
     final override fun <T : View> bind(@IdRes vararg ids: Int): Lazy<List<T>> = super.bind(*ids)
 
-    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) = super.bind<T>(res, adapter)
+    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
+        super.bind<T>(res, adapter)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)
@@ -206,12 +239,17 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         initBlock: T.(IdHolder) -> Unit
     ) = super.bind(ids, initBlock)
 
-    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
+    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bind(res, initBlock)
 
-    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit) =
         super.bind(ids = *ids, initBlock = initBlock)
 
-    final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =
+    final override fun <T : RecyclerView> bind(
+        res: Int,
+        adapter: RecyclerView.Adapter<*>,
+        initBlock: T.() -> Unit
+    ) =
         super.bind(res, adapter, initBlock)
 
     final override fun bindAnimation(@AnimRes res: Int) = super.bindAnimation(res)
@@ -228,6 +266,7 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     final override fun <T : View> bindOrNull(@IdRes res: Int) = super.bindOrNull<T>(res)
 
-    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
+    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bindOrNull(res, initBlock)
 
 }

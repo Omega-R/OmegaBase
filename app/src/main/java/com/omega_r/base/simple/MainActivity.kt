@@ -8,9 +8,9 @@ import com.omega_r.base.adapters.OmegaListAdapter
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
-import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.Text
-import com.omega_r.libs.omegatypes.from
+import com.omega_r.libs.omegatypes.image.Image
+import com.omega_r.libs.omegatypes.image.from
 import com.omegar.libs.omegalaunchers.createActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.put
 import com.omegar.mvp.presenter.InjectPresenter

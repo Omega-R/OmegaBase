@@ -167,6 +167,20 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         activity?.setResult(resultCode, intent)
     }
 
+    override fun requestPermissions(requestCode: Int, vararg permissions: String) {
+        requestPermissions(permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         dialogList.forEach {

@@ -1,8 +1,8 @@
 package com.omega_r.base.components
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,7 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
@@ -19,7 +21,8 @@ import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
-import com.omega_r.base.tools.WaitingDialog
+import com.omega_r.base.tools.DialogManager
+import com.omega_r.libs.extensions.context.getColorByAttribute
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -31,17 +34,14 @@ import com.omegar.mvp.MvpAppCompatActivity
  * Created by Anton Knyazev on 04.04.2019.
  */
 
-const val DELAY_SHOW_WAITING = 555L
 
 abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
-
-    private val dialogList = mutableListOf<Dialog>()
 
     override val clickManager = ClickManager()
 
     override val bindersManager = BindersManager()
 
-    private var waitingDialog: WaitingDialog? = null
+    protected val dialogManager by lazy { DialogManager(this) }
 
     override fun getContext(): Context = this
 
@@ -55,15 +55,33 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
         super.onCreate(savedInstanceState)
 
-        this::class.findAnnotation<OmegaTheme>()?.let {
-            setTheme(it.resId)
-        }
-        this::class.findAnnotation<OmegaContentView>()?.let {
-            setContentView(it.layoutRes)
-        }
+        this::class.annotations.forEach {
+            when (it) {
+                is OmegaTheme -> {
+                    setTheme(it.resId)
+                }
+                is OmegaContentView -> {
+                    setContentView(it.layoutRes)
+                }
+                is OmegaClickViews -> {
+                    setOnClickListeners(ids = *it.ids, block = this::onClickView)
+                }
+                is OmegaTitle -> {
+                    setTitle(it.resId)
+                }
+                is OmegaWindowBackground -> {
+                    if (it.drawableRes > 0) {
+                        window.setBackgroundDrawable(
+                            ContextCompat.getDrawable(this, it.drawableRes)
+                        )
+                    } else if (it.colorAttrRes > 0) {
+                        window.setBackgroundDrawable(
+                            ColorDrawable(getColorByAttribute(it.colorAttrRes))
+                        )
+                    }
 
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+                }
+            }
         }
     }
 
@@ -141,18 +159,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
-        if (waiting) {
-            if (waitingDialog == null) {
-                waitingDialog = WaitingDialog(this)
-                text?.let { waitingDialog!!.text = it }
-                waitingDialog!!.postShow(DELAY_SHOW_WAITING)
-            }
-        } else {
-            if (waitingDialog != null) {
-                waitingDialog!!.dismiss()
-                waitingDialog = null
-            }
-        }
+        dialogManager.setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
@@ -168,7 +175,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             .launch(this@OmegaActivity, option)
     }
 
-    fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
+    fun ActivityLauncher.DefaultCompanion.launchForResult(
+        requestCode: Int,
+        option: Bundle? = null
+    ) {
         createLauncher()
             .launchForResult(this@OmegaActivity, requestCode, option)
     }
@@ -215,21 +225,18 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         neutralAction: Action?
     ) {
         createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
+            dialogManager.addDialog(this)
             show()
         }
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.hideLastDialog()
     }
 
     override fun showMessage(message: Text, action: Action?) {
         createMessage(message, action).apply {
-            dialogList += this
+            dialogManager.addDialog(this)
             show()
         }
     }
@@ -244,30 +251,57 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         }
     }
 
-    override fun exit() {
-        finish()
+    override fun requestPermissions(requestCode: Int, vararg permissions: String) {
+        ActivityCompat.requestPermissions(this, permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    override fun onAttachFragment(fragment: Fragment) {
+        super.onAttachFragment(fragment)
+        when (fragment) {
+            is OmegaFragment -> presenter.attachChildPresenter(fragment.presenter)
+            is OmegaDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
+            is OmegaBottomSheetDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
+        }
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+        dialogManager.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        waitingDialog?.dismiss()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
-        }
+        dialogManager.onStop()
+    }
+
+    override fun exit() {
+        finish()
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)
 
-    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> = super.bind(ids)
+    final override fun <T : View, IH : IdHolder> bind(ids: Array<out IH>): Lazy<Map<IH, T>> =
+        super.bind(ids)
 
     final override fun <T : View> bind(@IdRes res: Int): Lazy<T> = super.bind(res)
 
     final override fun <T : View> bind(@IdRes vararg ids: Int): Lazy<List<T>> = super.bind(*ids)
 
-    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) = super.bind<T>(res, adapter)
+    final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
+        super.bind<T>(res, adapter)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)
@@ -277,12 +311,17 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         initBlock: T.(IdHolder) -> Unit
     ) = super.bind(ids, initBlock)
 
-    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
+    final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bind(res, initBlock)
 
-    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit) =
         super.bind(ids = *ids, initBlock = initBlock)
 
-    final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =
+    final override fun <T : RecyclerView> bind(
+        res: Int,
+        adapter: RecyclerView.Adapter<*>,
+        initBlock: T.() -> Unit
+    ) =
         super.bind(res, adapter, initBlock)
 
     final override fun bindAnimation(@AnimRes res: Int) = super.bindAnimation(res)
@@ -299,7 +338,8 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     final override fun <T : View> bindOrNull(@IdRes res: Int) = super.bindOrNull<T>(res)
 
-    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
+    final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
+        super.bindOrNull(res, initBlock)
 
 
 }

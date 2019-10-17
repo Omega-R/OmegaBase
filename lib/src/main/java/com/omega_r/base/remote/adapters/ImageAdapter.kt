@@ -1,8 +1,8 @@
 package com.omega_r.base.remote.adapters
 
-import com.omega_r.libs.omegatypes.Image
 import com.omega_r.libs.omegatypes.UrlImage
-import com.omega_r.libs.omegatypes.from
+import com.omega_r.libs.omegatypes.image.Image
+import com.omega_r.libs.omegatypes.image.from
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter

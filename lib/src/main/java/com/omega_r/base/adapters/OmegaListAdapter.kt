@@ -4,7 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.libs.omegatypes.Image
+import com.omega_r.libs.omegatypes.image.Image
+import com.omega_r.libs.omegatypes.image.ImageProcessors
+import com.omega_r.libs.omegatypes.image.preload
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -63,6 +65,8 @@ abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
             } else {
                 position - childCount
             }
+
+
             adapter.list.getOrNull(preloadPosition)?.preload(recyclerView.context)
 
             lastPosition = position
