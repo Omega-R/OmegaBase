@@ -23,14 +23,12 @@ import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.tools.DialogManager
 import com.omega_r.libs.extensions.context.getColorByAttribute
-import com.omega_r.libs.extensions.log.log
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatActivity
-import kotlin.math.log
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -161,7 +159,6 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
-        log("setWaiting $waiting")
         dialogManager.setWaiting(waiting, text)
     }
 
@@ -284,8 +281,8 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     }
 
     override fun onStop() {
-        dialogManager.onStop()
         super.onStop()
+        dialogManager.onStop()
     }
 
     override fun exit() {

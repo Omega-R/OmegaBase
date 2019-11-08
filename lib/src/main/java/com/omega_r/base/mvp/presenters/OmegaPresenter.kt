@@ -94,7 +94,8 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
                     }
                 }
             } catch (e: Throwable) {
-                if (errorHandler?.invoke(e) != true) handleErrors(e)
+                val handle = errorHandler?.invoke(e)
+                if (handle != true) handleErrors(e)
             } finally {
                 if (hideWaiting) viewState.setWaiting(false)
             }
