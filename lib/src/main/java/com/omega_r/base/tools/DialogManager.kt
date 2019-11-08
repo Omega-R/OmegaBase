@@ -84,6 +84,7 @@ class DialogManager(private val context: Context, private val showWaitingDelay: 
     }
 
     fun onStop() {
+        handler.removeCallbacks(waitingRunnable)
         dialogList.forEach {
             it.dismiss()
         }
