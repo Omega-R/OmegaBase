@@ -86,11 +86,12 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             var hideWaiting = waiting
             try {
                 for (item in channel) {
+                    block?.invoke(viewState, item)
+
                     if (hideWaiting) {
                         hideWaiting = false
                         viewState.setWaiting(false)
                     }
-                    block?.invoke(viewState, item)
                 }
             } catch (e: Throwable) {
                 if (errorHandler?.invoke(e) != true) handleErrors(e)
