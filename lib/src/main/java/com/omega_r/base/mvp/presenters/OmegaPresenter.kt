@@ -56,9 +56,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return try {
             block()
         } finally {
-            withContext(Dispatchers.Main) {
-                viewState.setWaiting(false, waitingText)
-            }
+            setWaiting(false, waitingText)
         }
     }
 
@@ -72,9 +70,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             try {
                 block()
             } finally {
-                withContext(Dispatchers.Main) {
-                    viewState.setWaiting(false, waitingText)
-                }
+                setWaiting(false, waitingText)
             }
         }
     }
@@ -94,18 +90,13 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
                     if (hideWaiting) {
                         hideWaiting = false
-                        viewState.setWaiting(false)
+                        setWaiting(false)
                     }
                 }
             } catch (e: Throwable) {
-                val handle = errorHandler?.invoke(e)
-                if (handle != true) {
-                    handleErrors(e)
-                }
+                if (errorHandler?.invoke(e) != true) handleErrors(e)
             } finally {
-                if (hideWaiting) {
-                    viewState.setWaiting(false)
-                }
+                if (hideWaiting) setWaiting(false)
             }
         }
     }
@@ -122,6 +113,10 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             errorHandler = errorHandler,
             block = viewStateBlock
         )
+    }
+
+    private suspend fun setWaiting(waiting: Boolean, text: Text? = null){
+        withContext(Dispatchers.Main) { viewState.setWaiting(waiting, text) }
     }
 
     protected fun <S : Source> OmegaRepository<S>.request(
