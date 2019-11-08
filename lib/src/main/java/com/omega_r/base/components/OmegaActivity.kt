@@ -284,8 +284,8 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     }
 
     override fun onStop() {
-        super.onStop()
         dialogManager.onStop()
+        super.onStop()
     }
 
     override fun exit() {
