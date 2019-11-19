@@ -21,7 +21,7 @@ class DialogManager(private val context: Context, private val showWaitingDelay: 
     private var waitingText: Text? = null
 
     private val waitingRunnable = Runnable {
-        lockingDialog?.hide()
+        lockingDialog?.dismiss()
         lockingDialog = null
 
         if (waitingDialog == null) {
@@ -84,6 +84,7 @@ class DialogManager(private val context: Context, private val showWaitingDelay: 
     }
 
     fun onStop() {
+        handler.removeCallbacks(waitingRunnable)
         dialogList.forEach {
             it.dismiss()
         }
