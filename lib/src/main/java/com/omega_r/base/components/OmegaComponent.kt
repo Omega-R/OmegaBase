@@ -3,8 +3,10 @@ package com.omega_r.base.components
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.omega_r.base.binders.OmegaBindable
@@ -17,6 +19,7 @@ import com.omega_r.base.mvp.model.setButtons
 import com.omega_r.base.mvp.model.setPositiveButton
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.Launcher
+import kotlinx.coroutines.CompletableDeferred
 import java.io.Serializable
 
 /**
@@ -29,7 +32,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
     val presenter: OmegaPresenter<out OmegaView>
 
-   fun createMessage(message: Text, action: Action? = null): Dialog {
+    fun createMessage(message: Text, action: Action? = null): Dialog {
         return MaterialAlertDialogBuilder(getContext()!!)
             .setCancelable(true)
             .setMessage(message.getCharSequence(getContext()!!)).apply {
@@ -47,7 +50,13 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
             .create()
     }
 
-    fun createQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?): Dialog {
+    fun createQuery(
+        message: Text,
+        title: Text?,
+        positiveAction: Action,
+        negativeAction: Action,
+        neutralAction: Action?
+    ): Dialog {
         return MaterialAlertDialogBuilder(getContext()!!)
             .setTitle(title?.getCharSequence(getContext()!!))
             .setMessage(message.getCharSequence(getContext()!!))
@@ -59,13 +68,18 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
     fun getViewForSnackbar(): View
 
     override fun showBottomMessage(message: Text, action: Action?) {
-        Snackbar.make(getViewForSnackbar(), message.getCharSequence(getContext()!!)!!, Snackbar.LENGTH_LONG)
+        Snackbar.make(
+            getViewForSnackbar(),
+            message.getCharSequence(getContext()!!)!!,
+            Snackbar.LENGTH_LONG
+        )
             .setAction(action)
             .show()
     }
 
     override fun showToast(message: Text) {
-        Toast.makeText(getContext(), message.getCharSequence(getContext()!!), Toast.LENGTH_LONG).show()
+        Toast.makeText(getContext(), message.getCharSequence(getContext()!!), Toast.LENGTH_LONG)
+            .show()
     }
 
     override fun launch(launcher: Launcher) {
@@ -73,13 +87,14 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
     }
 
     fun onLaunchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        return presenter.onLaunchResult(requestCode, resultCode == Activity.RESULT_OK,
+        return presenter.onLaunchResult(
+            requestCode, resultCode == Activity.RESULT_OK,
             data?.getSerializableExtra(KEY_RESULT)
         )
     }
 
     override fun setResult(success: Boolean, data: Serializable?) {
-        val resultCode = if (success) Activity.RESULT_OK  else Activity.RESULT_CANCELED
+        val resultCode = if (success) Activity.RESULT_OK else Activity.RESULT_CANCELED
         if (data != null) {
             setResult(resultCode, Intent().putExtra(KEY_RESULT, data))
         } else {
@@ -90,5 +105,14 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
     fun setResult(resultCode: Int)
 
     fun setResult(resultCode: Int, intent: Intent)
+
+    override fun requestGetPermission(permission: String, deferred: CompletableDeferred<Boolean>) {
+        deferred.complete(
+            ContextCompat.checkSelfPermission(
+                getContext()!!,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
 
 }

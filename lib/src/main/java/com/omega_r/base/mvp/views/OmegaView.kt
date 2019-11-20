@@ -11,6 +11,7 @@ import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.omegar.mvp.viewstate.strategy.AddToEndStrategy
 import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.omegar.mvp.viewstate.strategy.StateStrategyType
+import kotlinx.coroutines.CompletableDeferred
 import java.io.Serializable
 import kotlin.reflect.KAnnotatedElement
 
@@ -55,6 +56,9 @@ interface OmegaView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun requestPermissions(requestCode: Int, vararg permissions: String)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun requestGetPermission(permission: String, deferred: CompletableDeferred<Boolean>)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun exit()

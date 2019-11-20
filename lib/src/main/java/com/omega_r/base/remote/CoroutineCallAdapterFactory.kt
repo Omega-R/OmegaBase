@@ -48,10 +48,7 @@ class CoroutineCallAdapterFactory (private val parent: Job? = null,
 
         val rawDeferredType = getRawType(responseType)
         return if (rawDeferredType == Response::class.java) {
-            if (responseType !is ParameterizedType) {
-                throw IllegalStateException(
-                    "Response must be parameterized as Response<Foo> or Response<out Foo>")
-            }
+            check(responseType is ParameterizedType) { "Response must be parameterized as Response<Foo> or Response<out Foo>" }
             ResponseCallAdapter<Any>(getParameterUpperBound(0, responseType), parent, errorConverter)
         } else {
             BodyCallAdapter<Any>(responseType, parent, errorConverter)

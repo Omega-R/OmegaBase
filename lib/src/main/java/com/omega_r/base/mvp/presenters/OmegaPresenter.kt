@@ -33,7 +33,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?> by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
 
-
     protected val intentBuilder
         get() = OmegaIntentBuilder
 
@@ -183,11 +182,13 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     @Suppress("UNUSED_PARAMETER")
-    protected fun getPermissionState(permissionName: String): Boolean {
-        return false
+    protected suspend fun getPermissionState(permissionName: String): Boolean {
+        val deferred = CompletableDeferred<Boolean>()
+        viewState.requestGetPermission(permissionName, deferred)
+        return deferred.await()
     }
 
-    fun requestPermission(vararg permissions: String, resultCallback: (Boolean) -> Unit) {
+    protected fun requestPermission(vararg permissions: String, resultCallback: (Boolean) -> Unit) {
         val permissionList = permissions.toList()
         permissionsCallbacks[permissionList] = resultCallback
 
@@ -198,7 +199,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         )
     }
 
-    fun onPermissionResult(
+    protected fun onPermissionResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
