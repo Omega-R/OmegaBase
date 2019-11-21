@@ -126,10 +126,11 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     protected fun <S : Source> OmegaRepository<S>.request(
         strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
         waiting: Boolean = true,
+        errorHandler: ((Throwable) -> Boolean)? = null,
         sourceBlock: suspend S.() -> Unit
     ) {
         createChannel(strategy, sourceBlock)
-            .request(waiting = waiting)
+            .request(waiting = waiting, errorHandler = errorHandler)
     }
 
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
