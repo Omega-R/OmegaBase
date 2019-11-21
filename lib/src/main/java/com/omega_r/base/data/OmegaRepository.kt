@@ -21,15 +21,21 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
     protected val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
-    protected val remoteSource = sources.firstOrNull { it.type == Source.Type.REMOTE }
+    protected val remoteSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
-    protected val memoryCacheSource =
+    protected val memorySource: SOURCE?
+        get() = memoryCacheSource as SOURCE?
+
+    protected val fileSource: SOURCE?
+        get() = fileCacheSource as SOURCE?
+
+    protected val defaultSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.DEFAULT }
+
+    private val memoryCacheSource =
         sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
 
-    protected val fileCacheSource =
+    private val fileCacheSource =
         sources.firstOrNull { it.type == Source.Type.FILE_CACHE } as? CacheSource
-
-    protected val defaultSource = sources.firstOrNull { it.type == Source.Type.DEFAULT }
 
     protected open suspend fun <R> processResult(result: R, sourceType: Source.Type): R {
         return result
@@ -205,7 +211,8 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             var cacheException: Exception? = null
             if (memoryCacheSource != null) {
                 cacheException = ignoreException {
-                    val result = processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE)
+                    val result =
+                        processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE)
 
                     if (isActive && !isClosedForSend) {
                         send(result)
@@ -215,7 +222,8 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             }
             if (fileCacheSource != null) {
                 cacheException = ignoreException {
-                    val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
+                    val result =
+                        processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                     if (isActive && !isClosedForSend) {
                         send(result)
                         memoryCacheSource?.update(result)
