@@ -11,11 +11,13 @@ interface CacheSource : Source {
         data?.forEach { updateItem(it) }
     }
 
-    fun update(data: Any?) {
-        if (data is List<*>) {
-            updateItems(data)
-        } else {
-            updateItem(data)
+    suspend fun update(data: Any?) {
+        when (data) {
+            is Unit -> {
+                // nothing
+            }
+            is List<*> -> updateItems(data)
+            else -> updateItem(data)
         }
     }
 

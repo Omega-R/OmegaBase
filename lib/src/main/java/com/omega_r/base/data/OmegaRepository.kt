@@ -15,21 +15,25 @@ import kotlinx.coroutines.channels.produce
  */
 @Suppress("UNCHECKED_CAST")
 @UseExperimental(ExperimentalCoroutinesApi::class)
-class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
+open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
     private val job = SupervisorJob()
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
+    protected val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
-    private val remoteSource = sources.firstOrNull { it.type == Source.Type.REMOTE }
+    protected val remoteSource = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
-    private val memoryCacheSource =
+    protected val memoryCacheSource =
         sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
 
-    private val fileCacheSource =
+    protected val fileCacheSource =
         sources.firstOrNull { it.type == Source.Type.FILE_CACHE } as? CacheSource
 
-    private val defaultSource = sources.firstOrNull { it.type == Source.Type.DEFAULT }
+    protected val defaultSource = sources.firstOrNull { it.type == Source.Type.DEFAULT }
+
+    protected open suspend fun <R> processResult(result: R, sourceType: Source.Type): R {
+        return result
+    }
 
     fun <R> createChannel(
         strategy: Strategy = CACHE_AND_REMOTE,
@@ -61,7 +65,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (remoteSource != null) {
             remoteException = ignoreException {
-                val result = block(remoteSource)
+                val result = processResult(block(remoteSource), Source.Type.REMOTE)
                 send(result)
                 memoryCacheSource?.update(result)
                 fileCacheSource?.update(result)
@@ -71,7 +75,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (defaultSource != null) {
             ignoreException {
-                return send(block(defaultSource))
+                return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
         }
 
@@ -85,14 +89,14 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
     private suspend fun <R> ProducerScope<R>.applyOnlyCache(block: suspend SOURCE.() -> R) {
         if (memoryCacheSource != null) {
             ignoreException {
-                send(block(memoryCacheSource as SOURCE))
+                send(processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE))
                 return
             }
         }
 
         if (fileCacheSource != null) {
             ignoreException {
-                val result = block(fileCacheSource as SOURCE)
+                val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                 send(result)
                 memoryCacheSource?.update(result)
                 return
@@ -101,7 +105,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (defaultSource != null) {
             ignoreException {
-                return send(block(defaultSource))
+                return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
         }
 
@@ -112,7 +116,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         var remoteException: Exception? = null
         if (remoteSource != null) {
             remoteException = ignoreException {
-                val result = block(remoteSource)
+                val result = processResult(block(remoteSource), Source.Type.REMOTE)
                 send(result)
                 memoryCacheSource?.update(result)
                 fileCacheSource?.update(result)
@@ -124,14 +128,14 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (memoryCacheSource != null) {
             cacheException = ignoreException {
-                send(block(memoryCacheSource as SOURCE))
+                send(processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE))
                 return
             }
         }
 
         if (fileCacheSource != null) {
             cacheException = ignoreException {
-                val result = block(fileCacheSource as SOURCE)
+                val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                 send(result)
                 memoryCacheSource?.update(result)
                 return
@@ -140,7 +144,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (defaultSource != null) {
             cacheException = ignoreException {
-                return send(block(defaultSource))
+                return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
         }
         if (remoteSource == null) {
@@ -156,13 +160,13 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (memoryCacheSource != null) {
             cacheException = ignoreException {
-                send(block(memoryCacheSource as SOURCE))
+                send(processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE))
                 return
             }
         }
         if (fileCacheSource != null) {
             cacheException = ignoreException {
-                val result = block(fileCacheSource as SOURCE)
+                val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                 send(result)
                 memoryCacheSource?.update(result)
                 return
@@ -173,7 +177,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (remoteSource != null) {
             remoteException = ignoreException {
-                val result = block(remoteSource)
+                val result = processResult(block(remoteSource), Source.Type.REMOTE)
                 send(result)
                 memoryCacheSource?.update(result)
                 fileCacheSource?.update(result)
@@ -183,7 +187,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         if (defaultSource != null) {
             cacheException = ignoreException {
-                return send(block(defaultSource))
+                return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
         }
 
@@ -201,7 +205,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             var cacheException: Exception? = null
             if (memoryCacheSource != null) {
                 cacheException = ignoreException {
-                    val result = block(memoryCacheSource as SOURCE)
+                    val result = processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE)
 
                     if (isActive && !isClosedForSend) {
                         send(result)
@@ -211,7 +215,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             }
             if (fileCacheSource != null) {
                 cacheException = ignoreException {
-                    val result = block(fileCacheSource as SOURCE)
+                    val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                     if (isActive && !isClosedForSend) {
                         send(result)
                         memoryCacheSource?.update(result)
@@ -223,7 +227,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
             if (defaultSource != null) {
                 cacheException = ignoreException {
                     if (isActive && !isClosedForSend) {
-                        send(block(defaultSource))
+                        send(processResult(block(defaultSource), Source.Type.DEFAULT))
                     }
                     return@async null
                 }
@@ -234,7 +238,7 @@ class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
 
         val remoteException = if (remoteSource != null) {
             ignoreException {
-                val result = block(remoteSource)
+                val result = processResult(block(remoteSource), Source.Type.REMOTE)
                 cacheReturnDeferred.cancel()
                 send(result)
                 channel.close()

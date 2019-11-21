@@ -199,7 +199,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         )
     }
 
-    protected fun onPermissionResult(
+    fun onPermissionResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray

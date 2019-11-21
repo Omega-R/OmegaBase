@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OmegaBase.iml" filepath="$PROJECT_DIR$/OmegaBase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/OmegaBase-app.iml" filepath="$PROJECT_DIR$/app/OmegaBase-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib/OmegaBase-lib.iml" filepath="$PROJECT_DIR$/lib/OmegaBase-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Projects-OmegaBase.iml" filepath="$PROJECT_DIR$/Projects-OmegaBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib/lib.iml" filepath="$PROJECT_DIR$/lib/lib.iml" />
     </modules>
