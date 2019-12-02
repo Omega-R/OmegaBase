@@ -1,7 +1,5 @@
 package com.omega_r.base.data.sources
 
-import com.omega_r.base.errors.AppException
-
 /**
  * Created by Anton Knyazev on 2019-05-28.
  */
