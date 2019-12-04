@@ -2,10 +2,12 @@ package com.omega_r.base.mvp.presenters
 
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import androidx.annotation.CallSuper
 import com.omega_r.base.R
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.errors.AppException
+import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
@@ -40,8 +42,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     protected val intentBuilder
         get() = OmegaIntentBuilder
 
+    @CallSuper
     protected open fun handleErrors(throwable: Throwable) {
-        throwable.printStackTrace()
+        log(throwable)
     }
 
     protected open fun getErrorMessage(throwable: Throwable): Text {

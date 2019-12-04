@@ -8,7 +8,12 @@ import com.omega_r.base.logs.Logger.Level.*
  */
 class AndroidLogger: Logger {
 
-    override fun log(level: Logger.Level, tag: String, message: String, throwable: Throwable?) {
+    override fun log(
+        level: Logger.Level,
+        tag: String,
+        throwable: Throwable?,
+        message: String?
+    ) {
         when (level) {
             DEBUG -> Log.d(tag, message, throwable)
             INFO -> Log.i(tag, message, throwable)

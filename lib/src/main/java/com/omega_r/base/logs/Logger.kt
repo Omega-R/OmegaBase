@@ -5,7 +5,12 @@ package com.omega_r.base.logs
  */
 interface Logger {
 
-    fun log(level: Level, tag: String, message: String, throwable: Throwable? = null)
+    fun log(
+        level: Level,
+        tag: String,
+        throwable: Throwable?,
+        message: String?
+    )
 
     enum class Level {
 

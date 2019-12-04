@@ -60,7 +60,7 @@ dependencies {
     api 'com.github.Omega-R.OmegaTypes:glide:2.0.1'
     api 'com.github.Omega-R:OmegaIntentBuilder:1.2.0'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.2'
-    api 'com.github.Omega-R:OmegaExtensions:1.0.3'
+    api 'com.github.Omega-R:OmegaExtensions:353da7f'
 
     api "com.squareup.retrofit2:retrofit:2.6.2"
     api "com.squareup.moshi:moshi-kotlin:1.8.0"
