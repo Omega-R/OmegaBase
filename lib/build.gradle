@@ -1,12 +1,10 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
-
-
 
     defaultConfig {
         minSdkVersion 14
@@ -65,7 +63,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:2.6.2"
     api "com.squareup.moshi:moshi-kotlin:1.8.0"
 
-    implementation 'com.google.android.material:material:1.2.0-alpha01'
+    implementation 'com.google.android.material:material:1.2.0-alpha02'
 
 }
 repositories {

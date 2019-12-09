@@ -46,7 +46,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     override fun getContext(): Context = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        this::class.findAnnotation<OmegaWindowFlags>()?.let {
+        this::class.findAnnotation<com.omega_r.base.annotations.OmegaWindowFlags>()?.let {
             window?.apply {
                 addFlags(it.addFlags)
                 clearFlags(it.clearFlags)
