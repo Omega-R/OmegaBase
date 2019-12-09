@@ -1,8 +1,13 @@
 package com.omega_r.base.mvp.presenters
 
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import androidx.annotation.CallSuper
+import com.omega_r.base.R
 import com.omega_r.base.data.OmegaRepository
 import com.omega_r.base.data.sources.Source
+import com.omega_r.base.errors.AppException
+import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
@@ -31,13 +36,34 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
 
-    private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?> by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
+    private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?>
+            by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
 
     protected val intentBuilder
         get() = OmegaIntentBuilder
 
+    @CallSuper
     protected open fun handleErrors(throwable: Throwable) {
-        throwable.printStackTrace()
+        log(throwable)
+    }
+
+    protected open fun getErrorMessage(throwable: Throwable): Text {
+        return when (throwable) {
+            is OutOfMemoryError -> Text.from(R.string.error_out_of_memory)
+            is AppException.NoConnection -> Text.from(R.string.error_no_connection)
+            is AppException.ServerUnavailable -> Text.from(R.string.error_server_unavailable)
+            is AppException.NotFound,
+            is AppException.ServerProblem -> Text.from(R.string.error_server_problem)
+            is AppException.AccessDenied -> Text.from(R.string.error_access_denied)
+
+            else -> {
+                getUnknownErrorMessage()
+            }
+        }
+    }
+
+    protected open fun getUnknownErrorMessage(): Text {
+        return Text.from(R.string.error_unknown)
     }
 
     internal open fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
@@ -177,11 +203,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         viewState.exit()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
-    }
-
     @Suppress("UNUSED_PARAMETER")
     protected suspend fun getPermissionState(permissionName: String): Boolean {
         val deferred = CompletableDeferred<Boolean>()
@@ -193,11 +214,10 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         val permissionList = permissions.toList()
         permissionsCallbacks[permissionList] = resultCallback
 
-        viewState.requestPermissions(
-            REQUEST_PERMISSION_BASE + permissionsCallbacks.keys.indexOf(
-                permissionList
-            ), *permissions
-        )
+        val requestCode =
+            REQUEST_PERMISSION_BASE + permissionsCallbacks.keys.indexOf(permissionList)
+
+        viewState.requestPermissions(requestCode, *permissions)
     }
 
     fun onPermissionResult(
@@ -206,14 +226,18 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         grantResults: IntArray
     ): Boolean {
         val permissionList = permissions.toList()
-        if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)) {
-            permissionsCallbacks[permissionList]?.invoke(grantResults.firstOrNull { it != PackageManager.PERMISSION_GRANTED } == null)
+        if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)){
+            val success =
+                grantResults.firstOrNull { it != PERMISSION_GRANTED } == null
+            permissionsCallbacks[permissionList]?.invoke(success)
             permissionsCallbacks[permissionList] = null
             return true
         } else {
             val permissionResults =
-                permissions.mapIndexed { index, permission -> permission to (grantResults[index] == PackageManager.PERMISSION_GRANTED) }
-                    .toMap()
+                permissions.mapIndexed { index, permission ->
+                    val success = grantResults[index] == PERMISSION_GRANTED
+                    permission to success
+                }.toMap()
 
             return onPermissionResult(requestCode, permissionResults)
         }
@@ -226,5 +250,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return false
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
 
 }

@@ -2,6 +2,7 @@ package com.omega_r.base.simple
 
 import android.Manifest
 import com.omega_r.base.enitity.contains
+import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.libs.omegatypes.Text
@@ -30,8 +31,10 @@ class MainPresenter : OmegaPresenter<MainView>() {
             viewState.showToast(Text.from(getPermissionState(Manifest.permission.WRITE_EXTERNAL_STORAGE).toString()))
         }
 
-
-//        viewState.showMessage(Text.from("test"), Action(Text.from("Test")) {
+//        viewState.showMe
+//        log {
+//            "Message"
+//        }ssage(Text.from("test"), Action(Text.from("Test")) {
 //            viewState.showToast(Text.from("test"))
 //        })
 //
