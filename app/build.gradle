@@ -47,7 +47,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
-    implementation project(':lib')
+    implementation project(':core')
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1.7.0'
     kapt project(':processor')
 

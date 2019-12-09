@@ -19,7 +19,6 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
-import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 
 private const val UNIT = "kotlin.Unit"
@@ -82,7 +81,7 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
         return this.toString()
             .removePrefix("$elementPackage.")
             .removeSuffix("Source")
-            .plus("OmegaGeneratedRepository")
+            .plus("OmegaRepository")
     }
 
     private fun TypeSpec.Builder.addConstructor(element: Element): TypeSpec.Builder {
@@ -107,7 +106,7 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
     }
 
     private fun TypeSpec.Builder.addFunction(resolver: NameResolver, function: Function): TypeSpec.Builder {
-        val funcName = resolver.getName(function)
+        var funcName = resolver.getName(function)
         val parameterSpecs = generateParameters(resolver, function)
         val arguments = parameterSpecs.subList(1, parameterSpecs.size).joinToString { it.name }
         val isUnitFunction = function.isUnitFunction(resolver)
@@ -121,7 +120,7 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
         }.build()
 
         val modifiers: MutableList<KModifier> = mutableListOf(KModifier.OPEN)
-        if (isUnitFunction) modifiers.add(KModifier.SUSPEND)
+        if (isUnitFunction) modifiers.add(KModifier.SUSPEND) else funcName += "Channel"
 
         return addFunction(
             FunSpec.builder(funcName)
