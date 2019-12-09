@@ -1,7 +1,7 @@
 package com.omega_r.base.processor
 
 import com.google.auto.service.AutoService
-import com.omega_r.base.annotations.AppOmegaRepository
+import com.omega_r.base.annotations.OmegaRepository
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
@@ -10,6 +10,8 @@ import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf.Function
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.NameResolver
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Messager
 import javax.annotation.processing.RoundEnvironment
@@ -23,12 +25,13 @@ import javax.tools.Diagnostic.Kind.ERROR
 private const val UNIT = "kotlin.Unit"
 
 @AutoService(Process::class)
+@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.AGGREGATING)
 class OmegaRepositoryProcessor : AbstractProcessor() {
 
-    private val OBJECT_CLASS = ClassName("java.lang", "Object")
     private val OMEGA_REPOSITORY_CLASS_NAME = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository")
     private val STRATEGY_CLASS_NAME = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository.Strategy")
     private val STRATEGY_PARAMETER_SPEC = ParameterSpec("strategy", STRATEGY_CLASS_NAME)
+    private val CONSUME_EACH_MEMBER_NAME = MemberName("kotlinx.coroutines.channels", "consumeEach")
 
     private val messager: Messager
         get() = processingEnv.messager
@@ -36,15 +39,12 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
     private val elements: Elements
         get() = processingEnv.elementUtils
 
-    private val typeUtils: Types
-        get() = processingEnv.typeUtils
-
-    override fun getSupportedAnnotationTypes() = setOf(AppOmegaRepository::class.java.canonicalName)
+    override fun getSupportedAnnotationTypes() = setOf(OmegaRepository::class.java.canonicalName)
 
     override fun getSupportedSourceVersion() = SourceVersion.latest()
 
     override fun process(elements: Set<TypeElement>, environment: RoundEnvironment): Boolean {
-        val repositoryElements = environment.getElementsAnnotatedWith(AppOmegaRepository::class.java)
+        val repositoryElements = environment.getElementsAnnotatedWith(OmegaRepository::class.java)
         repositoryElements.forEach {
             generateRepository(it)
         }
@@ -82,7 +82,7 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
         return this.toString()
             .removePrefix("$elementPackage.")
             .removeSuffix("Source")
-            .plus("AppOmegaRepository")
+            .plus("OmegaGeneratedRepository")
     }
 
     private fun TypeSpec.Builder.addConstructor(element: Element): TypeSpec.Builder {
@@ -100,68 +100,34 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
     private fun TypeSpec.Builder.addFunctions(kotlinMetadata: KotlinClassMetadata): TypeSpec.Builder {
         val nameResolver = kotlinMetadata.data.nameResolver
         val classData = kotlinMetadata.data.classProto
-
-        classData.functionList.forEach { function ->
-            val returnType = nameResolver.getString(function.returnType.className).formatType()
-            when (returnType) {
-                UNIT -> addUnitFunction(nameResolver, function)
-                else -> addChannelFunction(nameResolver, function)
-            }
+        classData.functionList.forEach {
+            addFunction(nameResolver, it)
         }
         return this
     }
 
-    private fun TypeSpec.Builder.addUnitFunction(resolver: NameResolver, function: Function): TypeSpec.Builder {
+    private fun TypeSpec.Builder.addFunction(resolver: NameResolver, function: Function): TypeSpec.Builder {
         val funcName = resolver.getName(function)
-        val parameters = generateParameters(resolver, function)
-        val arguments = parameters.subList(1, parameters.size)
-            .map { it.name }
-            .joinToString()
+        val parameterSpecs = generateParameters(resolver, function)
+        val arguments = parameterSpecs.subList(1, parameterSpecs.size).joinToString { it.name }
+        val isUnitFunction = function.isUnitFunction(resolver)
 
-//        ONLY_REMOTE,
-//        ONLY_CACHE,
-//        REMOTE_ELSE_CACHE,
-//        CACHE_ELSE_REMOTE,
-//        CACHE_AND_REMOTE,
-//        MEMORY_ELSE_CACHE_AND_REMOTE
+        val codeBlockBuilder = CodeBlock.builder().apply {
+            if (isUnitFunction) {
+                addStatement("createChannel(strategy) { $funcName($arguments) }.%M{}", CONSUME_EACH_MEMBER_NAME)
+            } else {
+                add("return createChannel(strategy) { $funcName($arguments) }\n\n")
+            }
+        }.build()
 
-        val codeBlock = CodeBlock.builder()
-            .add("when(strategy) {\n")
-            .add("OmegaRepository.Strategy.ONLY_REMOTE -> remoteSource?.$funcName($arguments)\n")
-            .add("OmegaRepository.Strategy.ONLY_CACHE -> { \n")
-            .add("fileSource?.$funcName($arguments)\n")
-            .add("memorySource?.$funcName($arguments)\n")
-            .add("} \n")
-            .add("else -> { \n")
-            .add("// TODO: Future functional \n")
-            .add("} \n")
-            .add("}")
+        val modifiers: MutableList<KModifier> = mutableListOf(KModifier.OPEN)
+        if (isUnitFunction) modifiers.add(KModifier.SUSPEND)
 
         return addFunction(
             FunSpec.builder(funcName)
-                .addModifiers(KModifier.SUSPEND, KModifier.OPEN, KModifier.PROTECTED)
-                .addParameters(parameters)
-                .addComment("TODO: Future functional")
-                .addCode(codeBlock.build())
-                .build()
-        )
-    }
-
-    private fun TypeSpec.Builder.addChannelFunction(resolver: NameResolver, function: Function): TypeSpec.Builder {
-        val funcName = resolver.getName(function)
-        val parameters = generateParameters(resolver, function)
-        val arguments = parameters.subList(1, parameters.size)
-            .map { it.name }
-            .joinToString()
-
-        val codeBlock = CodeBlock.builder()
-            .add("return createChannel(strategy) { $funcName($arguments) }\n\n")
-            .build()
-
-        return addFunction(
-            FunSpec.builder(funcName)
-                .addParameters(parameters)
-                .addCode(codeBlock)
+                .addModifiers(modifiers)
+                .addParameters(parameterSpecs)
+                .addCode(codeBlockBuilder)
                 .build()
         )
     }
@@ -176,6 +142,9 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
         }
         return list
     }
+
+    private fun Function.isUnitFunction(resolver: NameResolver) =
+        resolver.getString(returnType.className).formatType() == UNIT
 
     private fun NameResolver.getName(function: Function): String = getString(function.name)
 
