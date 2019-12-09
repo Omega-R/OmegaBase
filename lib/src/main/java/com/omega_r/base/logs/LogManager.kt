@@ -11,6 +11,10 @@ object LogManager {
 
     private val loggersMap: MutableMap<Level, MutableSet<Logger>> = ConcurrentHashMap()
 
+    init {
+        this += AndroidLogger
+    }
+
     fun isEmpty(level: Level) = loggersMap[level].isNullOrEmpty()
 
     fun addLogger(logger: Logger, levels: Array<Level> = Level.values()) = apply {
@@ -19,6 +23,10 @@ object LogManager {
                 .getOrPut(level) { ArraySet() }
                 .add(logger)
         }
+    }
+
+    operator fun plusAssign(logger: Logger) {
+        addLogger(logger)
     }
 
     fun log(
