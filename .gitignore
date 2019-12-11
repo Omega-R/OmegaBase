@@ -11,3 +11,5 @@
 /build
 /captures
 .externalNativeBuild
+lib/build/generated
+lib/build
