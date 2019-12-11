@@ -31,7 +31,9 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
         private val CLASS_NAME_SOURCE = ClassName.bestGuess("com.omega_r.base.data.sources.Source")
         private val CLASS_NAME_OMEGA_REPOSITORY = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository")
         private val CLASS_NAME_STRATEGY = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository.Strategy")
-        private val PARAMETER_SPEC_STRATEGY = ParameterSpec("strategy", CLASS_NAME_STRATEGY)
+        private val PARAMETER_SPEC_STRATEGY = ParameterSpec.builder("strategy", CLASS_NAME_STRATEGY)
+            .defaultValue("Strategy.CACHE_AND_REMOTE")
+            .build()
         private val MEMBER_NAME_CONSUME_EACH = MemberName("kotlinx.coroutines.channels", "consumeEach")
 
     }

@@ -41,30 +41,18 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         return result
     }
 
-    fun <R> createChannel(
-        strategy: Strategy = CACHE_AND_REMOTE,
-        block: suspend SOURCE.() -> R
-    ): ReceiveChannel<R> {
+    protected fun <R> createChannel(strategy: Strategy, block: suspend SOURCE.() -> R): ReceiveChannel<R> {
         return coroutineScope.produce {
             when (strategy) {
+                CACHE_AND_REMOTE -> applyCacheAndRemote(block)
                 ONLY_REMOTE -> applyOnlyRemote(block)
                 ONLY_CACHE -> applyOnlyCache(block)
                 REMOTE_ELSE_CACHE -> applyRemoteElseCache(block)
                 CACHE_ELSE_REMOTE -> applyCacheElseRemote(block)
-                CACHE_AND_REMOTE -> applyCacheAndRemote(block)
-                MEMORY_ELSE_CACHE_AND_REMOTE -> {
-                    if (memoryCacheSource != null) {
-                        ignoreException {
-                            send(block(memoryCacheSource as SOURCE))
-                            return@produce
-                        }
-                    }
-                    applyCacheAndRemote(block)
-                }
+                MEMORY_ELSE_CACHE_AND_REMOTE -> applyMemoryElseCacheAndRemote(block)
             }
         }
     }
-
 
     private suspend fun <R> ProducerScope<R>.applyOnlyRemote(block: suspend SOURCE.() -> R) {
         var remoteException: Exception? = null
@@ -269,6 +257,16 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
                 throw remoteException
         }
 
+    }
+
+    private suspend fun <R> ProducerScope<R>.applyMemoryElseCacheAndRemote(block: suspend SOURCE.() -> R) {
+        if (memoryCacheSource != null) {
+            ignoreException {
+                send(block(memoryCacheSource as SOURCE))
+                return
+            }
+        }
+        applyCacheAndRemote(block)
     }
 
     fun clearCache() {
