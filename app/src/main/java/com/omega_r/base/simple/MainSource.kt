@@ -1,9 +1,9 @@
 package com.omega_r.base.simple
 
-import com.omega_r.base.annotations.OmegaRepository
+import com.omega_r.base.annotations.GenerateOmegaRepository
 import com.omega_r.base.data.sources.Source
 
-@OmegaRepository
+@GenerateOmegaRepository
 interface MainSource : Source {
 
     val per: String
