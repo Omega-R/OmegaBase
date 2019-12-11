@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -287,6 +288,12 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     override fun exit() {
         finish()
+    }
+
+    protected fun <T: View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T>  {
+        return bind(res) {
+            setOnClickListener(this, block)
+        }
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

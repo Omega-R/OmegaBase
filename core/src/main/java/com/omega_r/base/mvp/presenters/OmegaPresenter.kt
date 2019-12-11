@@ -55,7 +55,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             is AppException.NotFound,
             is AppException.ServerProblem -> Text.from(R.string.error_server_problem)
             is AppException.AccessDenied -> Text.from(R.string.error_access_denied)
-
             else -> {
                 getUnknownErrorMessage()
             }
