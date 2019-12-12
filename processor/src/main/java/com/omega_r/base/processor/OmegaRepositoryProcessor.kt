@@ -10,8 +10,11 @@ import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf.Function
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.NameResolver
+import me.eugeniomarletti.kotlin.metadata.shadow.util.capitalizeDecapitalize.decapitalizeAsciiOnly
+import me.eugeniomarletti.kotlin.metadata.shadow.util.capitalizeDecapitalize.decapitalizeSmart
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType
+import java.util.*
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Messager
 import javax.annotation.processing.RoundEnvironment
@@ -28,6 +31,8 @@ private const val UNIT = "kotlin.Unit"
 class OmegaRepositoryProcessor : AbstractProcessor() {
 
     companion object {
+        private val CLASS_NAME_ERROR_HANDLER = ClassName.bestGuess("com.omega_r.base.errors.ErrorHandler")
+
         private val CLASS_NAME_SOURCE = ClassName.bestGuess("com.omega_r.base.data.sources.Source")
         private val CLASS_NAME_OMEGA_REPOSITORY = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository")
         private val CLASS_NAME_STRATEGY = ClassName.bestGuess("com.omega_r.base.data.OmegaRepository.Strategy")
@@ -94,13 +99,18 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
 
 
     private fun TypeSpec.Builder.addConstructor(element: Element): TypeSpec.Builder {
+        val errorHandlerName = CLASS_NAME_ERROR_HANDLER.simpleName.decapitalizeAsciiOnly()
+        val sourcesName = element.simpleName.toString().decapitalizeAsciiOnly()
+
         val sourceTypeName = element.asType().asTypeName()
+
         return superclass(CLASS_NAME_OMEGA_REPOSITORY.parameterizedBy(sourceTypeName))
             .addModifiers(KModifier.OPEN)
-            .addSuperclassConstructorParameter("*sources")
+            .addSuperclassConstructorParameter("$errorHandlerName, *$sourcesName")
             .primaryConstructor(
                 FunSpec.constructorBuilder()
-                    .addParameter("sources", sourceTypeName, KModifier.VARARG)
+                    .addParameter(errorHandlerName, CLASS_NAME_ERROR_HANDLER)
+                    .addParameter(sourcesName, sourceTypeName, KModifier.VARARG)
                     .build()
             )
     }
