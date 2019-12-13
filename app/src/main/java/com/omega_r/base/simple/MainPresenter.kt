@@ -2,6 +2,8 @@ package com.omega_r.base.simple
 
 import android.Manifest
 import com.omega_r.base.enitity.contains
+import com.omega_r.base.errors.ErrorHandler
+import com.omega_r.base.logs.Logger
 import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
@@ -11,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.Serializable
+import java.lang.Math.random
+import java.lang.NullPointerException
 
 /**
  * Created by Anton Knyazev on 06.05.19.
@@ -18,23 +22,36 @@ import java.io.Serializable
 @InjectViewState
 class MainPresenter : OmegaPresenter<MainView>() {
 
+    private val testPresenter= TestRepository(ErrorHandler())
+    private val session = testPresenter.createSaveSession<String>(this, { remote: Boolean, throwable: Throwable ->
+        handleErrors(throwable)
+    }) {
+        log {
+           "!!! run $it [$type]"
+        }
+    }
+
     init {
-        launch {
-            delay(5000)
-            viewState.showToast(Text.from("Go"))
-            viewState.setWaiting(true)
-            delay(5000)
-            viewState.setWaiting(false)
-        }
+
+//        launch {
+//            delay(5000)
+//            viewState.showToast(Text.from("Go"))
+//            viewState.setWaiting(true)
+//            delay(5000)
+//            viewState.setWaiting(false)
+//        }
 
         launch {
-            viewState.showToast(Text.from(getPermissionState(Manifest.permission.WRITE_EXTERNAL_STORAGE).toString()))
+            (1..300).forEach {
+                delay((random() * 500).toLong())
+                session.post(it.toString())
+            }
+
         }
 
-//        viewState.showMe
-//        log {
-//            "Message"
-//        }ssage(Text.from("test"), Action(Text.from("Test")) {
+
+
+//        viewState.showMessage(Text.from("test"), Action(Text.from("Test")) {
 //            viewState.showToast(Text.from("test"))
 //        })
 //

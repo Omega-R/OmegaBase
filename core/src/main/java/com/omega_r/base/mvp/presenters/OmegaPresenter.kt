@@ -34,7 +34,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     private val job = SupervisorJob()
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
+    override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler + CoroutineName(javaClass.simpleName)
 
     private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?>
             by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
