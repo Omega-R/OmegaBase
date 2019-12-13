@@ -42,7 +42,7 @@ open class OmegaRepository<SOURCE : Source>(private val errorHandler: ErrorHandl
         return result
     }
 
-    protected fun <R> createChannel(strategy: Strategy, block: suspend SOURCE.() -> R): ReceiveChannel<R> {
+    internal fun <R> createChannel(strategy: Strategy, block: suspend SOURCE.() -> R): ReceiveChannel<R> {
         return coroutineScope.produce {
             try {
                 when (strategy) {

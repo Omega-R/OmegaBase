@@ -23,11 +23,9 @@ import java.lang.NullPointerException
 class MainPresenter : OmegaPresenter<MainView>() {
 
     private val testPresenter= TestRepository(ErrorHandler())
-    private val session = testPresenter.createSaveSession<String>(this, { remote: Boolean, throwable: Throwable ->
-        handleErrors(throwable)
-    }) {
+    private var testValue: String by testPresenter.createRepositoryProperty<String, MainPresenter> {
         log {
-           "!!! run $it [$type]"
+            "!!! run $it [$type]"
         }
     }
 
@@ -43,8 +41,8 @@ class MainPresenter : OmegaPresenter<MainView>() {
 
         launch {
             (1..300).forEach {
-                delay((random() * 500).toLong())
-                session.post(it.toString())
+                delay((random() * 250).toLong())
+                testValue = it.toString()
             }
 
         }
