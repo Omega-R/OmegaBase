@@ -1,11 +1,12 @@
 package com.omega_r.base.remote
 
+import com.omega_r.base.errors.ErrorHandler
 import com.omega_r.libs.extensions.common.ifNull
 import okhttp3.Request
 import retrofit2.*
 import java.lang.reflect.Type
 
-class CoroutineCallAdapterFactory(private val errorConverter: ((Throwable) -> Exception)? = null) : CallAdapter.Factory() {
+class CoroutineCallAdapterFactory(private val errorConverter: ((Throwable) -> Exception)? = ErrorHandler()) : CallAdapter.Factory() {
 
     override fun get(returnType: Type, annotations: Array<Annotation>, retrofit: Retrofit): CallAdapter<*, *>? {
         val callAdapter = retrofit.nextCallAdapter(this, returnType, annotations)
