@@ -93,15 +93,17 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
     }
 
     private suspend fun <R> ProducerScope<R>.applyOnlyCache(block: suspend SOURCE.() -> R) {
+        var cacheException: Exception? = null
+
         if (memoryCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 send(processResult(block(memoryCacheSource as SOURCE), Source.Type.MEMORY_CACHE))
                 return
             }
         }
 
         if (fileCacheSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 val result = processResult(block(fileCacheSource as SOURCE), Source.Type.FILE_CACHE)
                 send(result)
                 memoryCacheSource?.update(result)
@@ -110,12 +112,12 @@ open class OmegaRepository<SOURCE : Source>(vararg sources: SOURCE) {
         }
 
         if (defaultSource != null) {
-            ignoreException {
+            cacheException = ignoreException {
                 return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
         }
 
-        throwNoData("Cache sources is null")
+        throw cacheException ?: throwNoData("Cache sources is null")
     }
 
     private suspend fun <R> ProducerScope<R>.applyRemoteElseCache(block: suspend SOURCE.() -> R) {
