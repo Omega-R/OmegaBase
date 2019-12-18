@@ -112,10 +112,9 @@ open class OmegaRepository<SOURCE : Source>(private val errorHandler: ErrorHandl
             cacheException = getException {
                 return send(processResult(block(defaultSource), Source.Type.DEFAULT))
             }
-            cacheException?.printStackTraceIfNeeded()
         }
 
-        throwNoData("Cache sources is null")
+        throw cacheException ?: throwNoData("Cache sources is null")
     }
 
     private suspend fun <R> ProducerScope<R>.applyRemoteElseCache(block: suspend SOURCE.() -> R) {
