@@ -30,7 +30,11 @@ private const val REQUEST_PERMISSION_BASE = 10000
 
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
-    private val handler = CoroutineExceptionHandler { _, throwable -> handleErrors(throwable) }
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        this@OmegaPresenter.launch {
+            handleErrors(throwable)
+        }
+    }
 
     private val job = SupervisorJob()
 
