@@ -1,6 +1,7 @@
 package com.omega_r.base.processor.extensions
 
 import com.omega_r.base.processor.Constants
+import com.squareup.kotlinpoet.ClassName
 import javax.lang.model.element.Element
 import javax.lang.model.util.Elements
 

@@ -31,13 +31,13 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         val kotlinMetadata = element.kotlinMetadata
 
         if (element !is TypeElement || kotlinMetadata !is KotlinClassMetadata) {
-            messager.printMessage(ERROR, "@OmegaRepository can't be applied to $element: must be a Kotlin interface")
+            messager.printMessage(ERROR, "@AppOmegaRepository can't be applied to $element: must be a Kotlin interface")
             return null
         }
 
         val proto = kotlinMetadata.data.classProto
         if (proto.classKind != INTERFACE) {
-            messager.printMessage(ERROR, "@OmegaRepository can't be applied to $element: must be a Kotlin interface")
+            messager.printMessage(ERROR, "@AppOmegaRepository can't be applied to $element: must be a Kotlin interface")
             return null
         }
 
@@ -49,8 +49,9 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         val functions = classProto.functionList.mapNotNull {
             it.toFunction(element, nameResolver)
         }
+        val superInterfaceClassName = ClassName.bestGuess("${elements.packageOf(element)}.${element.simpleName}")
 
-        return Repository(repositoryPackage, repositoryName, functions)
+        return Repository(repositoryPackage, repositoryName, superInterfaceClassName, functions)
     }
 
     private fun ProtoBuf.Function.toFunction(element: Element, nameResolver: NameResolver): Function? {

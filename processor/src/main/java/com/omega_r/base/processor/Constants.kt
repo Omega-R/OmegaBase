@@ -1,6 +1,7 @@
 package com.omega_r.base.processor
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 class Constants {
 
@@ -18,6 +19,11 @@ class Constants {
         internal val RECEIVE_CHANNEL_CLASS_NAME = ClassName.bestGuess("kotlinx.coroutines.channels.ReceiveChannel")
 
         internal val CLASS_NAME_ERROR_HANDLER = ClassName.bestGuess("com.omega_r.base.errors.ErrorHandler")
+
+        internal val REMOTE_ELSE_CACHE = "Strategy.REMOTE_ELSE_CACHE"
+
+        internal val MEMBER_NAME_CONSUME_EACH = MemberName("kotlinx.coroutines.channels", "consumeEach")
+        internal val MEMBER_RUN_BLOCKING = MemberName("kotlinx.coroutines", "runBlocking")
 
     }
 

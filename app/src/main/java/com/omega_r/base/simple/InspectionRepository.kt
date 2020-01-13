@@ -1,27 +1,26 @@
 package com.omega_r.base.simple
 
 
-import com.omega_r.base.annotations.OmegaRepository
+import com.omega_r.base.annotations.AppOmegaRepository
 import com.omega_r.base.data.OmegaRepository.Strategy
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
-@OmegaRepository
+@AppOmegaRepository
 interface InspectionRepository {
 
-    fun getInspectionsChannel(strategy: Strategy, index: Int): ReceiveChannel<String>
+    suspend fun getInspectionsChannel(strategy: Strategy, index: Int): ReceiveChannel<String>
 
-    fun getInspections(strategy: Strategy, index: Int): String
+    suspend fun getInspections(strategy: Strategy, index: Int): String
 
 //    fun getInspectionsPair(strategy: Strategy, index: Int): Channel<Pair<String, Int>>
 
     suspend fun getInspections(pair: Pair<String, Int>, second: Boolean)
 
-    fun clear()
+    suspend fun pair(): Pair<String, Int>
 
-    fun pair(): Pair<String, Int>
+    suspend fun kek(): Int
 
-    fun kek(): Int
+    fun kek2(): Int
 
 }
 

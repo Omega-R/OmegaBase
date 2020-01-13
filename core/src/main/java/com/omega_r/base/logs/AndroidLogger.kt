@@ -6,7 +6,7 @@ import com.omega_r.base.logs.Logger.Level.*
 /**
  * Created by Anton Knyazev on 03.12.2019.
  */
-class AndroidLogger: Logger {
+object AndroidLogger: Logger {
 
     override fun log(
         level: Logger.Level,

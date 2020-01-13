@@ -30,7 +30,11 @@ private const val REQUEST_PERMISSION_BASE = 10000
 
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
-    private val handler = CoroutineExceptionHandler { _, throwable -> handleErrors(throwable) }
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        this@OmegaPresenter.launch {
+            handleErrors(throwable)
+        }
+    }
 
     private val job = SupervisorJob()
 
@@ -55,7 +59,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             is AppException.NotFound,
             is AppException.ServerProblem -> Text.from(R.string.error_server_problem)
             is AppException.AccessDenied -> Text.from(R.string.error_access_denied)
-
             else -> {
                 getUnknownErrorMessage()
             }
@@ -102,61 +105,6 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
                 }
             }
         }
-    }
-
-    protected fun <R> ReceiveChannel<R>.request(
-        waiting: Boolean = true,
-        errorHandler: ((Throwable) -> Boolean)? = null,
-        block: (suspend View.(R) -> Unit)? = null
-    ) {
-        if (waiting) viewState.setWaiting(true)
-        val channel = this
-        launch {
-            var hideWaiting = waiting
-            try {
-                for (item in channel) {
-                    block?.invoke(viewState, item)
-
-                    if (hideWaiting) {
-                        hideWaiting = false
-                        viewState.setWaiting(false)
-                    }
-                }
-            } catch (e: Throwable) {
-                val handle = errorHandler?.invoke(e)
-                if (handle != true) {
-                    handleErrors(e)
-                }
-            } finally {
-                if (hideWaiting) {
-                    viewState.setWaiting(false)
-                }
-            }
-        }
-    }
-
-    protected fun <S : Source, R> OmegaRepository<S>.request(
-        sourceBlock: suspend S.() -> R,
-        strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
-        waiting: Boolean = true,
-        errorHandler: ((Throwable) -> Boolean)? = null,
-        viewStateBlock: suspend View.(R) -> Unit
-    ) {
-        createChannel(strategy, sourceBlock).request(
-            waiting = waiting,
-            errorHandler = errorHandler,
-            block = viewStateBlock
-        )
-    }
-
-    protected fun <S : Source> OmegaRepository<S>.request(
-        strategy: OmegaRepository.Strategy = OmegaRepository.Strategy.CACHE_AND_REMOTE,
-        waiting: Boolean = true,
-        errorHandler: ((Throwable) -> Boolean)? = null,
-        sourceBlock: suspend S.() -> Unit
-    ) {
-        createChannel(strategy, sourceBlock)
-            .request(waiting = waiting, errorHandler = errorHandler)
     }
 
     fun hideQueryOrMessage() = viewState.hideQueryOrMessage()
