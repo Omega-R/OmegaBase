@@ -46,12 +46,24 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
 
         val classProto = kotlinMetadata.data.classProto
         val nameResolver = kotlinMetadata.data.nameResolver
+        val superInterfaceClassName = ClassName.bestGuess("${elements.packageOf(element)}.${element.simpleName}")
+
+        val properties = classProto.propertyList.map { property ->
+            property.toParameter(nameResolver)
+        }
         val functions = classProto.functionList.mapNotNull {
             it.toFunction(element, nameResolver)
         }
-        val superInterfaceClassName = ClassName.bestGuess("${elements.packageOf(element)}.${element.simpleName}")
 
-        return Repository(repositoryPackage, repositoryName, superInterfaceClassName, functions)
+        return Repository(repositoryPackage, repositoryName, superInterfaceClassName, properties, functions)
+    }
+
+    private fun ProtoBuf.Property.toParameter(nameResolver: NameResolver): Parameter {
+        val parameterName = nameResolver.getString(name)
+        val className = returnType.getClassName(nameResolver)
+        val parameterizedBy = getParameterTypes(returnType, nameResolver)
+
+        return Parameter(parameterName, Type(className, parameterizedBy, returnType.nullable))
     }
 
     private fun ProtoBuf.Function.toFunction(element: Element, nameResolver: NameResolver): Function? {
@@ -76,10 +88,10 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
 
     private fun ProtoBuf.ValueParameter.toParameter(nameResolver: NameResolver): Parameter {
         val parameterName = nameResolver.getString(name)
-        val className = ClassName.bestGuess(nameResolver.getClassName(type.className))
+        val className = type.getClassName(nameResolver)
         val parameterizedBy = getParameterTypes(type, nameResolver)
 
-        return Parameter(parameterName, Type(className, parameterizedBy))
+        return Parameter(parameterName, Type(className, parameterizedBy, type.nullable))
     }
 
     private fun ProtoBuf.Type.getClassName(nameResolver: NameResolver): ClassName =
@@ -93,7 +105,11 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         } else {
             arguments.flatMap {
                 val list = getParameterTypes(it.type, nameResolver)
-                if (list.isEmpty()) listOf(Type(it.type.getClassName(nameResolver), emptyList())) else list
+                if (list.isEmpty()) {
+                    listOf(Type(it.type.getClassName(nameResolver), emptyList(), it.type.nullable))
+                } else {
+                    list
+                }
             }
         }
     }
@@ -101,7 +117,7 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
     private fun ProtoBuf.Function.getReturnType(nameResolver: NameResolver): Type? {
         return when (val className = returnType.getClassName(nameResolver)) {
             UNIT_CLASS_NAME -> null
-            else -> Type(className, getParameterTypes(returnType, nameResolver))
+            else -> Type(className, getParameterTypes(returnType, nameResolver), returnType.nullable)
         }
     }
 

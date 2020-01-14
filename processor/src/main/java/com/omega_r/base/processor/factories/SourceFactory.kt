@@ -17,7 +17,7 @@ class SourceFactory {
             .plus(CLASS_NAME_SOURCE.simpleName)
         val functions = repository.functions.filterFunctions()
 
-        return Source(sourcePackage, sourceName, functions)
+        return Source(sourcePackage, sourceName, repository.properties, functions)
     }
 
     private fun List<Function>.filterFunctions(): List<Function> {

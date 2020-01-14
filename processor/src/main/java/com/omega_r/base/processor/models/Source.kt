@@ -11,6 +11,7 @@ private const val THROW_NO_DATA = "com.omega_r.base.errors.throwNoData()"
 class Source(
     val sourcePackage: String,
     val name: String,
+    val properties: List<Parameter>,
     val functions: List<Function>
 ) {
 
@@ -36,6 +37,7 @@ class Source(
         val typeSpec = TypeSpec.interfaceBuilder(name)
             .addSuperinterface(Constants.CLASS_NAME_SOURCE)
             .addFunctions(funcSpecs)
+            .addProperties(properties.map { it.toPropertySpec() })
             .build()
 
         return FileSpec.builder(sourcePackage, name)

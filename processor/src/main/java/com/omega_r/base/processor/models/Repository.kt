@@ -17,6 +17,7 @@ class Repository(
     val repositoryPackage: String,
     val name: String,
     val superInterfaceClassName: ClassName,
+    val properties: List<Parameter>,
     val functions: List<Function>
 ) {
 
@@ -36,7 +37,7 @@ class Repository(
         val sourcesName = source.name.decapitalizeAsciiOnly()
 
         return superclass(CLASS_NAME_OMEGA_REPOSITORY.parameterizedBy(source.className))
-            .addModifiers(KModifier.OPEN)
+            .addModifiers(if (properties.isEmpty()) KModifier.OPEN else KModifier.ABSTRACT)
             .addSuperclassConstructorParameter("$errorHandlerName, *$sourcesName")
             .addSuperinterface(superInterfaceClassName)
             .primaryConstructor(
