@@ -21,4 +21,6 @@ interface InspectionRepository {
 
     suspend fun returnInt(): Int?
 
+    fun returnBoolean(): Boolean
+
 }
