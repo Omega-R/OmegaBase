@@ -12,6 +12,8 @@ interface InspectionRepository {
         get() = true
     var age: Int
 
+    val inspectionUpdateChannel: ReceiveChannel<List<String>>
+
     suspend fun getInspectionsChannel(strategy: Strategy, index: Int): ReceiveChannel<String>
 
     suspend fun getInspections(strategy: Strategy, index: Int): String

@@ -18,8 +18,7 @@ import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
-import javax.tools.Diagnostic.Kind.ERROR
-import javax.tools.Diagnostic.Kind.WARNING
+import javax.tools.Diagnostic.Kind.*
 
 class RepositoryFactory(private val messager: Messager, private val elements: Elements) {
 
@@ -61,6 +60,8 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         val parameterName = nameResolver.getString(name)
         val className = returnType.getClassName(nameResolver)
         val parameterizedBy = getParameterTypes(returnType, nameResolver)
+
+        messager.printMessage(WARNING, "parameterName $parameterName $parameterizedBy")
 
         return Parameter(parameterName, Type(className, parameterizedBy, returnType.nullable))
     }
@@ -105,12 +106,7 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
             emptyList()
         } else {
             arguments.flatMap {
-                val list = getParameterTypes(it.type, nameResolver)
-                if (list.isEmpty()) {
-                    listOf(Type(it.type.getClassName(nameResolver), emptyList(), it.type.nullable))
-                } else {
-                    list
-                }
+                listOf(Type(it.type.getClassName(nameResolver), getParameterTypes(it.type, nameResolver), it.type.nullable))
             }
         }
     }
