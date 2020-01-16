@@ -40,8 +40,8 @@ open class ErrorHandler : (Throwable) -> Exception, CoroutineExceptionHandler {
             is ConnectException,
             is SocketTimeoutException -> AppException.ServerUnavailable(null, throwable)
             is HttpException -> handleHttpException(throwable)
+            is AppException -> throwable
             else -> AppException.UnknownError("Unknown error", throwable)
-
         }
     }
 

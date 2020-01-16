@@ -14,9 +14,9 @@ import kotlinx.coroutines.channels.produce
 /**
  * Created by Anton Knyazev on 2019-05-28.
  */
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
 @UseExperimental(ExperimentalCoroutinesApi::class)
-open class OmegaRepository<SOURCE : Source>(private val errorHandler: ErrorHandler, vararg sources: SOURCE) {
+open class OmegaRepository<SOURCE : Source>(protected val errorHandler: ErrorHandler, vararg sources: SOURCE) {
 
     private val job = SupervisorJob()
 

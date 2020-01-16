@@ -9,7 +9,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 interface InspectionRepository {
 
     val isAuth: Boolean?
-    get() = true
+        get() = true
     var age: Int
 
     suspend fun getInspectionsChannel(strategy: Strategy, index: Int): ReceiveChannel<String>
