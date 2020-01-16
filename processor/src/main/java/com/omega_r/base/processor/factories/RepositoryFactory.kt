@@ -10,10 +10,7 @@ import com.omega_r.base.processor.models.Repository
 import com.omega_r.base.processor.models.Type
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
-import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
-import me.eugeniomarletti.kotlin.metadata.classKind
-import me.eugeniomarletti.kotlin.metadata.isSuspend
-import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
+import me.eugeniomarletti.kotlin.metadata.*
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf.Class.Kind.INTERFACE
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.NameResolver
@@ -22,6 +19,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.ERROR
+import javax.tools.Diagnostic.Kind.WARNING
 
 class RepositoryFactory(private val messager: Messager, private val elements: Elements) {
 
@@ -48,7 +46,7 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         val nameResolver = kotlinMetadata.data.nameResolver
         val superInterfaceClassName = ClassName.bestGuess("${elements.packageOf(element)}.${element.simpleName}")
 
-        val properties = classProto.propertyList.map { property ->
+        val properties = classProto.propertyList.mapNotNull { property ->
             property.toParameter(nameResolver)
         }
         val functions = classProto.functionList.mapNotNull {
@@ -58,7 +56,8 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         return Repository(repositoryPackage, repositoryName, superInterfaceClassName, properties, functions)
     }
 
-    private fun ProtoBuf.Property.toParameter(nameResolver: NameResolver): Parameter {
+    private fun ProtoBuf.Property.toParameter(nameResolver: NameResolver): Parameter? {
+        if (modality != ProtoBuf.Modality.ABSTRACT) return null
         val parameterName = nameResolver.getString(name)
         val className = returnType.getClassName(nameResolver)
         val parameterizedBy = getParameterTypes(returnType, nameResolver)
@@ -67,6 +66,8 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
     }
 
     private fun ProtoBuf.Function.toFunction(element: Element, nameResolver: NameResolver): Function? {
+        if (modality != ProtoBuf.Modality.ABSTRACT) return null
+
         val functionName = nameResolver.getName(this)
         val parameters = valueParameterList.map {
             it.toParameter(nameResolver)

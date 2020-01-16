@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 interface InspectionRepository {
 
     val isAuth: Boolean?
+    get() = true
     var age: Int
 
     suspend fun getInspectionsChannel(strategy: Strategy, index: Int): ReceiveChannel<String>
@@ -21,6 +22,11 @@ interface InspectionRepository {
 
     suspend fun returnInt(): Int?
 
-    fun returnBoolean(): Boolean
+    suspend fun returnBoolean(): Boolean {
+        return true
+    }
+
+    // TODO future code generation
+//    suspend fun lambda(func: (String) -> Boolean): Int
 
 }

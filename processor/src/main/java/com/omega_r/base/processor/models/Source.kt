@@ -1,7 +1,7 @@
 package com.omega_r.base.processor.models
 
 import com.omega_r.base.processor.Constants
-import com.omega_r.base.processor.Constants.Companion.THROW_NO_DATA
+import com.omega_r.base.processor.Constants.Companion.MEMBER_NAME_THROW_NO_DATA
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -22,10 +22,10 @@ class Source(
 
             codeBlock.addStatement(
                 when (function.returnType?.className) {
-                    null, Constants.UNIT_CLASS_NAME -> THROW_NO_DATA
-                    else -> "return $THROW_NO_DATA"
+                    null, Constants.UNIT_CLASS_NAME -> "%M()"
+                    else -> "return %M()"
                 }
-            )
+            , MEMBER_NAME_THROW_NO_DATA)
 
             function.toFunSpec()
                 .toBuilder()

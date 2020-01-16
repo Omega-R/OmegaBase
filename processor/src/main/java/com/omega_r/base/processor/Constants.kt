@@ -24,7 +24,7 @@ class Constants {
 
         internal val MEMBER_NAME_CONSUME_EACH = MemberName("kotlinx.coroutines.channels", "consumeEach")
 
-        internal const val THROW_NO_DATA = "com.omega_r.base.errors.throwNoData()"
+        internal val MEMBER_NAME_THROW_NO_DATA = MemberName("com.omega_r.base.errors", "throwNoData")
 
     }
 
