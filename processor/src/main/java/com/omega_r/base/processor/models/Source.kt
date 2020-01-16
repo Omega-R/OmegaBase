@@ -1,12 +1,11 @@
 package com.omega_r.base.processor.models
 
 import com.omega_r.base.processor.Constants
+import com.omega_r.base.processor.Constants.Companion.THROW_NO_DATA
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
-
-private const val THROW_NO_DATA = "com.omega_r.base.errors.throwNoData()"
 
 class Source(
     val sourcePackage: String,

@@ -23,7 +23,8 @@ class Constants {
         internal val REMOTE_ELSE_CACHE = "Strategy.REMOTE_ELSE_CACHE"
 
         internal val MEMBER_NAME_CONSUME_EACH = MemberName("kotlinx.coroutines.channels", "consumeEach")
-        internal val MEMBER_RUN_BLOCKING = MemberName("kotlinx.coroutines", "runBlocking")
+
+        internal const val THROW_NO_DATA = "com.omega_r.base.errors.throwNoData()"
 
     }
 
