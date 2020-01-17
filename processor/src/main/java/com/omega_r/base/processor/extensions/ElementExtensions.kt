@@ -1,7 +1,6 @@
 package com.omega_r.base.processor.extensions
 
 import com.omega_r.base.processor.Constants
-import com.squareup.kotlinpoet.ClassName
 import javax.lang.model.element.Element
 import javax.lang.model.util.Elements
 
@@ -11,6 +10,7 @@ val Element.pureName: String
             .toString()
             .removeSuffix(Constants.CLASS_NAME_SOURCE.simpleName)
             .removeSuffix(Constants.CLASS_NAME_OMEGA_REPOSITORY.simpleName)
+            .removeSuffix(Constants.CLASS_NAME_BASE_OMEGA_REPOSITORY.simpleName)
             .removeSuffix("Repository")
     }
 

@@ -1,7 +1,7 @@
 package com.omega_r.base.processor.models
 
 import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_ERROR_HANDLER
-import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_OMEGA_REPOSITORY
+import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_BASE_OMEGA_REPOSITORY
 import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_STRATEGY
 import com.omega_r.base.processor.Constants.Companion.MEMBER_NAME_CONSUME_EACH
 import com.omega_r.base.processor.Constants.Companion.RECEIVE_CHANNEL_CLASS_NAME
@@ -35,7 +35,7 @@ class Repository(
         val errorHandlerName = CLASS_NAME_ERROR_HANDLER.simpleName.decapitalizeAsciiOnly()
         val sourcesName = source.name.decapitalizeAsciiOnly()
 
-        return superclass(CLASS_NAME_OMEGA_REPOSITORY.parameterizedBy(source.className))
+        return superclass(CLASS_NAME_BASE_OMEGA_REPOSITORY.parameterizedBy(source.className))
             .addModifiers(generateModifier())
             .addSuperclassConstructorParameter("$errorHandlerName, *$sourcesName")
             .addSuperinterface(superInterfaceClassName)

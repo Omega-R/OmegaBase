@@ -20,6 +20,8 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.*
 
+private const val FUNC_CLEAR_CACHE = "clearCache"
+
 class RepositoryFactory(private val messager: Messager, private val elements: Elements) {
 
     fun create(elements: Set<Element>): List<Repository> = elements.mapNotNull { create(it) }
@@ -70,6 +72,8 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         if (modality != ProtoBuf.Modality.ABSTRACT) return null
 
         val functionName = nameResolver.getName(this)
+        if(functionName == FUNC_CLEAR_CACHE) return null
+
         val parameters = valueParameterList.map {
             it.toParameter(nameResolver)
         }.toLinkedHashSet()

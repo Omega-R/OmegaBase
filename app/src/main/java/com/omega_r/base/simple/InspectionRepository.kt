@@ -1,6 +1,5 @@
 package com.omega_r.base.simple
 
-
 import com.omega_r.base.annotations.AppOmegaRepository
 import com.omega_r.base.data.OmegaRepository.Strategy
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -27,6 +26,8 @@ interface InspectionRepository {
     suspend fun returnBoolean(): Boolean {
         return true
     }
+
+    fun clearCache()
 
     // TODO future code generation
 //    suspend fun lambda(func: (String) -> Boolean): Int

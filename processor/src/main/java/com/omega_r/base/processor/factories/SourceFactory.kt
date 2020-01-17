@@ -1,6 +1,7 @@
 package com.omega_r.base.processor.factories
 
 import com.omega_r.base.processor.Constants
+import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_BASE_OMEGA_REPOSITORY
 import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_OMEGA_REPOSITORY
 import com.omega_r.base.processor.Constants.Companion.CLASS_NAME_SOURCE
 import com.omega_r.base.processor.Constants.Companion.RECEIVE_CHANNEL_CLASS_NAME
