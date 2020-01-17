@@ -1,6 +1,7 @@
 package com.omega_r.base.data
 
-import com.omega_r.base.data.Strategy.*
+import com.omega_r.base.data.OmegaRepository.Strategy
+import com.omega_r.base.data.OmegaRepository.Strategy.*
 import com.omega_r.base.data.sources.CacheSource
 import com.omega_r.base.data.sources.Source
 import com.omega_r.base.errors.AppException
@@ -16,7 +17,10 @@ import kotlinx.coroutines.channels.produce
  */
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
 @UseExperimental(ExperimentalCoroutinesApi::class)
-open class OmegaRepository<SOURCE : Source>(protected val errorHandler: ErrorHandler, vararg sources: SOURCE) {
+open class OmegaBaseRepository<SOURCE : Source>(
+    protected val errorHandler: ErrorHandler,
+    vararg sources: SOURCE
+) : OmegaRepository {
 
     private val job = SupervisorJob()
 
@@ -296,7 +300,7 @@ open class OmegaRepository<SOURCE : Source>(protected val errorHandler: ErrorHan
         applyCacheAndRemote(block)
     }
 
-    fun clearCache() {
+    override fun clearCache() {
         memoryCacheSource?.clear()
         fileCacheSource?.clear()
     }
