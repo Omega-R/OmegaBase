@@ -34,6 +34,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (activity as? OmegaActivity)?.presenter?.attachChildPresenter(presenter)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
     }
 

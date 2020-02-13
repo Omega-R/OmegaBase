@@ -77,6 +77,14 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         // nothing
     }
 
+    internal open fun detachChildPresenter(childPresenter: OmegaPresenter<*>) {
+        childPresenter.detachChildPresenter(this)
+    }
+
+    internal open fun detachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+        // nothing
+    }
+
     protected suspend fun <T> withWaiting(waitingText: Text? = null, block: suspend () -> T): T {
         withContext(Dispatchers.Main) {
             viewState.setWaiting(true, waitingText)

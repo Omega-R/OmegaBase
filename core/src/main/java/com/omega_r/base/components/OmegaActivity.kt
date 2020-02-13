@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,6 +15,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
@@ -265,16 +269,6 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-        when (fragment) {
-            is OmegaFragment -> presenter.attachChildPresenter(fragment.presenter)
-            is OmegaDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
-            is OmegaBottomSheetDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
-        }
-    }
-
 
     override fun onStart() {
         super.onStart()
