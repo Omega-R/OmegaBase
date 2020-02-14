@@ -30,11 +30,41 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     override val bindersManager = ResettableBindersManager()
 
+    private var childPresenterAttached = false
+
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+    }
+
+    private fun attachChildPresenter() {
+        if (!childPresenterAttached) {
+            childPresenterAttached = true
+            (activity as? OmegaActivity)?.presenter?.attachChildPresenter(presenter)
+        }
+    }
+
+    private fun detachChildPresenter() {
+        if (childPresenterAttached) {
+            (activity as? OmegaActivity)?.presenter?.detachChildPresenter(presenter)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        attachChildPresenter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        attachChildPresenter()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        detachChildPresenter()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -78,6 +108,11 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detachChildPresenter()
     }
 
     override fun getViewForSnackbar() = view!!
@@ -183,6 +218,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     override fun onStop() {
         super.onStop()
+        detachChildPresenter()
         dialogList.forEach {
             it.setOnDismissListener(null)
             it.dismiss()

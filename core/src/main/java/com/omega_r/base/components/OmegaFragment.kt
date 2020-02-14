@@ -33,6 +33,8 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override val bindersManager = ResettableBindersManager()
 
+    private var childPresenterAttached = false
+
     open fun getTitle(): Text? = null
 
     override fun <T : View> findViewById(id: Int) = view?.findViewById<T>(id)
@@ -40,6 +42,34 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+    }
+
+    private fun attachChildPresenter() {
+        if (!childPresenterAttached) {
+            childPresenterAttached = true
+            (activity as? OmegaActivity)?.presenter?.attachChildPresenter(presenter)
+        }
+    }
+
+    private fun detachChildPresenter() {
+        if (childPresenterAttached) {
+            (activity as? OmegaActivity)?.presenter?.detachChildPresenter(presenter)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        attachChildPresenter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        attachChildPresenter()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        detachChildPresenter()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -52,11 +82,7 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (clickManager.handleMenuClick(item.itemId)) {
-            return true
-        } else {
-            return super.onOptionsItemSelected(item)
-        }
+        return if (clickManager.handleMenuClick(item.itemId)) true else super.onOptionsItemSelected(item)
     }
 
     override fun onCreateView(
@@ -89,6 +115,11 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detachChildPresenter()
     }
 
     override fun getViewForSnackbar() = view!!
@@ -198,12 +229,12 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override fun onStop() {
         super.onStop()
+        detachChildPresenter()
         dialogList.forEach {
             it.setOnDismissListener(null)
             it.dismiss()
         }
     }
-
 
     override fun exit() {
         activity!!.finish()
