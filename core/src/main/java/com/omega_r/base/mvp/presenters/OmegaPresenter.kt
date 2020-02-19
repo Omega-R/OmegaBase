@@ -69,19 +69,19 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return Text.from(R.string.error_unknown)
     }
 
-    internal open fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
+    protected open fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
         childPresenter.attachParentPresenter(this)
     }
 
-    internal open fun attachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+    protected open fun attachParentPresenter(parentPresenter: OmegaPresenter<*>) {
         // nothing
     }
 
-    internal open fun detachChildPresenter(childPresenter: OmegaPresenter<*>) {
+    protected open fun detachChildPresenter(childPresenter: OmegaPresenter<*>) {
         childPresenter.detachParentPresenter(this)
     }
 
-    internal open fun detachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+    protected open fun detachParentPresenter(parentPresenter: OmegaPresenter<*>) {
         // nothing
     }
 

@@ -6,6 +6,7 @@ import android.view.animation.AnimationUtils
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.vectordrawable.graphics.drawable.AnimatorInflaterCompat
 import com.omega_r.base.OmegaContext
 import com.omega_r.base.OmegaViewFindable
 import com.omega_r.base.binders.managers.BindersManager
@@ -123,6 +124,10 @@ interface OmegaBindable : OmegaContext, OmegaViewFindable {
 
     fun bindAnimation(@AnimRes res: Int) = bindersManager.bind(findInit = {
         AnimationUtils.loadAnimation(getContext(), res)
+    })
+
+    fun bindAnimator(@AnimatorRes res: Int) = bindersManager.bind(findInit = {
+        AnimatorInflaterCompat.loadAnimator(getContext(), res)
     })
 
 }
