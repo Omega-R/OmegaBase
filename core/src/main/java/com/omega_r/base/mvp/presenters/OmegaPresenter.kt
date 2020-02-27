@@ -75,7 +75,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected open fun onAttachChildPresenter(childPresenter: OmegaPresenter<*>) {
-
+        // nothing
     }
 
     protected open fun onAttachParentPresenter(parentPresenter: OmegaPresenter<*>) {
