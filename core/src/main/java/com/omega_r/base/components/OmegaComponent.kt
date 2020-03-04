@@ -18,6 +18,7 @@ import com.omega_r.base.mvp.model.setAction
 import com.omega_r.base.mvp.model.setButtons
 import com.omega_r.base.mvp.model.setPositiveButton
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import kotlinx.coroutines.CompletableDeferred
 import java.io.Serializable
@@ -84,6 +85,10 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
     override fun launch(launcher: Launcher) {
         launcher.launch(getContext()!!)
+    }
+
+    override fun launch(launcher: ActivityLauncher, vararg parentLaunchers: ActivityLauncher) {
+        launcher.launch(getContext()!!, *parentLaunchers)
     }
 
     fun onLaunchResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {

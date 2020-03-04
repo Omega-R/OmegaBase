@@ -135,9 +135,25 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
+    protected fun ActivityLauncher.launch(vararg launchers: ActivityLauncher) {
+        try {
+            viewState.launch(this, *launchers)
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
+    }
+
     protected fun ActivityLauncher.DefaultCompanion.launch() {
         try {
             viewState.launch(createLauncher())
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
+    }
+
+    protected fun ActivityLauncher.DefaultCompanion.launch(vararg launchers: ActivityLauncher) {
+        try {
+            viewState.launch(createLauncher(), *launchers)
         } catch (e: Throwable) {
             handleErrors(e)
         }
