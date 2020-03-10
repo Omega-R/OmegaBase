@@ -1,5 +1,6 @@
 package com.omega_r.base.binders
 
+import android.animation.AnimatorInflater
 import android.content.res.Resources
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -7,7 +8,7 @@ import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.AnimatorInflaterCompat
-import com.omega_r.base.OmegaContext
+import com.omega_r.base.OmegaContextable
 import com.omega_r.base.OmegaViewFindable
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.binders.managers.BindersManager.BindType.RESETTABLE
@@ -16,7 +17,7 @@ import com.omega_r.base.binders.managers.BindersManager.BindType.RESETTABLE_WITH
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-interface OmegaBindable : OmegaContext, OmegaViewFindable {
+interface OmegaBindable : OmegaContextable, OmegaViewFindable {
 
 
     private val resources: Resources
@@ -50,7 +51,7 @@ interface OmegaBindable : OmegaContext, OmegaViewFindable {
     }
 
     fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
-        bindersManager.bind<T>(RESETTABLE_WITH_AUTO_INIT, { findView<T>(res) }) {
+        bindersManager.bind<T>(RESETTABLE_WITH_AUTO_INIT, { findView(res) }) {
             this.adapter = adapter
         }
 
@@ -127,7 +128,7 @@ interface OmegaBindable : OmegaContext, OmegaViewFindable {
     })
 
     fun bindAnimator(@AnimatorRes res: Int) = bindersManager.bind(findInit = {
-        AnimatorInflaterCompat.loadAnimator(getContext(), res)
+        AnimatorInflater.loadAnimator(getContext(), res)
     })
 
 }

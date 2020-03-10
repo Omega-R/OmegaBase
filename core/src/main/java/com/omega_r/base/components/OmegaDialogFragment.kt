@@ -40,6 +40,10 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+        this::class.findAnnotation<OmegaClickViews>()?.let {
+            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        }
+
     }
 
     private fun attachChildPresenter() {
@@ -100,10 +104,6 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
             super.onCreateView(inflater, container, savedInstanceState)
         }
 
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
-        }
-
         return view
     }
 
@@ -111,11 +111,13 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+        clickManager.viewFindable = this
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         detachChildPresenter()
+        clickManager.viewFindable = null
     }
 
     override fun getViewForSnackbar() = view!!

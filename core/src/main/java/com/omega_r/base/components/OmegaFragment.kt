@@ -42,6 +42,10 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+
+        this::class.findAnnotation<OmegaClickViews>()?.let {
+            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        }
     }
 
     private fun attachChildPresenter() {
@@ -85,41 +89,32 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         return if (clickManager.handleMenuClick(item.itemId)) true else super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
-        val view = if (contentView != null) {
-            var themedInflater = inflater
-            val theme = this::class.findAnnotation<OmegaTheme>()
-            theme?.let {
-                val contextThemeWrapper = ContextThemeWrapper(activity, theme.resId)
-                themedInflater = inflater.cloneInContext(contextThemeWrapper)
-            }
+
+        return if (contentView != null) {
+            val themedInflater = this::class.findAnnotation<OmegaTheme>()?.let {
+                val contextThemeWrapper = ContextThemeWrapper(activity, it.resId)
+                inflater.cloneInContext(contextThemeWrapper)
+            } ?: inflater
 
             themedInflater.inflate(contentView.layoutRes, container, false)
         } else {
             super.onCreateView(inflater, container, savedInstanceState)
         }
-
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
-        }
-
-        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+        clickManager.viewFindable = this
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         detachChildPresenter()
+        clickManager.viewFindable = null
     }
 
     override fun getViewForSnackbar() = view!!

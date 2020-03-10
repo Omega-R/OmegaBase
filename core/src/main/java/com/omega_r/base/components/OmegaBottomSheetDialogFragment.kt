@@ -37,6 +37,10 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+
+        this::class.findAnnotation<OmegaClickViews>()?.let {
+            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        }
     }
 
     private fun attachChildPresenter() {
@@ -97,10 +101,6 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
             super.onCreateView(inflater, container, savedInstanceState)
         }
 
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
-        }
-
         return view
     }
 
@@ -108,11 +108,13 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+        clickManager.viewFindable = this
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         detachChildPresenter()
+        clickManager.viewFindable = null
     }
 
     override fun getViewForSnackbar() = view!!
@@ -251,7 +253,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
 
-    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit) =
         super.bind(ids = *ids, initBlock = initBlock)
 
     final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =

@@ -3,6 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OmegaBase.iml" filepath="$PROJECT_DIR$/OmegaBase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/annotations/OmegaBase-annotations.iml" filepath="$PROJECT_DIR$/annotations/OmegaBase-annotations.iml" group="OmegaBase/annotations" />
+      <module fileurl="file://$PROJECT_DIR$/app/OmegaBase-app.iml" filepath="$PROJECT_DIR$/app/OmegaBase-app.iml" group="OmegaBase/app" />
+      <module fileurl="file://$PROJECT_DIR$/core/OmegaBase-core.iml" filepath="$PROJECT_DIR$/core/OmegaBase-core.iml" group="OmegaBase/core" />
+      <module fileurl="file://$PROJECT_DIR$/processor/OmegaBase-processor.iml" filepath="$PROJECT_DIR$/processor/OmegaBase-processor.iml" group="OmegaBase/processor" />
+      <module fileurl="file://$PROJECT_DIR$/Projects-OmegaBase.iml" filepath="$PROJECT_DIR$/Projects-OmegaBase.iml" group="OmegaBase" />
       <module fileurl="file://$PROJECT_DIR$/annotations/annotations.iml" filepath="$PROJECT_DIR$/annotations/annotations.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
