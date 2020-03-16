@@ -35,7 +35,9 @@ open class ClickManager(clickable: Clickable? = null, private val minimumInterva
     var viewFindable: OmegaViewFindable?
         get() = (clickable as? ViewFindableClickable)?.viewFindable
         set(value) {
-            clickable = value?.let { ViewFindableClickable(value) }
+            if (viewFindable != value) {
+                clickable = value?.let { ViewFindableClickable(value) }
+            }
         }
 
     private val optionals = SparseBooleanArray()

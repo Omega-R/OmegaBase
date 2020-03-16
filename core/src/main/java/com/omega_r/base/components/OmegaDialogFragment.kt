@@ -55,6 +55,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     private fun detachChildPresenter() {
         if (childPresenterAttached) {
+            childPresenterAttached = false
             (activity as? OmegaActivity)?.presenter?.detachChildPresenter(presenter)
         }
     }
