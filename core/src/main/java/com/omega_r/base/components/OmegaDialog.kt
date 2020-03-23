@@ -62,6 +62,8 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
     }
 
     private fun setClickListenerFromAnnotation() {
+        clickManager.viewFindable = this
+
         this::class.findAnnotation<OmegaClickViews>()?.let {
             setOnClickListeners(ids = *it.ids, block = this::onClickView)
         }

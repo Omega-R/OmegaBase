@@ -6,7 +6,7 @@ import android.content.res.Resources
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-interface OmegaContext {
+interface OmegaContextable {
 
     fun getContext(): Context?
 

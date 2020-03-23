@@ -65,11 +65,29 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return Text.from(R.string.error_unknown)
     }
 
-    internal open fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
-        childPresenter.attachParentPresenter(this)
+    internal fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {
+        onAttachChildPresenter(childPresenter)
+        childPresenter.onAttachParentPresenter(this)
     }
 
-    internal open fun attachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+    protected open fun onAttachChildPresenter(childPresenter: OmegaPresenter<*>) {
+        // nothing
+    }
+
+    protected open fun onAttachParentPresenter(parentPresenter: OmegaPresenter<*>) {
+        // nothing
+    }
+
+    internal fun detachChildPresenter(childPresenter: OmegaPresenter<*>) {
+        onDetachChildPresenter(childPresenter)
+        childPresenter.onDetachParentPresenter(this)
+    }
+
+    protected open fun onDetachChildPresenter(parentPresenter: OmegaPresenter<*>) {
+        // nothing
+    }
+
+    protected open fun onDetachParentPresenter(parentPresenter: OmegaPresenter<*>) {
         // nothing
     }
 
@@ -113,9 +131,25 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
+    protected fun ActivityLauncher.launch(vararg launchers: ActivityLauncher) {
+        try {
+            viewState.launch(this, *launchers)
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
+    }
+
     protected fun ActivityLauncher.DefaultCompanion.launch() {
         try {
             viewState.launch(createLauncher())
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
+    }
+
+    protected fun ActivityLauncher.DefaultCompanion.launch(vararg launchers: ActivityLauncher) {
+        try {
+            viewState.launch(createLauncher(), *launchers)
         } catch (e: Throwable) {
             handleErrors(e)
         }

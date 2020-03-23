@@ -3,12 +3,12 @@ package com.omega_r.base.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
+import com.omega_r.base.OmegaContextable
+import com.omega_r.base.OmegaViewFindable
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.clickers.OmegaClickable
-import com.omega_r.libs.omegarecyclerview.BaseListAdapter
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
 import com.omega_r.libs.omegarecyclerview.swipe_menu.SwipeViewHolder
 import kotlin.reflect.full.findAnnotation
@@ -19,7 +19,7 @@ import kotlin.reflect.full.findAnnotation
 
 private typealias OmegaSwipeViewHolder = SwipeViewHolder
 
-abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Adapter<VH>() {
+abstract class OmegaAdapter<VH : RecyclerView.ViewHolder> : OmegaRecyclerView.Adapter<VH>() {
 
     protected open var watcher: Watcher? = null
 
@@ -35,9 +35,9 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
 
     }
 
-    open class ViewHolder: OmegaRecyclerView.ViewHolder, OmegaClickable {
+    open class ViewHolder : OmegaRecyclerView.ViewHolder, OmegaClickable, OmegaContextable, OmegaViewFindable {
 
-        override val clickManager: ClickManager by lazy { AdapterClickManager(this) }
+        override val clickManager: ClickManager by lazy { AdapterClickManager(this, this) }
 
         constructor(parent: ViewGroup?, res: Int) : super(parent, res)
 
@@ -57,7 +57,7 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
 
     }
 
-    open class SwipeViewHolder : OmegaSwipeViewHolder, OmegaClickable {
+    open class SwipeViewHolder : OmegaSwipeViewHolder, OmegaClickable, OmegaContextable, OmegaViewFindable {
 
         constructor(parent: ViewGroup?, contentRes: Int, swipeLeftMenuRes: Int, swipeRightMenuRes: Int) : super(
             parent,
@@ -75,7 +75,7 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
             const val NO_ID = OmegaSwipeViewHolder.NO_ID
         }
 
-        override val clickManager: ClickManager by lazy { AdapterClickManager(this) }
+        override val clickManager: ClickManager by lazy { AdapterClickManager(this, this) }
 
         init {
             this::class.findAnnotation<OmegaClickViews>()?.let {
@@ -89,7 +89,8 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder>: OmegaRecyclerView.Ada
 
     }
 
-    class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder): ClickManager() {
+    class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder, findable: OmegaViewFindable) :
+        ClickManager(findable) {
 
         override fun canClickHandle(): Boolean {
             return viewHolder.adapterPosition != RecyclerView.NO_POSITION && super.canClickHandle()

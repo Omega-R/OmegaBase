@@ -75,6 +75,9 @@ class MainActivity : OmegaActivity(), MainView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = intent.getStringExtra(EXTRA_TITLE)
+        setOnClickListener(R.id.button) {
+            showToast(Text.from("Test"))
+        }
     }
 
     private fun onClickItem(item: Image) {
@@ -82,7 +85,7 @@ class MainActivity : OmegaActivity(), MainView {
 
 //        ActivityLauncher.launch(this, null, createLauncher("1"), createLauncher("2"))
 
-        createLauncher("1").launch(this, createLauncher("2"))
+//        createLauncher("1").launch(this, createLauncher("2"))
     }
 
     data class Item(

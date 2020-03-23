@@ -3,6 +3,7 @@ package com.omega_r.base.mvp.views
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.strategies.RemoveEndTagStrategy
 import com.omega_r.libs.omegatypes.Text
+import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
@@ -44,6 +45,9 @@ interface OmegaView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun launch(launcher: Launcher)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun launch(launcher: ActivityLauncher, vararg parentLaunchers: ActivityLauncher)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun launch(launcher: DialogFragmentLauncher)

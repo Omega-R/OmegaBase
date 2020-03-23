@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.annotation.*
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -93,6 +93,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         bindersManager.doAutoInit()
+        clickManager.viewFindable = this
     }
 
     override fun setContentView(layoutResID: Int) {
@@ -265,16 +266,6 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-        when (fragment) {
-            is OmegaFragment -> presenter.attachChildPresenter(fragment.presenter)
-            is OmegaDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
-            is OmegaBottomSheetDialogFragment -> presenter.attachChildPresenter(fragment.presenter)
-        }
-    }
-
 
     override fun onStart() {
         super.onStart()

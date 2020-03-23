@@ -33,6 +33,8 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override val bindersManager = ResettableBindersManager()
 
+    private var childPresenterAttached = false
+
     open fun getTitle(): Text? = null
 
     override fun <T : View> findViewById(id: Int) = view?.findViewById<T>(id)
@@ -40,6 +42,38 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
+
+        this::class.findAnnotation<OmegaClickViews>()?.let {
+            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+        }
+    }
+
+    private fun attachChildPresenter() {
+        if (!childPresenterAttached) {
+            childPresenterAttached = true
+            (activity as? OmegaActivity)?.presenter?.attachChildPresenter(presenter)
+        }
+    }
+
+    private fun detachChildPresenter() {
+        if (childPresenterAttached) {
+            (activity as? OmegaActivity)?.presenter?.detachChildPresenter(presenter)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        attachChildPresenter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        attachChildPresenter()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        detachChildPresenter()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -52,43 +86,35 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (clickManager.handleMenuClick(item.itemId)) {
-            return true
-        } else {
-            return super.onOptionsItemSelected(item)
-        }
+        return if (clickManager.handleMenuClick(item.itemId)) true else super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
-        val view = if (contentView != null) {
-            var themedInflater = inflater
-            val theme = this::class.findAnnotation<OmegaTheme>()
-            theme?.let {
-                val contextThemeWrapper = ContextThemeWrapper(activity, theme.resId)
-                themedInflater = inflater.cloneInContext(contextThemeWrapper)
-            }
+
+        return if (contentView != null) {
+            val themedInflater = this::class.findAnnotation<OmegaTheme>()?.let {
+                val contextThemeWrapper = ContextThemeWrapper(activity, it.resId)
+                inflater.cloneInContext(contextThemeWrapper)
+            } ?: inflater
 
             themedInflater.inflate(contentView.layoutRes, container, false)
         } else {
             super.onCreateView(inflater, container, savedInstanceState)
         }
-
-        this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
-        }
-
-        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindersManager.reset()
         bindersManager.doAutoInit()
+        clickManager.viewFindable = this
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detachChildPresenter()
+        clickManager.viewFindable = null
     }
 
     override fun getViewForSnackbar() = view!!
@@ -198,12 +224,12 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override fun onStop() {
         super.onStop()
+        detachChildPresenter()
         dialogList.forEach {
             it.setOnDismissListener(null)
             it.dismiss()
         }
     }
-
 
     override fun exit() {
         activity!!.finish()
