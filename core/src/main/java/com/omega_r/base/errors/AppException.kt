@@ -1,8 +1,5 @@
 package com.omega_r.base.errors
 
-import com.omega_r.base.data.sources.Source
-import com.omegar.mvp.MvpFacade.init
-
 /**
  * Created by Anton Knyazev on 2019-05-28.
  */

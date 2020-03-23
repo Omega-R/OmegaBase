@@ -1,11 +1,8 @@
 package com.omega_r.base.mvp.presenters
 
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.annotation.CallSuper
 import com.omega_r.base.R
-import com.omega_r.base.data.OmegaRepository
-import com.omega_r.base.data.sources.Source
 import com.omega_r.base.errors.AppException
 import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.views.OmegaView
@@ -17,7 +14,6 @@ import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
 import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
