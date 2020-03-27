@@ -18,7 +18,7 @@ import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
-import javax.tools.Diagnostic.Kind.*
+import javax.tools.Diagnostic.Kind.ERROR
 
 private const val FUNC_CLEAR_CACHE = "clearCache"
 
@@ -34,27 +34,36 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
             return null
         }
 
-        val proto = kotlinMetadata.data.classProto
-        if (proto.classKind != INTERFACE) {
+        val classData: ClassData = kotlinMetadata.data
+        if (classData.classProto.classKind != INTERFACE) {
             messager.printMessage(ERROR, "@AppOmegaRepository can't be applied to $element: must be a Kotlin interface")
             return null
         }
 
-        val repositoryPackage = elements.packageOf(element)
-        val repositoryName = element.repositoryName
+        val functions = classData.getFunctions(element).toMutableList()
+        element.interfaces.forEach {
+            functions += create(it.asTypeElement())?.functions ?: return@forEach
+        }
 
-        val classProto = kotlinMetadata.data.classProto
-        val nameResolver = kotlinMetadata.data.nameResolver
-        val superInterfaceClassName = ClassName.bestGuess("${elements.packageOf(element)}.${element.simpleName}")
+        return Repository(
+            element.repositoryPackage,
+            element.repositoryName,
+            element.superInterfaceClassName,
+            classData.getParameters(),
+            functions
+        )
+    }
 
-        val properties = classProto.propertyList.mapNotNull { property ->
+    private val Element.repositoryPackage
+        get() = elements.packageOf(this)
+
+    private val Element.superInterfaceClassName
+        get() = ClassName.bestGuess("${elements.packageOf(this)}.${this.simpleName}")
+
+    private fun ClassData.getParameters(): List<Parameter> {
+        return classProto.propertyList.mapNotNull { property ->
             property.toParameter(nameResolver)
         }
-        val functions = classProto.functionList.mapNotNull {
-            it.toFunction(element, nameResolver)
-        }
-
-        return Repository(repositoryPackage, repositoryName, superInterfaceClassName, properties, functions)
     }
 
     private fun ProtoBuf.Property.toParameter(nameResolver: NameResolver): Parameter? {
@@ -63,16 +72,20 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         val className = returnType.getClassName(nameResolver)
         val parameterizedBy = getParameterTypes(returnType, nameResolver)
 
-        messager.printMessage(WARNING, "parameterName $parameterName $parameterizedBy")
-
         return Parameter(parameterName, Type(className, parameterizedBy, returnType.nullable))
+    }
+
+    private fun ClassData.getFunctions(element: Element): List<Function> {
+        return classProto.functionList.mapNotNull { function ->
+            function.toFunction(element, nameResolver)
+        }
     }
 
     private fun ProtoBuf.Function.toFunction(element: Element, nameResolver: NameResolver): Function? {
         if (modality != ProtoBuf.Modality.ABSTRACT) return null
 
         val functionName = nameResolver.getName(this)
-        if(functionName == FUNC_CLEAR_CACHE) return null
+        if (functionName == FUNC_CLEAR_CACHE) return null
 
         val parameters = valueParameterList.map {
             it.toParameter(nameResolver)

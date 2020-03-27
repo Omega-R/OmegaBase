@@ -5,7 +5,7 @@ import com.omega_r.base.data.OmegaRepository.Strategy
 import kotlinx.coroutines.channels.ReceiveChannel
 
 @AppOmegaRepository
-interface InspectionRepository {
+interface InspectionRepository : ParentRepository {
 
     val isAuth: Boolean?
         get() = true
