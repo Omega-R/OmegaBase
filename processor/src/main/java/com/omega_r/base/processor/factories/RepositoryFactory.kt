@@ -47,15 +47,18 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
         }
 
         val functions = classData.getFunctions(element).toMutableList()
+        val parameters = classData.getParameters().toMutableList()
         element.interfaces.forEach {
-            functions += create(it.asTypeElement())?.functions ?: return@forEach
+            val parentElement = create(it.asTypeElement()) ?: return@forEach
+            functions += parentElement.functions
+            parameters += parentElement.properties
         }
 
         return Repository(
             element.repositoryPackage,
             element.repositoryName,
             element.superInterfaceClassName,
-            classData.getParameters(),
+            parameters,
             functions
         )
     }
