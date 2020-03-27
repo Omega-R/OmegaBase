@@ -24,6 +24,12 @@ private const val FUNC_CLEAR_CACHE = "clearCache"
 
 class RepositoryFactory(private val messager: Messager, private val elements: Elements) {
 
+    private val Element.repositoryPackage
+        get() = elements.packageOf(this)
+
+    private val Element.superInterfaceClassName
+        get() = ClassName.bestGuess("${elements.packageOf(this)}.${this.simpleName}")
+
     fun create(elements: Set<Element>): List<Repository> = elements.mapNotNull { create(it) }
 
     fun create(element: Element): Repository? {
@@ -53,12 +59,6 @@ class RepositoryFactory(private val messager: Messager, private val elements: El
             functions
         )
     }
-
-    private val Element.repositoryPackage
-        get() = elements.packageOf(this)
-
-    private val Element.superInterfaceClassName
-        get() = ClassName.bestGuess("${elements.packageOf(this)}.${this.simpleName}")
 
     private fun ClassData.getParameters(): List<Parameter> {
         return classProto.propertyList.mapNotNull { property ->
