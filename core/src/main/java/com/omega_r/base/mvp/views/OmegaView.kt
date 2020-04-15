@@ -56,6 +56,9 @@ interface OmegaView : MvpView {
     fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int)
 
     @StateStrategyType(OneExecutionStateStrategy::class)
+    fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun setResult(success: Boolean, data: Serializable?)
 
     @StateStrategyType(OneExecutionStateStrategy::class)

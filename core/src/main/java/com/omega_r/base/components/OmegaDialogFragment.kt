@@ -1,6 +1,7 @@
 package com.omega_r.base.components
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -21,10 +22,15 @@ import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatDialogFragment
+import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
+
+private const val KEY_SAVE_RESULT =  "omegaSaveResult"
+private const val KEY_SAVE_DATA =  "omegaSaveData"
+
 abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
 
     private val dialogList = mutableListOf<Dialog>()
@@ -35,15 +41,20 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     private var childPresenterAttached = false
 
+    private var result: Boolean = false
+    private var data: Serializable? = null
+
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        result = savedInstanceState?.getBoolean(KEY_SAVE_RESULT, result) ?: result
+        data = savedInstanceState?.getSerializable(KEY_SAVE_DATA) ?: data
+
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
         this::class.findAnnotation<OmegaClickViews>()?.let {
             setOnClickListeners(ids = *it.ids, block = this::onClickView)
         }
-
     }
 
     private fun attachChildPresenter() {
@@ -73,6 +84,8 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         detachChildPresenter()
+        outState.putBoolean(KEY_SAVE_RESULT, result)
+        outState.putSerializable(KEY_SAVE_RESULT, data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -194,6 +207,10 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         launcher.launchForResult(this, requestCode)
     }
 
+    override fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int) {
+        launcher.launch(childFragmentManager, requestCode = requestCode)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!onLaunchResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data)
@@ -227,12 +244,18 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         dismiss()
     }
 
-    override fun setResult(resultCode: Int) {
-        activity?.setResult(resultCode)
+    override fun setResult(success: Boolean, data: Serializable?) {
+        result = success
+        this.data = data
     }
 
-    override fun setResult(resultCode: Int, intent: Intent) {
-        activity?.setResult(resultCode, intent)
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        val requestCode = targetRequestCode
+        if (requestCode != 0) {
+            val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
+            omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
+        }
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

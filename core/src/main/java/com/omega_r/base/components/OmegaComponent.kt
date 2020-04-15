@@ -27,9 +27,11 @@ import java.io.Serializable
  * Created by Anton Knyazev on 26.04.2019.
  */
 
-private const val KEY_RESULT = "resultData"
+
+internal const val KEY_RESULT = "omegaResultData"
 
 interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
+
 
     val presenter: OmegaPresenter<out OmegaView>
 
@@ -97,19 +99,6 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
             data?.getSerializableExtra(KEY_RESULT)
         )
     }
-
-    override fun setResult(success: Boolean, data: Serializable?) {
-        val resultCode = if (success) Activity.RESULT_OK else Activity.RESULT_CANCELED
-        if (data != null) {
-            setResult(resultCode, Intent().putExtra(KEY_RESULT, data))
-        } else {
-            setResult(resultCode)
-        }
-    }
-
-    fun setResult(resultCode: Int)
-
-    fun setResult(resultCode: Int, intent: Intent)
 
     override fun requestGetPermission(permission: String, deferred: CompletableDeferred<Boolean>) {
         deferred.complete(

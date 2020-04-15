@@ -1,5 +1,6 @@
 package com.omega_r.base.components
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -30,6 +31,7 @@ import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatActivity
+import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -247,6 +249,10 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         launcher.launchForResult(this, requestCode)
     }
 
+    override fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int) {
+        launcher.launch(supportFragmentManager, requestCode = requestCode)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!onLaunchResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data)
@@ -275,6 +281,15 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
     override fun onStop() {
         super.onStop()
         dialogManager.onStop()
+    }
+
+    override fun setResult(success: Boolean, data: Serializable?) {
+        val resultCode = if (success) Activity.RESULT_OK else Activity.RESULT_CANCELED
+        if (data != null) {
+            setResult(resultCode, Intent().putExtra(KEY_RESULT, data))
+        } else {
+            setResult(resultCode)
+        }
     }
 
     override fun exit() {

@@ -21,6 +21,7 @@ import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.FragmentLauncher
 import com.omegar.mvp.MvpAppCompatFragment
+import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -202,6 +203,10 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         launcher.launchForResult(this, requestCode)
     }
 
+    override fun setResult(success: Boolean, data: Serializable?) {
+        TODO("Not yet implemented")
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!onLaunchResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data)
@@ -233,14 +238,6 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     override fun exit() {
         activity!!.finish()
-    }
-
-    override fun setResult(resultCode: Int) {
-        activity?.setResult(resultCode)
-    }
-
-    override fun setResult(resultCode: Int, intent: Intent) {
-        activity?.setResult(resultCode, intent)
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

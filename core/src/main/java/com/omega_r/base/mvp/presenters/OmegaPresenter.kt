@@ -11,6 +11,7 @@ import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
+import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
@@ -156,6 +157,14 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected fun BaseIntentLauncher.launchForResult(requestCode: Int) {
+        try {
+            viewState.launchForResult(this, requestCode)
+        } catch (e: Throwable) {
+            handleErrors(e)
+        }
+    }
+
+    protected fun DialogFragmentLauncher.launchForResult(requestCode: Int) {
         try {
             viewState.launchForResult(this, requestCode)
         } catch (e: Throwable) {
