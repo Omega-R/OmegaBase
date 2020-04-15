@@ -203,6 +203,10 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
         launcher.launchForResult(this, requestCode)
     }
 
+    override fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int) {
+        launcher.launch(childFragmentManager, requestCode = requestCode)
+    }
+
     override fun setResult(success: Boolean, data: Serializable?) {
         TODO("Not yet implemented")
     }
