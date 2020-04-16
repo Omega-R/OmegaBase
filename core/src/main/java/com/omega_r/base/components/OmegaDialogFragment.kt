@@ -28,8 +28,9 @@ import java.io.Serializable
  * Created by Anton Knyazev on 04.04.2019.
  */
 
-private const val KEY_SAVE_RESULT =  "omegaSaveResult"
-private const val KEY_SAVE_DATA =  "omegaSaveData"
+private const val KEY_SAVE_RESULT = "omegaSaveResult"
+private const val KEY_SAVE_DATA = "omegaSaveData"
+private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
 
 abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
 
@@ -43,6 +44,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     private var result: Boolean = false
     private var data: Serializable? = null
+    private var requestCode: Int = 0
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -50,6 +52,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         super.onCreate(savedInstanceState)
         result = savedInstanceState?.getBoolean(KEY_SAVE_RESULT, result) ?: result
         data = savedInstanceState?.getSerializable(KEY_SAVE_DATA) ?: data
+        requestCode = savedInstanceState?.getInt(KEY_SAVE_REQUEST_CODE, targetRequestCode) ?: targetRequestCode
 
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
         this::class.findAnnotation<OmegaClickViews>()?.let {
@@ -86,6 +89,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         detachChildPresenter()
         outState.putBoolean(KEY_SAVE_RESULT, result)
         outState.putSerializable(KEY_SAVE_RESULT, data)
+        outState.putInt(KEY_SAVE_REQUEST_CODE, requestCode)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -256,12 +260,9 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        if (isResumed) {
-            val requestCode = targetRequestCode
-            if (requestCode != 0) {
-                val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
-                omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
-            }
+        if (isResumed && requestCode != 0) {
+            val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
+            omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
         }
     }
 
@@ -287,7 +288,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     final override fun <T : View> bind(@IdRes res: Int, initBlock: T.() -> Unit) = super.bind(res, initBlock)
 
-    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit)=
+    final override fun <T : View> bind(@IdRes vararg ids: Int, initBlock: T.() -> Unit) =
         super.bind(ids = *ids, initBlock = initBlock)
 
     final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =

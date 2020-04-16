@@ -26,6 +26,7 @@ import java.io.Serializable
 
 private const val KEY_SAVE_RESULT =  "omegaSaveResult"
 private const val KEY_SAVE_DATA =  "omegaSaveData"
+private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
 
 abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
@@ -39,6 +40,8 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     private var result: Boolean = false
     private var data: Serializable? = null
+    private var requestCode: Int = 0
+
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -46,6 +49,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         super.onCreate(savedInstanceState)
         result = savedInstanceState?.getBoolean(KEY_SAVE_RESULT, result) ?: result
         data = savedInstanceState?.getSerializable(KEY_SAVE_DATA) ?: data
+        requestCode = savedInstanceState?.getInt(KEY_SAVE_REQUEST_CODE, targetRequestCode) ?: targetRequestCode
 
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
 
@@ -225,12 +229,9 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        if (isResumed) {
-            val requestCode = targetRequestCode
-            if (requestCode != 0) {
-                val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
-                omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
-            }
+        if (isResumed && requestCode != 0) {
+            val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
+            omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
         }
     }
 
