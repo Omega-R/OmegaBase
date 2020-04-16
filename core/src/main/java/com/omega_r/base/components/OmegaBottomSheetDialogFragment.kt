@@ -218,12 +218,19 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         this.data = data
     }
 
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        result = false
+    }
+
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        val requestCode = targetRequestCode
-        if (requestCode != 0) {
-            val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
-            omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
+        if (isResumed) {
+            val requestCode = targetRequestCode
+            if (requestCode != 0) {
+                val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
+                omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
+            }
         }
     }
 
