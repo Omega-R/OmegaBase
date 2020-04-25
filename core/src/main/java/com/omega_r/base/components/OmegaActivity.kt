@@ -25,6 +25,8 @@ import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.tools.DialogManager
 import com.omega_r.libs.extensions.context.getColorByAttribute
+import com.omega_r.libs.extensions.context.getCompatColor
+import com.omega_r.libs.extensions.context.getCompatDrawable
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -73,16 +75,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
                     setTitle(it.resId)
                 }
                 is OmegaWindowBackground -> {
-                    if (it.drawableRes > 0) {
-                        window.setBackgroundDrawable(
-                            ContextCompat.getDrawable(this, it.drawableRes)
-                        )
-                    } else if (it.colorAttrRes > 0) {
-                        window.setBackgroundDrawable(
-                            ColorDrawable(getColorByAttribute(it.colorAttrRes))
-                        )
-                    }
-
+                    it.apply(window)
                 }
             }
         }
@@ -296,7 +289,7 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
         finish()
     }
 
-    protected fun <T: View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T>  {
+    protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
         return bind(res) {
             setOnClickListener(this, block)
         }

@@ -1,5 +1,6 @@
 package com.omega_r.base.components
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -7,10 +8,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.annotations.OmegaClickViews
-import com.omega_r.base.annotations.OmegaContentView
-import com.omega_r.base.annotations.OmegaMenu
-import com.omega_r.base.annotations.OmegaTheme
+import com.omega_r.base.annotations.*
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
@@ -104,21 +102,24 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         }
     }
 
+    @SuppressLint("RestrictedApi")
+    override fun setupDialog(dialog: Dialog, style: Int) {
+        super.setupDialog(dialog, style)
+        this::class.findAnnotation<OmegaWindowBackground>()?.apply(dialog.window!!)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = this::class.findAnnotation<OmegaContentView>()
-        val view = if (contentView != null) {
-            var themedInflater = inflater
-            val theme = this::class.findAnnotation<OmegaTheme>()
-            theme?.let {
-                val contextThemeWrapper = ContextThemeWrapper(activity, theme.resId)
-                themedInflater = inflater.cloneInContext(contextThemeWrapper)
-            }
+
+        val themedInflater = this::class.findAnnotation<OmegaTheme>()?.let {
+            inflater.cloneInContext(ContextThemeWrapper(activity, it.resId))
+        } ?: inflater
+
+        return if (contentView != null) {
             themedInflater.inflate(contentView.layoutRes, container, false)
         } else {
-            super.onCreateView(inflater, container, savedInstanceState)
+            super.onCreateView(themedInflater, container, savedInstanceState)
         }
-
-        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
