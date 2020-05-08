@@ -14,7 +14,7 @@ import com.omega_r.libs.omegatypes.image.preload
 abstract class OmegaListAdapter<M, VH> : OmegaAdapter<VH>(), ListableAdapter<M>
         where VH : RecyclerView.ViewHolder, VH : OmegaListAdapter.ViewHolderBindable<M> {
 
-    override var list: List<M> = listOf()
+    override var list: List<M> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()

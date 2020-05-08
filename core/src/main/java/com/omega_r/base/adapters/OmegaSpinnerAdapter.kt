@@ -9,6 +9,7 @@ import android.widget.Spinner
 import android.widget.SpinnerAdapter
 import androidx.annotation.LayoutRes
 import com.omega_r.base.enitity.Identifiable
+import com.omega_r.libs.omegatypes.Text
 import java.util.*
 
 /**
@@ -18,8 +19,8 @@ import java.util.*
 abstract class OmegaSpinnerAdapter<M>(
     context: Context,
     @LayoutRes res: Int = android.R.layout.simple_spinner_item,
-    list: List<M> = Collections.emptyList()
-) : ArrayAdapter<CharSequence>(context, res, Collections.emptyList()), ListableAdapter<M>,
+    list: List<M> = emptyList()
+) : ArrayAdapter<CharSequence>(context, res, emptyList()), ListableAdapter<M>,
     SpinnerAdapter {
 
     override var list: List<M> = list
@@ -123,12 +124,12 @@ abstract class OmegaSpinnerAdapter<M>(
     class TextAdapter(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
-        list: List<com.omega_r.libs.omegatypes.Text> = emptyList()
+        list: List<Text> = emptyList()
     ) :
-        OmegaSpinnerAdapter<com.omega_r.libs.omegatypes.Text>(context, res, list) {
+        OmegaSpinnerAdapter<Text>(context, res, list) {
 
         override fun getItemName(
-            item: com.omega_r.libs.omegatypes.Text,
+            item: Text,
             isDropDown: Boolean
         ): CharSequence =
             item.getCharSequence(context) ?: ""
@@ -138,11 +139,11 @@ abstract class OmegaSpinnerAdapter<M>(
     class StringAdapter(
         context: Context,
         res: Int = android.R.layout.simple_spinner_item,
-        list: List<kotlin.String> = emptyList()
+        list: List<String> = emptyList()
     ) :
-        OmegaSpinnerAdapter<kotlin.String>(context, res, list) {
+        OmegaSpinnerAdapter<String>(context, res, list) {
 
-        override fun getItemName(item: kotlin.String, isDropDown: Boolean): CharSequence = item
+        override fun getItemName(item: String, isDropDown: Boolean): CharSequence = item
     }
 
     class CustomAdapter<M>(

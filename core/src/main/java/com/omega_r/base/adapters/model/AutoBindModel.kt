@@ -47,7 +47,7 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
     }
 
     constructor(parentModel: AutoBindModel<M>? = null, list: List<Binder<*, M>>) : this(
-        list + (parentModel?.list ?: emptyList<Binder<*, M>>())
+        (parentModel?.list ?: emptyList<Binder<*, M>>()) + list
     )
 
     constructor(vararg binder: Binder<*, M>) : this(binder.toList())
