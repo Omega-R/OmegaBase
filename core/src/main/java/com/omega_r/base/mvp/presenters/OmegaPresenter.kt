@@ -109,9 +109,9 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         context: CoroutineContext = EmptyCoroutineContext,
         waitingText: Text? = null,
         block: suspend () -> Unit
-    ) {
+    ): Job {
         viewState.setWaiting(true, waitingText)
-        launch(context) {
+        return launch(context) {
             try {
                 block()
             } finally {
