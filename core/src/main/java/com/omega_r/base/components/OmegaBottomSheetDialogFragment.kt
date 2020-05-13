@@ -9,6 +9,7 @@ import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.annotations.*
+import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager

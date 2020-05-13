@@ -19,19 +19,22 @@ annotation class OmegaWindowBackground(
     @AttrRes val colorAttrRes: Int = 0,
     @ColorRes val colorRes: Int = 0
 ) {
-    fun apply(window: Window) {
-        with(window.context) {
-            when {
-                drawableRes > 0 -> {
-                    window.setBackgroundDrawable(getCompatDrawable(drawableRes))
+    companion object {
+        fun OmegaWindowBackground.apply(window: Window) {
+                with(window.context) {
+                    when {
+                        drawableRes > 0 -> {
+                            window.setBackgroundDrawable(getCompatDrawable(drawableRes))
+                        }
+                        colorRes > 0 -> {
+                            window.setBackgroundDrawable(ColorDrawable(getCompatColor(colorRes)))
+                        }
+                        colorAttrRes > 0 -> {
+                            window.setBackgroundDrawable(ColorDrawable(getColorByAttribute(colorAttrRes)))
+                        }
+                    }
                 }
-                colorRes > 0 -> {
-                    window.setBackgroundDrawable(ColorDrawable(getCompatColor(colorRes)))
-                }
-                colorAttrRes > 0 -> {
-                    window.setBackgroundDrawable(ColorDrawable(getColorByAttribute(colorAttrRes)))
-                }
-            }
+
         }
     }
 }
