@@ -55,6 +55,58 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder> : OmegaRecyclerView.Ad
             // nothing
         }
 
+        final override fun setOnClickListener(itemView: View, block: () -> Unit) {
+            super.setOnClickListener(itemView, block)
+        }
+
+        final override fun setOnClickListener(id: Int, listener: View.OnClickListener) {
+            super.setOnClickListener(id, listener)
+        }
+
+        final override fun setOnClickListenerOptional(id: Int, listener: View.OnClickListener) {
+            super.setOnClickListenerOptional(id, listener)
+        }
+
+        final override fun setOnClickListener(id: Int, block: () -> Unit) {
+            super.setOnClickListener(id, block)
+        }
+
+        final override fun setOnClickListenerOptional(id: Int, block: () -> Unit) {
+            super.setOnClickListenerOptional(id, block)
+        }
+
+        final override fun setOnClickListenerWithView(id: Int, block: (View) -> Unit) {
+            super.setOnClickListenerWithView(id, block)
+        }
+
+        final override fun setOnClickListenerWithViewOptional(id: Int, block: (View) -> Unit) {
+            super.setOnClickListenerWithViewOptional(id, block)
+        }
+
+        final override fun setOnClickListeners(vararg pairs: Pair<Int, () -> Unit>) {
+            super.setOnClickListeners(*pairs)
+        }
+
+        final override fun setOnClickListenersOptional(vararg pairs: Pair<Int, () -> Unit>) {
+            super.setOnClickListenersOptional(*pairs)
+        }
+
+        final override fun setOnClickListeners(vararg ids: Int, block: (View) -> Unit) {
+            super.setOnClickListeners(ids = *ids, block = block)
+        }
+
+        final override fun setOnClickListenersOptional(vararg ids: Int, block: (View) -> Unit) {
+            super.setOnClickListenersOptional(ids = *ids, block = block)
+        }
+
+        final override fun <E> setOnClickListeners(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+            super.setOnClickListeners(pairs = *pairs, block = block)
+        }
+
+        final override fun <E> setOnClickListenersOptional(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+            super.setOnClickListenersOptional(pairs = *pairs, block = block)
+        }
+
     }
 
     open class SwipeViewHolder : OmegaSwipeViewHolder, OmegaClickable, OmegaContextable, OmegaViewFindable {
@@ -87,6 +139,57 @@ abstract class OmegaAdapter<VH : RecyclerView.ViewHolder> : OmegaRecyclerView.Ad
             // nothing
         }
 
+        final override fun setOnClickListener(itemView: View, block: () -> Unit) {
+            super.setOnClickListener(itemView, block)
+        }
+
+        final override fun setOnClickListener(id: Int, listener: View.OnClickListener) {
+            super.setOnClickListener(id, listener)
+        }
+
+        final override fun setOnClickListenerOptional(id: Int, listener: View.OnClickListener) {
+            super.setOnClickListenerOptional(id, listener)
+        }
+
+        final override fun setOnClickListener(id: Int, block: () -> Unit) {
+            super.setOnClickListener(id, block)
+        }
+
+        final override fun setOnClickListenerOptional(id: Int, block: () -> Unit) {
+            super.setOnClickListenerOptional(id, block)
+        }
+
+        final override fun setOnClickListenerWithView(id: Int, block: (View) -> Unit) {
+            super.setOnClickListenerWithView(id, block)
+        }
+
+        final override fun setOnClickListenerWithViewOptional(id: Int, block: (View) -> Unit) {
+            super.setOnClickListenerWithViewOptional(id, block)
+        }
+
+        final override fun setOnClickListeners(vararg pairs: Pair<Int, () -> Unit>) {
+            super.setOnClickListeners(*pairs)
+        }
+
+        final override fun setOnClickListenersOptional(vararg pairs: Pair<Int, () -> Unit>) {
+            super.setOnClickListenersOptional(*pairs)
+        }
+
+        final override fun setOnClickListeners(vararg ids: Int, block: (View) -> Unit) {
+            super.setOnClickListeners(ids = *ids, block = block)
+        }
+
+        final override fun setOnClickListenersOptional(vararg ids: Int, block: (View) -> Unit) {
+            super.setOnClickListenersOptional(ids = *ids, block = block)
+        }
+
+        final override fun <E> setOnClickListeners(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+            super.setOnClickListeners(pairs = *pairs, block = block)
+        }
+
+        final override fun <E> setOnClickListenersOptional(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+            super.setOnClickListenersOptional(pairs = *pairs, block = block)
+        }
     }
 
     class AdapterClickManager(private val viewHolder: RecyclerView.ViewHolder, findable: OmegaViewFindable) :
