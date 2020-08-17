@@ -1,8 +1,11 @@
 package com.omega_r.base.simple
 
+import android.Manifest
 import com.omega_r.base.enitity.contains
+import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
+import com.omega_r.base.simple.dialog_fragment.DialogDialogFragment
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.mvp.InjectViewState
 import kotlinx.coroutines.Dispatchers
@@ -17,18 +20,12 @@ import java.io.Serializable
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {
-        launch {
-            delay(5000)
-            viewState.showToast(Text.from("Go"))
-            viewState.setWaiting(true)
-            delay(5000)
-            viewState.setWaiting(false)
-        }
-
-
-
-
-//        viewState.showMessage(Text.from("test"), Action(Text.from("Test")) {
+       DialogDialogFragment.createLauncher()
+           .launch()
+//        viewState.showMe
+//        log {
+//            "Message"
+//        }ssage(Text.from("test"), Action(Text.from("Test")) {
 //            viewState.showToast(Text.from("test"))
 //        })
 //
