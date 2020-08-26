@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
+import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
 import com.omega_r.base.binders.IdHolder
@@ -303,6 +304,16 @@ abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
 
     final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
         super.bind<T>(res, adapter)
+
+    final override fun <T : RecyclerView, M> bind(
+        res: Int,
+        layoutRes: Int,
+        parentModel: AutoBindModel<M>?,
+        callback: ((M) -> Unit)?,
+        builder: AutoBindModel.Builder<M>.() -> Unit
+    ): Lazy<T> {
+        return super.bind(res, layoutRes, parentModel, callback, builder)
+    }
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)

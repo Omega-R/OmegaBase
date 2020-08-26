@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
@@ -84,6 +85,16 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
     final override fun <T : View> bind(vararg ids: Int): Lazy<List<T>> = super.bind(*ids)
 
     final override fun <T : RecyclerView> bind(res: Int, adapter: RecyclerView.Adapter<*>) = super.bind<T>(res, adapter)
+
+    final override fun <T : RecyclerView, M> bind(
+        res: Int,
+        layoutRes: Int,
+        parentModel: AutoBindModel<M>?,
+        callback: ((M) -> Unit)?,
+        builder: AutoBindModel.Builder<M>.() -> Unit
+    ): Lazy<T> {
+        return super.bind(res, layoutRes, parentModel, callback, builder)
+    }
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)
