@@ -36,13 +36,18 @@ import java.io.Serializable
  */
 
 
-abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override val clickManager = ClickManager()
 
     override val bindersManager = BindersManager()
 
     protected val dialogManager by lazy { DialogManager(this) }
+
+    constructor() : super()
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     override fun getContext(): Context = this
 
