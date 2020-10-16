@@ -14,6 +14,7 @@ import com.omega_r.libs.extensions.context.getCompatDrawable
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaWindowBackground(
     @DrawableRes val drawableRes: Int = 0,
     @AttrRes val colorAttrRes: Int = 0,
