@@ -7,5 +7,4 @@ import androidx.annotation.StyleRes
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaWindowFlags(val addFlags: Int = 0, val clearFlags: Int = 0)
