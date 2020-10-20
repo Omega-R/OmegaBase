@@ -14,5 +14,5 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.Omega-R:OmegaBase:1.1.0'
+	        implementation 'com.github.Omega-R:OmegaBase:1.3.1'
 	}
