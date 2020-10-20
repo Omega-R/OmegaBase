@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
+import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.annotations.OmegaMenu
@@ -26,7 +27,7 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
+abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     private val dialogList = mutableListOf<Dialog>()
 
@@ -35,6 +36,11 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     override val bindersManager = ResettableBindersManager()
 
     private var childPresenterAttached = false
+
+    constructor() : super()
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     open fun getTitle(): Text? = null
 
@@ -257,6 +263,16 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
 
     final override fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
         super.bind<T>(res, adapter)
+
+    final override fun <T : RecyclerView, M> bind(
+        res: Int,
+        layoutRes: Int,
+        parentModel: AutoBindModel<M>?,
+        callback: ((M) -> Unit)?,
+        builder: AutoBindModel.Builder<M>.() -> Unit
+    ): Lazy<T> {
+        return super.bind(res, layoutRes, parentModel, callback, builder)
+    }
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>, initBlock: T.(E) -> Unit) =
         super.bind(idsPair = *idsPair, initBlock = initBlock)

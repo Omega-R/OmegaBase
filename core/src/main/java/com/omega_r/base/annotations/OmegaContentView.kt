@@ -8,4 +8,5 @@ import androidx.annotation.LayoutRes
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaContentView(@LayoutRes val layoutRes: Int)

@@ -7,9 +7,10 @@ import android.view.animation.AnimationUtils
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import androidx.vectordrawable.graphics.drawable.AnimatorInflaterCompat
 import com.omega_r.base.OmegaContextable
 import com.omega_r.base.OmegaViewFindable
+import com.omega_r.base.adapters.OmegaAutoAdapter
+import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.binders.managers.BindersManager.BindType.RESETTABLE
 import com.omega_r.base.binders.managers.BindersManager.BindType.RESETTABLE_WITH_AUTO_INIT
@@ -53,6 +54,18 @@ interface OmegaBindable : OmegaContextable, OmegaViewFindable {
     fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>) =
         bindersManager.bind<T>(RESETTABLE_WITH_AUTO_INIT, { findView(res) }) {
             this.adapter = adapter
+        }
+
+    fun <T : RecyclerView, M> bind(
+        @IdRes res: Int,
+        @LayoutRes layoutRes: Int,
+        parentModel: AutoBindModel<M>? = null,
+        callback: ((M) -> Unit)? = null,
+        builder: AutoBindModel.Builder<M>.() -> Unit
+    ) =
+        bindersManager.bind<T>(RESETTABLE_WITH_AUTO_INIT, { findView(res) }) {
+            adapter =
+                OmegaAutoAdapter.create(layoutRes = layoutRes, callback = callback, parentModel = parentModel, block = builder)
         }
 
     fun <T : RecyclerView> bind(@IdRes res: Int, adapter: RecyclerView.Adapter<*>, initBlock: T.() -> Unit) =
