@@ -32,7 +32,7 @@ open class DialogManager(private val context: Context, private val showWaitingDe
         }
     }
 
-    protected fun createWaitingDialog(context: Context): OmegaDialog {
+    open protected fun createWaitingDialog(context: Context): OmegaDialog {
         return WaitingDialog(context).apply {
             waitingText?.let {
                 text = it
