@@ -60,7 +60,7 @@ dependencies {
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     api 'com.github.Omega-R.OmegaTypes:glide:2.0.2'
     api 'com.github.Omega-R:OmegaIntentBuilder:1.2.0'
-    api 'com.github.Omega-R:OmegaLaunchers:1.0.2'
+    api 'com.github.Omega-R:OmegaLaunchers:e13065c'
     api 'com.github.Omega-R:OmegaExtensions:1.0.3'
     api project(':annotations')
 

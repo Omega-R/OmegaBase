@@ -2,6 +2,7 @@ package com.omega_r.base.components
 
 import android.app.Dialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
@@ -248,6 +249,12 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     override fun exit() {
         activity!!.finish()
+    }
+
+    override fun exitAffinity() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            activity!!.finishAffinity()
+        }
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

@@ -185,6 +185,10 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         viewState.setResult(success, data)
     }
 
+    protected fun exitAffinity() {
+        viewState.exitAffinity()
+    }
+
     protected fun exit(success: Boolean = false, data: Serializable? = null) {
         setResult(success, data)
         viewState.exit()

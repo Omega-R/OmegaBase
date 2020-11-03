@@ -3,6 +3,7 @@ package com.omega_r.base.components
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -288,6 +289,12 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override fun exit() {
         finish()
+    }
+
+    override fun exitAffinity() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            finishAffinity()
+        }
     }
 
     protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {

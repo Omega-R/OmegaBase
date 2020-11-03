@@ -70,6 +70,9 @@ interface OmegaView : MvpView {
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun exit()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun exitAffinity()
+
 }
 
 inline fun <reified T : Annotation> KAnnotatedElement.findAnnotation(): T? =

@@ -251,6 +251,11 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         dismiss()
     }
 
+    override fun exitAffinity() {
+        // no affinity stack for DialogFragment-s
+        exit()
+    }
+
     override fun setResult(success: Boolean, data: Serializable?) {
         result = success
         this.data = data
