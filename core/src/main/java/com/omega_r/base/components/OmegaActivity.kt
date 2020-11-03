@@ -42,7 +42,7 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override val bindersManager = BindersManager()
 
-    protected val dialogManager by lazy { DialogManager(this) }
+    protected open val dialogManager by lazy { DialogManager(this) }
 
     constructor() : super()
 
