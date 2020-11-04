@@ -1,4 +1,4 @@
-package com.omega_r.base.tools
+package com.omega_r.base.dialogs
 
 import android.content.Context
 import android.os.Bundle
@@ -13,11 +13,11 @@ import com.omega_r.libs.omegatypes.setText
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-class WaitingDialog(context: Context) : OmegaDialog(context) {
+class WaitingDialog(context: Context) : TextableOmegaDialog(context) {
 
     private var view: View? = null
 
-    var text: Text = Text.from(R.string.loading)
+    override var text: Text = Text.from(R.string.loading)
         set(value) {
             field = value
             view?.findViewById<TextView>(R.id.textview_loading)?.setText(field)
