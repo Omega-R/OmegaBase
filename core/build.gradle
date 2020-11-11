@@ -37,6 +37,11 @@ android {
 
     kotlinOptions.jvmTarget = "1.8"
 
+    kapt {
+        arguments {
+            arg("moxyReflectorPackage", 'com.omega_r.base')
+        }
+    }
 }
 
 
@@ -54,8 +59,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
-    api 'com.github.Omega-R.OmegaMoxy:moxy:1.7.1'
-    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1.7.1'
+    api 'com.github.Omega-R.OmegaMoxy:moxy:45fc335'
+    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:45fc335'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:45fc335'
 
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     api 'com.github.Omega-R.OmegaTypes:glide:2.0.2'

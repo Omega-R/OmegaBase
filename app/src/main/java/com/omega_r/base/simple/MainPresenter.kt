@@ -16,7 +16,6 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
-@InjectViewState
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {
