@@ -27,7 +27,7 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
+abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     private val dialogList = mutableListOf<Dialog>()
 
@@ -36,6 +36,11 @@ abstract class OmegaFragment : MvpAppCompatFragment(), OmegaComponent {
     override val bindersManager = ResettableBindersManager()
 
     private var childPresenterAttached = false
+
+    constructor() : super()
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     open fun getTitle(): Text? = null
 

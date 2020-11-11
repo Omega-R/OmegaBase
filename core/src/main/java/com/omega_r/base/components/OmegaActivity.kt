@@ -22,7 +22,7 @@ import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
-import com.omega_r.base.tools.DialogManager
+import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -36,13 +36,18 @@ import java.io.Serializable
  */
 
 
-abstract class OmegaActivity : MvpAppCompatActivity(), OmegaComponent {
+abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override val clickManager = ClickManager()
 
     override val bindersManager = BindersManager()
 
-    protected val dialogManager by lazy { DialogManager(this) }
+    protected open val dialogManager by lazy { DialogManager(this) }
+
+    constructor() : super()
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     override fun getContext(): Context = this
 

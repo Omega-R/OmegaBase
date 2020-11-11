@@ -7,4 +7,5 @@ import androidx.annotation.StyleRes
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaTheme(@StyleRes val resId: Int)

@@ -1,22 +1,23 @@
-package com.omega_r.base.tools
+package com.omega_r.base.dialogs
 
 import android.app.Dialog
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.omega_r.base.components.OmegaDialog
 import com.omega_r.libs.omegatypes.Text
 
 /**
  * Created by Anton Knyazev on 2019-10-15.
  */
-class DialogManager(private val context: Context, private val showWaitingDelay: Long = 555L) {
+open class DialogManager(private val context: Context, private val showWaitingDelay: Long = 555L) {
 
     private val handler = Handler(Looper.getMainLooper())
 
     private val dialogList = mutableListOf<Dialog>()
 
     private var lockingDialog: LockScreenDialog? = null
-    private var waitingDialog: WaitingDialog? = null
+    private var waitingDialog: OmegaDialog? = null
 
     private var waitingText: Text? = null
 
@@ -25,11 +26,16 @@ class DialogManager(private val context: Context, private val showWaitingDelay: 
         lockingDialog = null
 
         if (waitingDialog == null) {
-            waitingDialog = WaitingDialog(context).apply {
-                waitingText?.let {
-                    text = it
-                }
+            waitingDialog = createWaitingDialog(context).apply {
                 show()
+            }
+        }
+    }
+
+    protected open fun createWaitingDialog(context: Context): OmegaDialog {
+        return WaitingDialog(context).apply {
+            waitingText?.let {
+                text = it
             }
         }
     }
@@ -45,7 +51,7 @@ class DialogManager(private val context: Context, private val showWaitingDelay: 
                     }
                 }
                 waitingText?.let {
-                    waitingDialog?.text = it
+                    (waitingDialog as? TextableOmegaDialog)?.text = it
                 }
 
             }

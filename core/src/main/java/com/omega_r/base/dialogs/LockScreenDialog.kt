@@ -1,4 +1,4 @@
-package com.omega_r.base.tools
+package com.omega_r.base.dialogs
 
 import android.content.Context
 import android.graphics.Color

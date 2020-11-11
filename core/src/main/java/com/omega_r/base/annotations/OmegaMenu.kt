@@ -7,4 +7,5 @@ import androidx.annotation.MenuRes
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaMenu(@MenuRes val menuRes: Int)

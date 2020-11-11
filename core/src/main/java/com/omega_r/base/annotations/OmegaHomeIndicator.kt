@@ -8,4 +8,5 @@ import androidx.annotation.DrawableRes
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
+@Deprecated("This method will be deprecated since Gradle 5.")
 annotation class OmegaHomeIndicator(@DrawableRes val iconRes: Int = - 1, val isVisible: Boolean = true)

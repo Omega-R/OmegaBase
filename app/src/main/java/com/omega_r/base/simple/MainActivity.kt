@@ -15,8 +15,7 @@ import com.omegar.libs.omegalaunchers.createActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.put
 import com.omegar.mvp.presenter.InjectPresenter
 
-@OmegaContentView(R.layout.activity_main)
-class MainActivity : OmegaActivity(), MainView {
+class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
     companion object {
 
