@@ -72,3 +72,19 @@ inline fun <reified T> T.log(
         )
     }
 }
+
+inline fun <reified T> T.log(
+    message: String,
+    level: Level = Level.DEBUG,
+    tag: String = T::class.java.simpleName,
+    throwable: Throwable? = null
+) {
+    if (!LogManager.isEmpty(level)) {
+        LogManager.log(
+            level = level,
+            tag = tag,
+            throwable = throwable,
+            message = message
+        )
+    }
+}

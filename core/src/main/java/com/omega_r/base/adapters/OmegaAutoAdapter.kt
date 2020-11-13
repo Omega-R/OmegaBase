@@ -92,7 +92,7 @@ open class OmegaAutoAdapter<M, VH>(
 
         init {
             callback?.let {
-                setOnClickListener(itemView) {
+                itemView.setClickListener {
                     item?.let {
                         callback(it)
                     }
@@ -124,7 +124,7 @@ open class OmegaAutoAdapter<M, VH>(
 
         init {
             callback?.let {
-                setOnClickListener(contentView) {
+                contentView.setClickListener() {
                     item?.let {
                         callback(it)
                     }

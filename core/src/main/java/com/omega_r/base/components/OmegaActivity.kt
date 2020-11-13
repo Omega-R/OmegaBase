@@ -70,7 +70,7 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
                     setContentView(it.layoutRes)
                 }
                 is OmegaClickViews -> {
-                    setOnClickListeners(ids = *it.ids, block = this::onClickView)
+                    setClickListeners(ids = *it.ids, block = this::onClickView)
                 }
                 is OmegaTitle -> {
                     setTitle(it.resId)
@@ -292,7 +292,7 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
         return bind(res) {
-            setOnClickListener(this, block)
+            setClickListener(this, block)
         }
     }
 
@@ -358,5 +358,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
         super.bindOrNull(res, initBlock)
 
-
+    @JvmName("setClickFunction")
+    fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

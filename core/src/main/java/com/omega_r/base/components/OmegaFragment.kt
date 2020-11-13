@@ -51,7 +51,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
 
         this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            setClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
 
@@ -312,4 +312,8 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
         super.bindOrNull(res, initBlock)
 
+    @JvmName("setClickFunction")
+    final fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

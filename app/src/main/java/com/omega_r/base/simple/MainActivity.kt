@@ -5,9 +5,9 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.adapters.OmegaListAdapter
-import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
+import com.omega_r.base.logs.log
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
@@ -74,7 +74,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = intent.getStringExtra(EXTRA_TITLE)
-        setOnClickListener(R.id.button) {
+        setClickListener(R.id.button) {
             showToast(Text.from("Test"))
         }
     }

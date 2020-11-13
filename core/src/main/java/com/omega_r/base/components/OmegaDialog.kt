@@ -66,7 +66,7 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
         clickManager.viewFindable = this
 
         this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            setClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
 
@@ -128,4 +128,8 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
 
     final override fun <T : View> bindOrNull(res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
 
+    @JvmName("setClickFunction")
+    final fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

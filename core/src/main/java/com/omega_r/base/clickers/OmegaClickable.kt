@@ -11,11 +11,11 @@ interface OmegaClickable : OmegaViewFindable {
 
     val clickManager: ClickManager
 
-    fun setOnClickListener(itemView: View, block: () -> Unit) {
-        if (itemView.id == View.NO_ID) {
-            itemView.id = ViewCompat.generateViewId()
+    fun <T : View> setClickListener(view: T, block: () -> Unit)  {
+        if (view.id == View.NO_ID) {
+            view.id = ViewCompat.generateViewId()
         }
-        itemView.setOnClickListener(clickManager.wrap(itemView.id, block))
+        view.setOnClickListener(clickManager.wrap(view.id, block))
     }
 
     fun setOnClickListener(id: Int, listener: View.OnClickListener) {
@@ -26,50 +26,50 @@ interface OmegaClickable : OmegaViewFindable {
         clickManager.setClickListener(id, optional = true, listener = listener)
     }
 
-    fun setOnClickListener(id: Int, block: () -> Unit) {
+    fun setClickListener(id: Int, block: () -> Unit) {
         clickManager.setClickListener(id, optional = false, listener = block)
     }
 
-    fun setOnClickListenerOptional(id: Int, block: () -> Unit) {
+    fun setClickListenerOptional(id: Int, block: () -> Unit) {
         clickManager.setClickListener(id, optional = true, listener = block)
     }
 
-    fun setOnClickListenerWithView(id: Int, block: (View) -> Unit) {
+    fun setClickListenerWithView(id: Int, block: (View) -> Unit) {
         clickManager.setClickListener(id, optional = false, listener = block)
     }
 
-    fun setOnClickListenerWithViewOptional(id: Int, block: (View) -> Unit) {
+    fun setClickListenerWithViewOptional(id: Int, block: (View) -> Unit) {
         clickManager.setClickListener(id, optional = true, listener = block)
     }
 
-    fun setOnClickListeners(vararg pairs: Pair<Int, () -> Unit>) {
-        pairs.forEach { setOnClickListener(it.first, it.second) }
+    fun setClickListeners(vararg pairs: Pair<Int, () -> Unit>) {
+        pairs.forEach { setClickListener(it.first, it.second) }
     }
 
-    fun setOnClickListenersOptional(vararg pairs: Pair<Int, () -> Unit>) {
-        pairs.forEach { setOnClickListenerOptional(it.first, it.second) }
+    fun setClickListenersOptional(vararg pairs: Pair<Int, () -> Unit>) {
+        pairs.forEach { setClickListenerOptional(it.first, it.second) }
     }
 
-    fun setOnClickListeners(vararg ids: Int, block: (View) -> Unit) {
-        ids.forEach { setOnClickListenerWithView(it, block) }
+    fun setClickListeners(vararg ids: Int, block: (View) -> Unit) {
+        ids.forEach { setClickListenerWithView(it, block) }
     }
 
-    fun setOnClickListenersOptional(vararg ids: Int, block: (View) -> Unit) {
-        ids.forEach { setOnClickListenerWithViewOptional(it, block) }
+    fun setClickListenersOptional(vararg ids: Int, block: (View) -> Unit) {
+        ids.forEach { setClickListenerWithViewOptional(it, block) }
     }
 
-    fun <E> setOnClickListeners(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+    fun <E> setClickListeners(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
         val list = pairs.map { it.first }
         val map = pairs.toMap()
-        setOnClickListeners(ids = *list.toIntArray()) {
+        setClickListeners(ids = *list.toIntArray()) {
             block(map[it.id]!!)
         }
     }
 
-    fun <E> setOnClickListenersOptional(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
+    fun <E> setClickListenersOptional(vararg pairs: Pair<Int, E>, block: (E) -> Unit) {
         val list = pairs.map { it.first }
         val map = pairs.toMap()
-        setOnClickListenersOptional(ids = *list.toIntArray()) {
+        setClickListenersOptional(ids = *list.toIntArray()) {
             block(map[it.id]!!)
         }
     }
