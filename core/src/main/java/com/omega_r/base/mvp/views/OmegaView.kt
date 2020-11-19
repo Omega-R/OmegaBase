@@ -23,7 +23,7 @@ interface OmegaView : MvpView {
         private const val TAG_QUERY_OR_MESSAGE= "queryOrMessage"
     }
 
-    @StateStrategyType(value = CUSTOM, custom = AddToEndStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
+    @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showMessage(message: Text, action: Action? = null)
 
     @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)

@@ -67,7 +67,7 @@ dependencies {
     api 'com.github.Omega-R.OmegaTypes:glide:2.0.2'
     api 'com.github.Omega-R:OmegaIntentBuilder:1.2.0'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.2'
-    api 'com.github.Omega-R:OmegaExtensions:1.0.3'
+    api 'com.github.Omega-R:OmegaExtensions:53e5eb1'
     api project(':annotations')
 
     api "com.squareup.retrofit2:retrofit:2.7.2"
@@ -79,3 +79,4 @@ dependencies {
 repositories {
     mavenCentral()
 }
+

@@ -12,10 +12,22 @@ import com.omega_r.base.OmegaViewFindable
  * Created by Anton Knyazev on 04.04.2019.
  */
 
-open class ClickManager(clickable: Clickable? = null, private val minimumInterval: Long = 555L) {
+open class ClickManager(clickable: Clickable? = null, private val minimumInterval: Long = MINIMUM_INTERVAL) {
 
     companion object {
+        private const val MINIMUM_INTERVAL: Long = 555L
         private var lastClickTimestamp: Long = 0
+
+        fun canClickHandle(minimumInterval: Long = MINIMUM_INTERVAL): Boolean {
+            val uptimeMillis = SystemClock.uptimeMillis()
+            val result = (lastClickTimestamp == 0L
+                    || uptimeMillis - lastClickTimestamp > minimumInterval)
+            if (result) {
+                lastClickTimestamp = uptimeMillis
+            }
+            return result
+        }
+
     }
 
     private val viewClickSparseArray = SparseArray<View.OnClickListener>()
@@ -63,13 +75,7 @@ open class ClickManager(clickable: Clickable? = null, private val minimumInterva
     }
 
     protected open fun canClickHandle(): Boolean {
-        val uptimeMillis = SystemClock.uptimeMillis()
-        val result = (lastClickTimestamp == 0L
-                || uptimeMillis - lastClickTimestamp > minimumInterval)
-        if (result) {
-            lastClickTimestamp = uptimeMillis
-        }
-        return result
+        return canClickHandle(minimumInterval)
     }
 
     fun wrap(@IdRes id: Int, viewListener: View.OnClickListener): View.OnClickListener =
