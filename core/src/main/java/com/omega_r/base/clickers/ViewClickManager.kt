@@ -2,11 +2,8 @@ package com.omega_r.base.clickers
 
 import android.view.View
 import androidx.annotation.IdRes
-import androidx.core.view.ViewCompat
 import com.omega_r.base.OmegaViewFindable
 import com.omega_r.base.R
-import com.omega_r.base.tools.dp
-import com.omega_r.base.tools.px
 
 /**
  * Created by Anton Knyazev on 13.11.2020.
@@ -28,8 +25,6 @@ private class WrapperClickListener(private val block: () -> Unit) : View.OnClick
     override fun onClick(v: View?) {
         if (ClickManager.canClickHandle()) {
             block()
-            val metrics = 1.px + 2.dp
-            -metrics
         }
     }
 

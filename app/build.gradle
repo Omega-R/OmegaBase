@@ -34,11 +34,7 @@ android {
     }
 
     kotlinOptions.jvmTarget = "1.8"
-    kapt {
-        arguments {
-            arg("moxyRegisterReflectorPackages", "com.omega_r.base")
-        }
-    }
+
 }
 
 dependencies {
@@ -52,7 +48,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
     implementation project(':core')
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1885fcf'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:8248024b875c0a3ed17453b3243417afc4ea1dc6'
     kapt project(':processor')
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
