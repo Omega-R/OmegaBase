@@ -8,6 +8,8 @@ import com.omega_r.base.adapters.OmegaListAdapter
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
 import com.omega_r.base.logs.log
+import com.omega_r.base.mvp.presenters.PresenterFactory
+import com.omega_r.base.mvp.presenters.providePresenter
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
@@ -27,8 +29,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
     }
 
-    @InjectPresenter
-    override lateinit var presenter: MainPresenter
+    override val presenter: MainPresenter by providePresenter()
 
     private val adapter = OmegaAutoAdapter.create(R.layout.item_test_3, ::onClickItem) {
         bindImage(R.id.imageview)
