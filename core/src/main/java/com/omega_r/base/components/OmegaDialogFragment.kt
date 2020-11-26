@@ -147,6 +147,11 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         (activity as OmegaActivity).setWaiting(waiting, text)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return arguments?.get(extraKey) as T?
+    }
+
     fun ActivityLauncher.launch(option: Bundle? = null) {
         launch(context!!, option)
     }

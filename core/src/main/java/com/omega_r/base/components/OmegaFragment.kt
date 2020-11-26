@@ -250,6 +250,11 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         activity!!.finish()
     }
 
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return arguments?.get(extraKey) as T?
+    }
+
     final override fun <T> bind(init: () -> T) = super.bind(init)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)

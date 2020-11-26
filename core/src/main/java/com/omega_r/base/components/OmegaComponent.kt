@@ -32,7 +32,6 @@ internal const val KEY_RESULT = "omegaResultData"
 
 interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
-
     val presenter: OmegaPresenter<out OmegaView>
 
     fun createMessage(message: Text, action: Action? = null): Dialog {

@@ -290,6 +290,11 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         finish()
     }
 
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return intent.extras?.get(extraKey) as T?
+    }
+
     protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
         return bind(res) {
             setClickListener(this, block)

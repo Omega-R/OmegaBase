@@ -74,7 +74,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = intent.getStringExtra(EXTRA_TITLE)
+        title = this[EXTRA_TITLE]
         setClickListener(R.id.button) {
             showToast(Text.from("Test"))
         }
