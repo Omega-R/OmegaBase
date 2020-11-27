@@ -48,7 +48,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
     implementation project(':core')
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:29c52fc71e6883200025860e0597bff51aeb2bea'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:6e4ff02b4df3ec94423de38752631a47b3f0be34'
     kapt project(':processor')
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
