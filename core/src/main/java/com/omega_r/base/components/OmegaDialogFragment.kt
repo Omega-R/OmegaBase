@@ -17,10 +17,7 @@ import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.libs.omegalaunchers.ActivityLauncher
-import com.omegar.libs.omegalaunchers.BaseIntentLauncher
-import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
-import com.omegar.libs.omegalaunchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.*
 import com.omegar.mvp.MvpAppCompatDialogFragment
 import java.io.Serializable
 
@@ -31,6 +28,7 @@ import java.io.Serializable
 private const val KEY_SAVE_RESULT = "omegaSaveResult"
 private const val KEY_SAVE_DATA = "omegaSaveData"
 private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
+private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
 
@@ -45,6 +43,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     private var result: Boolean = false
     private var data: Serializable? = null
     private var requestCode: Int = 0
+    private val innerData: MutableMap<String, Any> = hashMapOf()
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -92,12 +91,18 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         outState.putInt(KEY_SAVE_REQUEST_CODE, requestCode)
     }
 
+    protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
+        setHasOptionsMenu(true)
+        innerData[INNER_KEY_MENU] = menuRes
+        setMenuListener(pairs = * pairs)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        val annotation = this::class.findAnnotation<OmegaMenu>()
-        if (annotation != null) {
-            inflater.inflate(annotation.menuRes, menu)
-        }
-        super.onCreateOptionsMenu(menu, inflater)
+        val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
+        menuRes?.let {
+            inflater.inflate(menuRes, menu)
+            true
+        } ?: super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -154,6 +159,15 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
         launch(context!!, option)
+    }
+
+    override fun launch(launcher: Launcher) {
+        when (launcher) {
+            is FragmentLauncher -> {
+                launcher.replaceFragment(R.id.layout_container)
+            }
+            else -> super.launch(launcher)
+        }
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {

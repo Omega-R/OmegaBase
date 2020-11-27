@@ -34,7 +34,7 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-
+private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
@@ -43,6 +43,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override val bindersManager = BindersManager()
 
     protected open val dialogManager by lazy { DialogManager(this) }
+
+    private val innerData: MutableMap<String, Any> = hashMapOf()
 
     constructor() : super()
 
@@ -138,22 +140,22 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         onBackPressed()
     }
 
+    protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
+        innerData[INNER_KEY_MENU] = menuRes
+        setMenuListener(pairs = * pairs)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val annotation = this::class.findAnnotation<OmegaMenu>()
-        return if (annotation != null) {
-            menuInflater.inflate(annotation.menuRes, menu)
+        val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
+        return menuRes?.let {
+            innerData.remove(INNER_KEY_MENU)
+            menuInflater.inflate(menuRes, menu)
             true
-        } else {
-            super.onCreateOptionsMenu(menu)
-        }
+        } ?: super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (clickManager.handleMenuClick(item.itemId)) {
-            return true
-        } else {
-            return super.onOptionsItemSelected(item)
-        }
+        return clickManager.handleMenuClick(item.itemId) || super.onOptionsItemSelected(item)
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {

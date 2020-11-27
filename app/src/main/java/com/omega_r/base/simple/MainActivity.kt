@@ -7,15 +7,12 @@ import com.omega_r.base.adapters.OmegaAutoAdapter
 import com.omega_r.base.adapters.OmegaListAdapter
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.components.OmegaActivity
-import com.omega_r.base.logs.log
-import com.omega_r.base.mvp.presenters.PresenterFactory
 import com.omega_r.base.mvp.presenters.providePresenter
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
 import com.omegar.libs.omegalaunchers.createActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.put
-import com.omegar.mvp.presenter.InjectPresenter
 
 class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
@@ -71,13 +68,13 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
         showToast(Text.from(it.id.toString()))
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = this[EXTRA_TITLE]
         setClickListener(R.id.button) {
             showToast(Text.from("Test"))
         }
+        setMenu(R.menu.menu_main, R.id.action_test to { showToast(Text.from("Test")) })
     }
 
     private fun onClickItem(item: Image) {
