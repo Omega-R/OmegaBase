@@ -1,6 +1,5 @@
 package com.omega_r.base.components
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -14,6 +13,8 @@ import com.omega_r.base.annotations.OmegaTheme
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
+import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
@@ -29,7 +30,7 @@ private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
-    private val dialogList = mutableListOf<Dialog>()
+    protected open val dialogManager = DialogManager()
 
     override val clickManager = ClickManager()
 
@@ -73,16 +74,25 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     override fun onStart() {
         super.onStart()
         attachChildPresenter()
+        dialogManager.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        detachChildPresenter()
+        dialogManager.onStop()
     }
 
     override fun onResume() {
         super.onResume()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         detachChildPresenter()
+        dialogManager.onStop()
     }
 
     protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
@@ -98,7 +108,6 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
             true
         } ?: super.onCreateOptionsMenu(menu, inflater)
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (clickManager.handleMenuClick(item.itemId)) true else super.onOptionsItemSelected(item)
@@ -130,6 +139,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         super.onDestroyView()
         detachChildPresenter()
         clickManager.viewFindable = null
+        dialogManager.onStop()
     }
 
     override fun getViewForSnackbar() = view!!
@@ -193,24 +203,17 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         negativeAction: Action,
         neutralAction: Action?
     ) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogList += this
-            show()
-        }
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun launch(launcher: Launcher) {
@@ -251,15 +254,6 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     ) {
         if (!presenter.onPermissionResult(requestCode, permissions, grantResults)) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        detachChildPresenter()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
         }
     }
 

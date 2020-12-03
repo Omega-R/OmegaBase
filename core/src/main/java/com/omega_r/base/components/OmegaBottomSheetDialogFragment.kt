@@ -14,6 +14,8 @@ import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.ResettableBindersManager
 import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
+import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.libs.omegatypes.Text
@@ -28,7 +30,7 @@ private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
-    private val dialogList = mutableListOf<Dialog>()
+    protected open val dialogManager = DialogManager()
 
     override val clickManager = ClickManager()
 
@@ -72,16 +74,19 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onStart() {
         super.onStart()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onResume() {
         super.onResume()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         detachChildPresenter()
+        dialogManager.onStop()
         outState.putBoolean(KEY_SAVE_RESULT, result)
         outState.putSerializable(KEY_SAVE_RESULT, data)
     }
@@ -138,6 +143,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onDestroyView() {
         super.onDestroyView()
         detachChildPresenter()
+        dialogManager.onStop()
         clickManager.viewFindable = null
     }
 
@@ -199,24 +205,17 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     }
 
     override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogList += this
-            show()
-        }
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
@@ -268,10 +267,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onStop() {
         super.onStop()
         detachChildPresenter()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
-        }
+        dialogManager.onStop()
     }
 
     override fun exit() {

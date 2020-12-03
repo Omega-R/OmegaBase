@@ -2,6 +2,7 @@ package com.omega_r.base.adapters
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import com.omega_r.base.R
 import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.enitity.Identifiable
 import com.omega_r.libs.omegarecyclerview.OmegaRecyclerView
@@ -123,6 +124,7 @@ open class OmegaAutoAdapter<M, VH>(
         private var item: M? = null
 
         init {
+            itemView.id = R.id.omega_swipe_menu
             callback?.let {
                 contentView.setClickListener() {
                     item?.let {

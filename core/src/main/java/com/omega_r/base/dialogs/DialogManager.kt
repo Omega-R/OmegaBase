@@ -1,101 +1,56 @@
 package com.omega_r.base.dialogs
 
 import android.app.Dialog
-import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import com.omega_r.base.components.OmegaDialog
-import com.omega_r.libs.omegatypes.Text
 
 /**
  * Created by Anton Knyazev on 2019-10-15.
  */
-open class DialogManager(private val context: Context, private val showWaitingDelay: Long = 555L) {
+open class DialogManager {
 
-    private val handler = Handler(Looper.getMainLooper())
+    private var isRunning = false
 
-    private val dialogList = mutableListOf<Dialog>()
+    private val dialogs = LinkedHashMap<Dialog, DialogCategory>()
 
-    private var lockingDialog: LockScreenDialog? = null
-    private var waitingDialog: OmegaDialog? = null
+    fun showMessageDialog(dialog: Dialog) = showDialog(dialog, DialogCategory.MESSAGE)
 
-    private var waitingText: Text? = null
-
-    private val waitingRunnable = Runnable {
-        lockingDialog?.dismiss()
-        lockingDialog = null
-
-        if (waitingDialog == null) {
-            waitingDialog = createWaitingDialog(context).apply {
-                show()
-            }
+    fun showDialog(dialog: Dialog, category: DialogCategory) {
+        addDialog(dialog, category)
+        if (isRunning) {
+            dialog.show()
         }
     }
 
-    protected open fun createWaitingDialog(context: Context): OmegaDialog {
-        return WaitingDialog(context).apply {
-            waitingText?.let {
-                text = it
-            }
-        }
-    }
-
-    fun setWaiting(waiting: Boolean, text: Text?) {
-        when (waiting) {
-            true -> {
-                waitingText = text
-                if (lockingDialog == null && waitingDialog == null) {
-                    lockingDialog = LockScreenDialog(context).apply {
-                        show()
-                        handler.postDelayed(waitingRunnable, showWaitingDelay)
-                    }
-                }
-                waitingText?.let {
-                    (waitingDialog as? TextableOmegaDialog)?.text = it
-                }
-
-            }
-            false -> {
-                handler.removeCallbacks(waitingRunnable)
-                waitingText = null
-                lockingDialog?.dismiss()
-                lockingDialog = null
-                waitingDialog?.dismiss()
-                waitingDialog = null
-            }
-        }
-    }
-
-    fun addDialog(dialog: Dialog) {
-        dialogList += dialog
+    fun addDialog(dialog: Dialog, category: DialogCategory) {
+        dialogs[dialog] = category
     }
 
     fun removeDialog(dialog: Dialog) {
-        dialogList -= dialog
+        dialogs -= dialog
     }
 
-    fun hideLastDialog() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+    fun dismissLastDialog(vararg categories: DialogCategory) {
+        dialogs.entries
+            .lastOrNull { it.value in categories }
+            ?.let {
+                it.key.apply {
+                    dismiss()
+                    dialogs.remove(this)
+                }
+            }
     }
 
     fun onStart() {
-        dialogList.forEach {
+        isRunning = true
+        dialogs.keys.forEach {
             it.show()
         }
-        lockingDialog?.show()
-        waitingDialog?.show()
     }
 
     fun onStop() {
-        handler.removeCallbacks(waitingRunnable)
-        dialogList.forEach {
+        isRunning = false
+        dialogs.keys.forEach {
             it.dismiss()
         }
-        waitingDialog?.dismiss()
-        lockingDialog?.dismiss()
     }
 
 }

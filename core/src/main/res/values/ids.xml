@@ -11,4 +11,6 @@
 
     <item type="id" name="omega_click_manager" />
 
+    <item type="id" name="omega_swipe_menu" />
+
 </resources>

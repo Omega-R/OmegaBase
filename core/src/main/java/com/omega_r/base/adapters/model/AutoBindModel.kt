@@ -224,6 +224,11 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
         fun bindTextChanged(id: Int, textChangedBlock: ((M, String) -> Unit)) =
             bindBinder(TextChangedBinder(id, textChangedBlock))
 
+        fun <V : View> bindMultiCustom(id: Int, vararg ids: Int, block: (SparseArray<V>, M) -> Unit) =
+            LambdaMultiViewBinder(id, ids = *ids, block = block)
+
+        
+
         fun build() = AutoBindModel(parentModel, list)
 
     }
@@ -302,6 +307,15 @@ class AutoBindModel<M>(private val list: List<Binder<*, M>>) {
 
         override fun addViewId(array: SparseArray<MutableSet<Binder<*, *>>>) {
             ids.forEach { id -> array.getSet(id) += this }
+        }
+
+    }
+
+    class LambdaMultiViewBinder<V : View, M>(id: Int, vararg ids: Int, private val block: (SparseArray<V>, M) -> Unit) :
+        MultiViewBinder<V, M>(id, *ids) {
+
+        override fun bind(views: SparseArray<V>, item: M) {
+            block(views, item)
         }
 
     }

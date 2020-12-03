@@ -20,9 +20,11 @@ import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
 import com.omega_r.base.binders.IdHolder
 import com.omega_r.base.binders.managers.BindersManager
 import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.dialogs.DialogManager
+import com.omega_r.base.dialogs.WaitingController
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -42,7 +44,9 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override val bindersManager = BindersManager()
 
-    protected open val dialogManager by lazy { DialogManager(this) }
+    protected open val dialogManager =  DialogManager()
+
+    protected open val waitingController by lazy { WaitingController(this, dialogManager) }
 
     private val innerData: MutableMap<String, Any> = hashMapOf()
 
@@ -92,6 +96,16 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         super.onPostCreate(savedInstanceState)
         bindersManager.doAutoInit()
         clickManager.viewFindable = this
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        waitingController.saveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState?.let { waitingController.onRestoreInstanceState(savedInstanceState) }
     }
 
     override fun setContentView(layoutResID: Int) {
@@ -159,7 +173,7 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
-        dialogManager.setWaiting(waiting, text)
+        waitingController.setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
@@ -224,21 +238,17 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         negativeAction: Action,
         neutralAction: Action?
     ) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogManager.addDialog(this)
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogManager.hideLastDialog()
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogManager.addDialog(this)
-            show()
-        }
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
