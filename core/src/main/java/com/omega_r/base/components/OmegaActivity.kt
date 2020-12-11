@@ -103,9 +103,9 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         waitingController.saveInstanceState(outState)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        savedInstanceState?.let { waitingController.onRestoreInstanceState(savedInstanceState) }
+        waitingController.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun setContentView(layoutResID: Int) {
