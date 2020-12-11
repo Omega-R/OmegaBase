@@ -59,15 +59,15 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
-    api 'com.github.Omega-R.OmegaMoxy:moxy:6e4ff02b4df3ec94423de38752631a47b3f0be34'
-    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:6e4ff02b4df3ec94423de38752631a47b3f0be34'
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:6e4ff02b4df3ec94423de38752631a47b3f0be34'
+    api 'com.github.Omega-R.OmegaMoxy:moxy:1246c577e8bf170ffbe0d56822a5080b9a564286'
+    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:1246c577e8bf170ffbe0d56822a5080b9a564286'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:1246c577e8bf170ffbe0d56822a5080b9a564286'
 
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
-    api 'com.github.Omega-R.OmegaTypes:glide:2.0.2'
-    api 'com.github.Omega-R:OmegaIntentBuilder:1.2.0'
+    api 'com.github.Omega-R.OmegaTypes:glide:b13922cbc7c77b1e1e4da9245fa0d58e94b9b289'
+    api 'com.github.Omega-R.OmegaIntentBuilder:core:eff1d07b76d7f09c81b08bd811af5ee8908a149d'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.3'
-    api 'com.github.Omega-R:OmegaExtensions:53e5eb1'
+    api 'com.github.Omega-R:OmegaExtensions:4bbff24fc08b4d1717094f2b3fa4a3ee36cf666a'
     api project(':annotations')
 
     api "com.squareup.retrofit2:retrofit:2.7.2"
