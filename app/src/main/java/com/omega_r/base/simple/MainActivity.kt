@@ -3,11 +3,12 @@ package com.omega_r.base.simple
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.OmegaAutoAdapter
-import com.omega_r.base.adapters.OmegaListAdapter
-import com.omega_r.base.binders.IdHolder
+import com.omega_r.adapters.OmegaListAdapter
 import com.omega_r.base.components.OmegaActivity
 import com.omega_r.base.mvp.presenters.providePresenter
+import com.omega_r.bind.adapters.OmegaAutoAdapter
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.model.binders.bindImage
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from

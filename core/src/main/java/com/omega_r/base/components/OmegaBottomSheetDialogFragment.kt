@@ -8,16 +8,16 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
-import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.managers.ResettableBindersManager
-import com.omega_r.base.clickers.ClickManager
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.delegates.managers.ResettableBindersManager
+import com.omega_r.bind.model.BindModel
+import com.omega_r.click.ClickManager
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.*
 import com.omegar.mvp.MvpBottomSheetDialogFragment
@@ -294,9 +294,9 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     final override fun <T : RecyclerView, M> bind(
         res: Int,
         layoutRes: Int,
-        parentModel: AutoBindModel<M>?,
+        parentModel: BindModel<M>?,
         callback: ((M) -> Unit)?,
-        builder: AutoBindModel.Builder<M>.() -> Unit
+        builder: BindModel.Builder<M>.() -> Unit
     ): Lazy<T> {
         return super.bind(res, layoutRes, parentModel, callback, builder)
     }

@@ -7,6 +7,7 @@ import com.omega_r.base.data.sources.Source
 import com.omega_r.base.errors.AppException
 import com.omega_r.base.errors.ErrorHandler
 import com.omega_r.base.errors.throwNoData
+import com.omega_r.base.tools.BackgroundDispatcher.Background
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -24,7 +25,7 @@ open class OmegaBaseRepository<SOURCE : Source>(
 
     private val job = SupervisorJob()
 
-    protected val coroutineScope = CoroutineScope(Dispatchers.Default + job)
+    protected val coroutineScope = CoroutineScope(Dispatchers.Background + job)
 
     protected val remoteSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
