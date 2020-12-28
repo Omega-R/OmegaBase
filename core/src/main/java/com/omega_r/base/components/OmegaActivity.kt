@@ -110,16 +110,21 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
-        initToolbar()
+        onViewCreated()
     }
 
     override fun setContentView(view: View?) {
         super.setContentView(view)
-        initToolbar()
+        onViewCreated()
     }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(view, params)
+        onViewCreated()
+    }
+
+    @CallSuper
+    protected open fun onViewCreated() {
         initToolbar()
     }
 
