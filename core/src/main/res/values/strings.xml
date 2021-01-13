@@ -4,6 +4,8 @@
     <string name="error_no_connection">Please check your internet connection or try again later</string>
     <string name="error_server_unavailable">The server is temporarily unavailable. Please try again later.</string>
     <string name="error_access_denied">Access denied</string>
-    <string name="error_server_problem">Sorry, Some error occurred on the server. Please, try your request again later.</string>
+    <string name="error_server_problem">Sorry, Some error occurred on the server. Please, try again later.</string>
     <string name="error_unknown">Unknown error occurred, please try again later</string>
+    <string name="error_not_authorized">You are not authorized to perform this action</string>
+    <string name="error_authorization_failed">Incorrect login information. Please try again.</string>
 </resources>

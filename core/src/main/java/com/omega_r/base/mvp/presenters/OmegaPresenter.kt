@@ -1,7 +1,6 @@
 package com.omega_r.base.mvp.presenters
 
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import androidx.annotation.CallSuper
 import com.omega_r.base.R
 import com.omega_r.base.errors.AppException
 import com.omega_r.base.logs.log
@@ -9,13 +8,16 @@ import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
 import com.omega_r.libs.omegatypes.Text
+import com.omega_r.libs.omegatypes.toText
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
+import java.io.PrintWriter
 import java.io.Serializable
+import java.io.StringWriter
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -27,9 +29,15 @@ private const val REQUEST_PERMISSION_BASE = 10000
 
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
+    companion object {
+
+        internal var isDebuggable : Boolean? = null
+
+    }
+
     private val handler = CoroutineExceptionHandler { _, throwable ->
         this@OmegaPresenter.launch {
-            handleErrors(throwable)
+            onError(throwable)
         }
     }
 
@@ -43,9 +51,14 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     protected val intentBuilder
         get() = OmegaIntentBuilder
 
-    @CallSuper
-    protected open fun handleErrors(throwable: Throwable) {
+    @Suppress("MemberVisibilityCanBePrivate")
+    protected fun onError(throwable: Throwable) {
         log(throwable)
+        handleErrors(throwable)
+    }
+
+    protected open fun handleErrors(throwable: Throwable) {
+        viewState.showMessage(getErrorMessage(throwable))
     }
 
     protected open fun getErrorMessage(throwable: Throwable): Text {
@@ -56,14 +69,26 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
             is AppException.NotFound,
             is AppException.ServerProblem -> Text.from(R.string.error_server_problem)
             is AppException.AccessDenied -> Text.from(R.string.error_access_denied)
-            else -> {
-                getUnknownErrorMessage()
-            }
+            is AppException.NotAuthorized -> Text.from(R.string.error_not_authorized)
+            is AppException.AuthorizedFailed -> Text.from(R.string.error_authorization_failed)
+            else -> getUnknownErrorMessage(throwable)
         }
     }
 
-    protected open fun getUnknownErrorMessage(): Text {
-        return Text.from(R.string.error_unknown)
+    protected open fun getUnknownErrorMessage(throwable: Throwable): Text {
+        return if (isDebuggable == true) {
+            var causeThrowable = throwable
+
+            while (causeThrowable.cause != null) {
+                causeThrowable = causeThrowable.cause!!
+            }
+            StringWriter()
+                .apply { causeThrowable.printStackTrace(PrintWriter(this)) }
+                .toString()
+                .toText()
+        } else {
+            Text.from(R.string.error_unknown)
+        }
     }
 
     internal fun attachChildPresenter(childPresenter: OmegaPresenter<*>) {

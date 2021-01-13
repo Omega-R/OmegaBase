@@ -3,6 +3,7 @@ package com.omega_r.base.components
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -21,6 +22,7 @@ import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.dialogs.WaitingController
+import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.bind.delegates.IdHolder
 import com.omega_r.bind.delegates.managers.BindersManager
 import com.omega_r.bind.model.BindModel
@@ -58,6 +60,9 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun getContext(): Context = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (OmegaPresenter.isDebuggable != null) {
+            OmegaPresenter.isDebuggable = 0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
+        }
         this::class.findAnnotation<OmegaWindowFlags>()?.let {
             window?.apply {
                 addFlags(it.addFlags)
