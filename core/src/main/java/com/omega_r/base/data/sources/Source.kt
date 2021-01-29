@@ -8,7 +8,7 @@ interface Source  {
     val type: Type
 
     enum class Type {
-        REMOTE, MEMORY_CACHE, FILE_CACHE, DEFAULT
+        REMOTE, MEMORY_CACHE, FILE_CACHE, DEFAULT, MOCK
     }
 
 }

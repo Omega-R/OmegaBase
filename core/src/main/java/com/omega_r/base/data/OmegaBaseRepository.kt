@@ -37,6 +37,8 @@ open class OmegaBaseRepository<SOURCE : Source>(
 
     protected val defaultSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.DEFAULT }
 
+    protected val mockSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.MOCK }
+
     private val memoryCacheSource =
         sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
 
@@ -59,6 +61,12 @@ open class OmegaBaseRepository<SOURCE : Source>(
                     MEMORY_ELSE_CACHE_AND_REMOTE -> applyMemoryElseCacheAndRemote(block)
                 }
             } catch (e: Throwable) {
+                if (e is AppException.NotImplemented && mockSource != null) {
+                    val exception = getException {
+                        applyMock(block)
+                    } ?: return@produce
+                    throw errorHandler.handleThrowable(exception)
+                }
                 throw errorHandler.handleThrowable(e)
             }
         }
@@ -299,6 +307,15 @@ open class OmegaBaseRepository<SOURCE : Source>(
             }
         }
         applyCacheAndRemote(block)
+    }
+
+    private suspend fun <R> ProducerScope<R>.applyMock(block: suspend SOURCE.() -> R) {
+        if (mockSource != null) {
+            getException {
+                send(block(mockSource))
+                return
+            }
+        }
     }
 
     override fun clearCache() {

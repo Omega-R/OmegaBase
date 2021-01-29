@@ -17,6 +17,8 @@ open class AppException(
         }
     }
 
+    class NotImplemented(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+
     class NoConnection(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
 
     class ServerUnavailable(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)

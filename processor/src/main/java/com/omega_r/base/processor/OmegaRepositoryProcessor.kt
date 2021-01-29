@@ -13,6 +13,7 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
+import javax.tools.Diagnostic
 
 @AutoService(Process::class)
 @IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.AGGREGATING)
@@ -34,9 +35,25 @@ class OmegaRepositoryProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes() = setOf(AppOmegaRepository::class.java.canonicalName)
 
-    override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
+    override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
-    override fun process(elements: Set<TypeElement>, environment: RoundEnvironment): Boolean {
+    override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+        if (annotations.isEmpty()) {
+            return false
+        }
+
+        return try {
+            throwableProcess(annotations, roundEnv)
+        } catch (e: RuntimeException) {
+            messager.printMessage(Diagnostic.Kind.OTHER,
+                "OmegaBase.Processor compilation failed. Could you copy stack trace above and write us (or make issue on Github)?"
+            )
+            e.printStackTrace()
+            true
+        }
+    }
+
+    private fun throwableProcess(annotations: Set<TypeElement>, environment: RoundEnvironment): Boolean {
         repositoryFactory.create(environment.getElementsAnnotatedWith(AppOmegaRepository::class.java))
             .forEach { repository ->
                 val source = sourceFactory.create(repository)
