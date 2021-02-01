@@ -4,9 +4,9 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 
-data class Type(
+data class TypeModel(
     val className: ClassName,
-    val parameterizedBy: List<Type>,
+    val parameterizedBy: List<TypeModel>,
     val isNullable: Boolean
 ) {
 
@@ -19,4 +19,8 @@ data class Type(
             }
         }
 
+}
+
+fun TypeModel.toParameterModel(name: String): ParameterModel {
+    return ParameterModel(name, this)
 }
