@@ -73,6 +73,10 @@ class KotlinFileGenerator(private val filer: Filer) : FileGenerator {
             )
     }
 
+    private fun String.decapitalize(locale: Locale): String {
+        return if (isNotEmpty() && !this[0].isLowerCase()) substring(0, 1).toLowerCase(locale) + substring(1) else this
+    }
+
     private fun RepositoryModel.generateModifier(): KModifier {
         return functions.firstOrNull {
             !it.modifiers.contains(KModifier.SUSPEND) && it.returnType?.className != Constants.RECEIVE_CHANNEL_CLASS_NAME
