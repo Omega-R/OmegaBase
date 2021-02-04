@@ -27,6 +27,7 @@ import com.omega_r.bind.delegates.IdHolder
 import com.omega_r.bind.delegates.managers.BindersManager
 import com.omega_r.bind.model.BindModel
 import com.omega_r.click.ClickManager
+import com.omega_r.libs.extensions.common.ifNull
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -60,9 +61,10 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun getContext(): Context = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (OmegaPresenter.isDebuggable != null) {
+        OmegaPresenter.isDebuggable.ifNull {
             OmegaPresenter.isDebuggable = 0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
         }
+
         this::class.findAnnotation<OmegaWindowFlags>()?.let {
             window?.apply {
                 addFlags(it.addFlags)

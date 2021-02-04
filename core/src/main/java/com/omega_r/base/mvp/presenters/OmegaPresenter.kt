@@ -153,7 +153,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launch(this)
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
@@ -161,7 +161,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launch(this, *launchers)
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
@@ -169,7 +169,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launch(createLauncher())
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
@@ -177,7 +177,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launch(createLauncher(), *launchers)
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
@@ -185,7 +185,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launchForResult(this, requestCode)
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
@@ -193,7 +193,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         try {
             viewState.launchForResult(this, requestCode)
         } catch (e: Throwable) {
-            handleErrors(e)
+            onError(e)
         }
     }
 
