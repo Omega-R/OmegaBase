@@ -64,11 +64,11 @@ dependencies {
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:2.0.1'
 
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
-    api 'com.github.Omega-R.OmegaTypes:glide:b13922cbc7c77b1e1e4da9245fa0d58e94b9b289'
+    api 'com.github.Omega-R.OmegaTypes:glide:6801f9f'
     api 'com.github.Omega-R.OmegaIntentBuilder:core:eff1d07b76d7f09c81b08bd811af5ee8908a149d'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.3'
     api 'com.github.Omega-R:OmegaExtensions:4bbff24fc08b4d1717094f2b3fa4a3ee36cf666a'
-    api 'com.github.Omega-R:OmegaBind:1.0.1'
+    api 'com.github.Omega-R:OmegaBind:6d534a9'
     api 'com.github.Omega-R:OmegaClicks:1.0.0'
     api 'com.github.Omega-R:OmegaAdapters:1.0.0'
 
