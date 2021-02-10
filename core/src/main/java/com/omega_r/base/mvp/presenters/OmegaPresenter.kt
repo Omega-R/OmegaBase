@@ -132,16 +132,21 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     protected fun launchWithWaiting(
         context: CoroutineContext = EmptyCoroutineContext,
+        waiting: Boolean = true,
         waitingText: Text? = null,
         block: suspend () -> Unit
     ): Job {
-        viewState.setWaiting(true, waitingText)
+        if (waiting) {
+            viewState.setWaiting(true, waitingText)
+        }
         return launch(context) {
             try {
                 block()
             } finally {
-                withContext(Dispatchers.Main) {
-                    viewState.setWaiting(false, waitingText)
+                if (waiting) {
+                    withContext(Dispatchers.Main) {
+                        viewState.setWaiting(false, waitingText)
+                    }
                 }
             }
         }
