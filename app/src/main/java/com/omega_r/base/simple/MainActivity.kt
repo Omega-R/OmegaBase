@@ -5,7 +5,6 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.adapters.OmegaListAdapter
 import com.omega_r.base.components.OmegaActivity
-import com.omega_r.base.mvp.presenters.providePresenter
 import com.omega_r.bind.adapters.OmegaAutoAdapter
 import com.omega_r.bind.delegates.IdHolder
 import com.omega_r.bind.model.binders.bindImage
@@ -14,6 +13,7 @@ import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
 import com.omegar.libs.omegalaunchers.createActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.put
+import com.omegar.mvp.ktx.providePresenter
 
 class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
