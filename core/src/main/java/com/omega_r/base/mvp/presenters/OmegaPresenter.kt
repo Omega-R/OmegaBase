@@ -31,7 +31,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     companion object {
 
-        internal var isDebuggable : Boolean? = null
+        internal var isDebuggable: Boolean? = null
 
     }
 
@@ -46,7 +46,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
 
     private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?>
-            by lazy { mutableMapOf<List<String>, ((Boolean) -> Unit)?>() }
+            by lazy { mutableMapOf() }
 
     protected val intentBuilder
         get() = OmegaIntentBuilder
@@ -243,7 +243,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         grantResults: IntArray
     ): Boolean {
         val permissionList = permissions.toList()
-        if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)){
+        if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)) {
             val success =
                 grantResults.firstOrNull { it != PERMISSION_GRANTED } == null
             permissionsCallbacks[permissionList]?.invoke(success)
