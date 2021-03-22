@@ -42,7 +42,7 @@ class RocketChatSenderCrashWay(private val webHookUrl: String) : CrashSender.Sen
             }
 
             override fun onResponse(call: Call, response: Response) {
-                Log.d("Testic", response.message())
+                // nothing
             }
 
         })
