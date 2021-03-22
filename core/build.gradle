@@ -59,15 +59,15 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
-    api 'com.github.Omega-R.OmegaMoxy:moxy:2.1.0'
-    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:2.1.0'
-    api 'com.github.Omega-R.OmegaMoxy:moxy-ktx:2.1.0'
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:2.1.0'
+    api 'com.github.Omega-R.OmegaMoxy:moxy:2.2.0'
+    api 'com.github.Omega-R.OmegaMoxy:moxy-androidx:2.2.0'
+    api 'com.github.Omega-R.OmegaMoxy:moxy-ktx:2.2.0'
+    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:2.2.0'
 
 
     api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     api 'com.github.Omega-R.OmegaTypes:glide:9e6603f014b6f431464aab90acaad3c7453d1932'
-    api 'com.github.Omega-R.OmegaIntentBuilder:core:eff1d07b76d7f09c81b08bd811af5ee8908a149d'
+    api 'com.github.Omega-R.OmegaIntentBuilder:core:ff60933'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.3'
     api 'com.github.Omega-R:OmegaExtensions:4bbff24fc08b4d1717094f2b3fa4a3ee36cf666a'
     api 'com.github.Omega-R:OmegaBind:6d534a9'
