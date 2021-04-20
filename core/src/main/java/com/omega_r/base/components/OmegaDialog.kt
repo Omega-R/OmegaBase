@@ -7,15 +7,15 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
-import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.OmegaBindable
-import com.omega_r.base.binders.managers.BindersManager
-import com.omega_r.base.clickers.ClickManager
-import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.mvp.views.findAnnotation
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.delegates.OmegaBindable
+import com.omega_r.bind.delegates.managers.BindersManager
+import com.omega_r.bind.model.BindModel
+import com.omega_r.click.ClickManager
+import com.omega_r.click.OmegaClickable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
@@ -66,7 +66,7 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
         clickManager.viewFindable = this
 
         this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            setClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
 
@@ -89,9 +89,9 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
     final override fun <T : RecyclerView, M> bind(
         res: Int,
         layoutRes: Int,
-        parentModel: AutoBindModel<M>?,
+        parentModel: BindModel<M>?,
         callback: ((M) -> Unit)?,
-        builder: AutoBindModel.Builder<M>.() -> Unit
+        builder: BindModel.Builder<M>.() -> Unit
     ): Lazy<T> {
         return super.bind(res, layoutRes, parentModel, callback, builder)
     }
@@ -128,4 +128,8 @@ open class OmegaDialog : Dialog, OmegaBindable, OmegaClickable {
 
     final override fun <T : View> bindOrNull(res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
 
+    @JvmName("setClickFunction")
+    final fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

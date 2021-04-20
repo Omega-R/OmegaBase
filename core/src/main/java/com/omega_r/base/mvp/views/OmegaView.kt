@@ -8,10 +8,8 @@ import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpView
-import com.omegar.mvp.viewstate.strategy.AddToEndSingleStrategy
-import com.omegar.mvp.viewstate.strategy.AddToEndStrategy
-import com.omegar.mvp.viewstate.strategy.OneExecutionStateStrategy
-import com.omegar.mvp.viewstate.strategy.StateStrategyType
+import com.omegar.mvp.viewstate.strategy.*
+import com.omegar.mvp.viewstate.strategy.StrategyType.*
 import kotlinx.coroutines.CompletableDeferred
 import java.io.Serializable
 import kotlin.reflect.KAnnotatedElement
@@ -25,49 +23,49 @@ interface OmegaView : MvpView {
         private const val TAG_QUERY_OR_MESSAGE= "queryOrMessage"
     }
 
-    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
+    @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showMessage(message: Text, action: Action? = null)
 
-    @StateStrategyType(AddToEndStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
+    @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showQuery(message: Text, title: Text? = null, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
 
-    @StateStrategyType(RemoveEndTagStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
+    @StateStrategyType(value = CUSTOM, custom = RemoveEndTagStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
     fun hideQueryOrMessage()
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun showBottomMessage(message: Text, action: Action? = null)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun showToast(message: Text)
 
-    @StateStrategyType(AddToEndSingleStrategy::class)
+    @StateStrategyType(ADD_TO_END_SINGLE)
     fun setWaiting(waiting: Boolean, text: Text? = null)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun launch(launcher: Launcher)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun launch(launcher: ActivityLauncher, vararg parentLaunchers: ActivityLauncher)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun launch(launcher: DialogFragmentLauncher)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun setResult(success: Boolean, data: Serializable?)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun requestPermissions(requestCode: Int, vararg permissions: String)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun requestGetPermission(permission: String, deferred: CompletableDeferred<Boolean>)
 
-    @StateStrategyType(OneExecutionStateStrategy::class)
+    @StateStrategyType(ONE_EXECUTION)
     fun exit()
 
 }

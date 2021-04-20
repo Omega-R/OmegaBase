@@ -17,6 +17,8 @@ open class AppException(
         }
     }
 
+    class NotImplemented(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+
     class NoConnection(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
 
     class ServerUnavailable(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
@@ -37,4 +39,5 @@ open class AppException(
 
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun throwNoData(message: String? = null): Nothing = throw AppException.NoData(message)

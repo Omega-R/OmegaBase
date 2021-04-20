@@ -3,17 +3,17 @@ package com.omega_r.base.simple
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.OmegaAutoAdapter
-import com.omega_r.base.adapters.OmegaListAdapter
-import com.omega_r.base.annotations.OmegaContentView
-import com.omega_r.base.binders.IdHolder
+import com.omega_r.adapters.OmegaListAdapter
 import com.omega_r.base.components.OmegaActivity
+import com.omega_r.bind.adapters.OmegaAutoAdapter
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.model.binders.bindImage
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
 import com.omegar.libs.omegalaunchers.createActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.put
-import com.omegar.mvp.presenter.InjectPresenter
+import com.omegar.mvp.ktx.providePresenter
 
 class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
@@ -27,8 +27,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
     }
 
-    @InjectPresenter
-    override lateinit var presenter: MainPresenter
+    override val presenter: MainPresenter by providePresenter()
 
     private val adapter = OmegaAutoAdapter.create(R.layout.item_test_3, ::onClickItem) {
         bindImage(R.id.imageview)
@@ -70,13 +69,13 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
         showToast(Text.from(it.id.toString()))
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = intent.getStringExtra(EXTRA_TITLE)
-        setOnClickListener(R.id.button) {
+        title = this[EXTRA_TITLE]
+        setClickListener(R.id.button) {
             showToast(Text.from("Test"))
         }
+        setMenu(R.menu.menu_main, R.id.action_test to { showToast(Text.from("Test")) })
     }
 
     private fun onClickItem(item: Image) {

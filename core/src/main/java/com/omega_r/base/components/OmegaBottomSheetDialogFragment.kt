@@ -8,29 +8,29 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
-import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.managers.ResettableBindersManager
-import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
+import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.delegates.managers.ResettableBindersManager
+import com.omega_r.bind.model.BindModel
+import com.omega_r.click.ClickManager
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.libs.omegalaunchers.ActivityLauncher
-import com.omegar.libs.omegalaunchers.BaseIntentLauncher
-import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
-import com.omegar.libs.omegalaunchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.*
 import com.omegar.mvp.MvpBottomSheetDialogFragment
 import java.io.Serializable
 
 private const val KEY_SAVE_RESULT =  "omegaSaveResult"
 private const val KEY_SAVE_DATA =  "omegaSaveData"
 private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
+private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
-    private val dialogList = mutableListOf<Dialog>()
+    protected open val dialogManager = DialogManager()
 
     override val clickManager = ClickManager()
 
@@ -41,7 +41,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     private var result: Boolean = false
     private var data: Serializable? = null
     private var requestCode: Int = 0
-
+    private val innerData: MutableMap<String, Any> = hashMapOf()
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -54,7 +54,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
 
         this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            setClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
 
@@ -74,26 +74,35 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onStart() {
         super.onStart()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onResume() {
         super.onResume()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         detachChildPresenter()
+        dialogManager.onStop()
         outState.putBoolean(KEY_SAVE_RESULT, result)
         outState.putSerializable(KEY_SAVE_RESULT, data)
     }
 
+    protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
+        setHasOptionsMenu(true)
+        innerData[INNER_KEY_MENU] = menuRes
+        setMenuListener(pairs = * pairs)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        val annotation = this::class.findAnnotation<OmegaMenu>()
-        if (annotation != null) {
-            inflater.inflate(annotation.menuRes, menu)
-        }
-        super.onCreateOptionsMenu(menu, inflater)
+        val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
+        menuRes?.let {
+            inflater.inflate(menuRes, menu)
+            true
+        } ?: super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -134,6 +143,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onDestroyView() {
         super.onDestroyView()
         detachChildPresenter()
+        dialogManager.onStop()
         clickManager.viewFindable = null
     }
 
@@ -145,6 +155,15 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
         launch(context!!, option)
+    }
+
+    override fun launch(launcher: Launcher) {
+        when (launcher) {
+            is FragmentLauncher -> {
+                launcher.replaceFragment(R.id.layout_container)
+            }
+            else -> super.launch(launcher)
+        }
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
@@ -186,24 +205,17 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     }
 
     override fun showQuery(message: Text, title: Text?, positiveAction: Action, negativeAction: Action, neutralAction: Action?) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogList += this
-            show()
-        }
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
@@ -255,14 +267,16 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     override fun onStop() {
         super.onStop()
         detachChildPresenter()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
-        }
+        dialogManager.onStop()
     }
 
     override fun exit() {
         dismiss()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return arguments?.get(extraKey) as T?
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)
@@ -280,9 +294,9 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     final override fun <T : RecyclerView, M> bind(
         res: Int,
         layoutRes: Int,
-        parentModel: AutoBindModel<M>?,
+        parentModel: BindModel<M>?,
         callback: ((M) -> Unit)?,
-        builder: AutoBindModel.Builder<M>.() -> Unit
+        builder: BindModel.Builder<M>.() -> Unit
     ): Lazy<T> {
         return super.bind(res, layoutRes, parentModel, callback, builder)
     }
@@ -319,5 +333,8 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) = super.bindOrNull(res, initBlock)
 
-
+    @JvmName("setClickFunction")
+    final fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

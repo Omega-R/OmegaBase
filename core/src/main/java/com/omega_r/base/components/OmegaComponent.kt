@@ -9,19 +9,18 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.omega_r.base.binders.OmegaBindable
-import com.omega_r.base.clickers.OmegaClickable
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.model.setAction
 import com.omega_r.base.mvp.model.setButtons
 import com.omega_r.base.mvp.model.setPositiveButton
+import com.omega_r.bind.delegates.OmegaBindable
+import com.omega_r.click.OmegaClickable
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import kotlinx.coroutines.CompletableDeferred
-import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 26.04.2019.
@@ -31,7 +30,6 @@ import java.io.Serializable
 internal const val KEY_RESULT = "omegaResultData"
 
 interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
-
 
     val presenter: OmegaPresenter<out OmegaView>
 

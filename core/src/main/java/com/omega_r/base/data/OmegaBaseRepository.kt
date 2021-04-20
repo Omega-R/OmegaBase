@@ -7,6 +7,7 @@ import com.omega_r.base.data.sources.Source
 import com.omega_r.base.errors.AppException
 import com.omega_r.base.errors.ErrorHandler
 import com.omega_r.base.errors.throwNoData
+import com.omega_r.base.tools.BackgroundDispatcher.Background
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -24,7 +25,7 @@ open class OmegaBaseRepository<SOURCE : Source>(
 
     private val job = SupervisorJob()
 
-    protected val coroutineScope = CoroutineScope(Dispatchers.Default + job)
+    protected val coroutineScope = CoroutineScope(Dispatchers.Background + job)
 
     protected val remoteSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
@@ -35,6 +36,8 @@ open class OmegaBaseRepository<SOURCE : Source>(
         get() = fileCacheSource as SOURCE?
 
     protected val defaultSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.DEFAULT }
+
+    protected val mockSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.MOCK }
 
     private val memoryCacheSource =
         sources.firstOrNull { it.type == Source.Type.MEMORY_CACHE } as? CacheSource
@@ -58,6 +61,12 @@ open class OmegaBaseRepository<SOURCE : Source>(
                     MEMORY_ELSE_CACHE_AND_REMOTE -> applyMemoryElseCacheAndRemote(block)
                 }
             } catch (e: Throwable) {
+                if (e is AppException.NotImplemented && mockSource != null) {
+                    val exception = getException {
+                        applyMock(block)
+                    } ?: return@produce
+                    throw errorHandler.handleThrowable(exception)
+                }
                 throw errorHandler.handleThrowable(e)
             }
         }
@@ -298,6 +307,15 @@ open class OmegaBaseRepository<SOURCE : Source>(
             }
         }
         applyCacheAndRemote(block)
+    }
+
+    private suspend fun <R> ProducerScope<R>.applyMock(block: suspend SOURCE.() -> R) {
+        if (mockSource != null) {
+            getException {
+                send(block(mockSource))
+                return
+            }
+        }
     }
 
     override fun clearCache() {

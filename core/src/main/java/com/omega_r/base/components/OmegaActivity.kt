@@ -3,6 +3,7 @@ package com.omega_r.base.components
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,15 +15,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
-import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
-import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.managers.BindersManager
-import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
-import com.omega_r.base.tools.DialogManager
+import com.omega_r.base.dialogs.DialogManager
+import com.omega_r.base.dialogs.WaitingController
+import com.omega_r.base.crash.CrashSender
+import com.omega_r.base.crash.EmailSenderCrashWay
+import com.omega_r.base.mvp.presenters.OmegaPresenter
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.delegates.managers.BindersManager
+import com.omega_r.bind.model.BindModel
+import com.omega_r.click.ClickManager
+import com.omega_r.libs.extensions.common.ifNull
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
@@ -34,7 +41,7 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
-
+private const val INNER_KEY_MENU = "menu"
 
 abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
@@ -42,7 +49,11 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
     override val bindersManager = BindersManager()
 
-    protected val dialogManager by lazy { DialogManager(this) }
+    protected open val dialogManager =  DialogManager()
+
+    protected open val waitingController by lazy { WaitingController(this, dialogManager) }
+
+    private val innerData: MutableMap<String, Any> = hashMapOf()
 
     constructor() : super()
 
@@ -52,6 +63,11 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun getContext(): Context = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        OmegaPresenter.isDebuggable.ifNull {
+            OmegaPresenter.isDebuggable = 0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
+            setupCrashSender()
+        }
+
         this::class.findAnnotation<OmegaWindowFlags>()?.let {
             window?.apply {
                 addFlags(it.addFlags)
@@ -70,7 +86,7 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
                     setContentView(it.layoutRes)
                 }
                 is OmegaClickViews -> {
-                    setOnClickListeners(ids = *it.ids, block = this::onClickView)
+                    setClickListeners(ids = *it.ids, block = this::onClickView)
                 }
                 is OmegaTitle -> {
                     setTitle(it.resId)
@@ -80,6 +96,16 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
                 }
             }
         }
+    }
+
+    protected open fun setupCrashSender() {
+        if (OmegaPresenter.isDebuggable == true) {
+            CrashSender.setup(application, *getSenderCrashWays())
+        }
+    }
+
+    protected open fun getSenderCrashWays(): Array<CrashSender.SenderCrashWay> {
+        return arrayOf(EmailSenderCrashWay())
     }
 
     override fun getViewForSnackbar(): View {
@@ -92,18 +118,33 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         clickManager.viewFindable = this
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        waitingController.saveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        waitingController.onRestoreInstanceState(savedInstanceState)
+    }
+
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
-        initToolbar()
+        onViewCreated()
     }
 
     override fun setContentView(view: View?) {
         super.setContentView(view)
-        initToolbar()
+        onViewCreated()
     }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(view, params)
+        onViewCreated()
+    }
+
+    @CallSuper
+    protected open fun onViewCreated() {
         initToolbar()
     }
 
@@ -138,26 +179,26 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         onBackPressed()
     }
 
+    protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
+        innerData[INNER_KEY_MENU] = menuRes
+        setMenuListener(pairs = * pairs)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val annotation = this::class.findAnnotation<OmegaMenu>()
-        return if (annotation != null) {
-            menuInflater.inflate(annotation.menuRes, menu)
+        val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
+        return menuRes?.let {
+            innerData.remove(INNER_KEY_MENU)
+            menuInflater.inflate(menuRes, menu)
             true
-        } else {
-            super.onCreateOptionsMenu(menu)
-        }
+        } ?: super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (clickManager.handleMenuClick(item.itemId)) {
-            return true
-        } else {
-            return super.onOptionsItemSelected(item)
-        }
+        return clickManager.handleMenuClick(item.itemId) || super.onOptionsItemSelected(item)
     }
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
-        dialogManager.setWaiting(waiting, text)
+        waitingController.setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
@@ -222,21 +263,17 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         negativeAction: Action,
         neutralAction: Action?
     ) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogManager.addDialog(this)
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogManager.hideLastDialog()
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogManager.addDialog(this)
-            show()
-        }
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int) {
@@ -290,9 +327,14 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         finish()
     }
 
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return intent.extras?.get(extraKey) as T?
+    }
+
     protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
         return bind(res) {
-            setOnClickListener(this, block)
+            setClickListener(this, block)
         }
     }
 
@@ -313,9 +355,9 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     final override fun <T : RecyclerView, M> bind(
         res: Int,
         layoutRes: Int,
-        parentModel: AutoBindModel<M>?,
+        parentModel: BindModel<M>?,
         callback: ((M) -> Unit)?,
-        builder: AutoBindModel.Builder<M>.() -> Unit
+        builder: BindModel.Builder<M>.() -> Unit
     ): Lazy<T> {
         return super.bind(res, layoutRes, parentModel, callback, builder)
     }
@@ -358,5 +400,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
         super.bindOrNull(res, initBlock)
 
-
+    @JvmName("setClickFunction")
+    fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

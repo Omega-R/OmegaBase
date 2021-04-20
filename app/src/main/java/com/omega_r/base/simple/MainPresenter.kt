@@ -7,7 +7,6 @@ import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.base.simple.dialog_fragment.DialogDialogFragment
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.mvp.InjectViewState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,7 +15,6 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
-@InjectViewState
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {

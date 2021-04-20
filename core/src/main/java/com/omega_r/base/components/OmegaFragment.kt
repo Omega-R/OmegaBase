@@ -1,41 +1,44 @@
 package com.omega_r.base.components
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.adapters.model.AutoBindModel
 import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.annotations.OmegaMenu
 import com.omega_r.base.annotations.OmegaTheme
-import com.omega_r.base.binders.IdHolder
-import com.omega_r.base.binders.managers.ResettableBindersManager
-import com.omega_r.base.clickers.ClickManager
+import com.omega_r.base.dialogs.DialogCategory
+import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
+import com.omega_r.bind.delegates.IdHolder
+import com.omega_r.bind.delegates.managers.ResettableBindersManager
+import com.omega_r.bind.model.BindModel
+import com.omega_r.click.ClickManager
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.libs.omegalaunchers.ActivityLauncher
-import com.omegar.libs.omegalaunchers.BaseIntentLauncher
-import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
-import com.omegar.libs.omegalaunchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.*
 import com.omegar.mvp.MvpAppCompatFragment
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 04.04.2019.
  */
+
+private const val INNER_KEY_MENU = "menu"
+
 abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
-    private val dialogList = mutableListOf<Dialog>()
+    protected open val dialogManager = DialogManager()
 
     override val clickManager = ClickManager()
 
     override val bindersManager = ResettableBindersManager()
 
     private var childPresenterAttached = false
+
+    private val innerData: MutableMap<String, Any> = hashMapOf()
 
     constructor() : super()
 
@@ -51,7 +54,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         setHasOptionsMenu(this::class.findAnnotation<OmegaMenu>() != null)
 
         this::class.findAnnotation<OmegaClickViews>()?.let {
-            setOnClickListeners(ids = *it.ids, block = this::onClickView)
+            setClickListeners(ids = *it.ids, block = this::onClickView)
         }
     }
 
@@ -71,25 +74,39 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     override fun onStart() {
         super.onStart()
         attachChildPresenter()
+        dialogManager.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        detachChildPresenter()
+        dialogManager.onStop()
     }
 
     override fun onResume() {
         super.onResume()
         attachChildPresenter()
+        dialogManager.onStart()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         detachChildPresenter()
+        dialogManager.onStop()
+    }
+
+    protected fun setMenu(@MenuRes menuRes: Int, vararg pairs: Pair<Int, () -> Unit>) {
+        setHasOptionsMenu(true)
+        innerData[INNER_KEY_MENU] = menuRes
+        setMenuListener(pairs = * pairs)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        val annotation = this::class.findAnnotation<OmegaMenu>()
-        if (annotation != null) {
-            inflater.inflate(annotation.menuRes, menu)
-        } else {
-            super.onCreateOptionsMenu(menu, inflater)
-        }
+        val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
+        menuRes?.let {
+            inflater.inflate(menuRes, menu)
+            true
+        } ?: super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -122,6 +139,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         super.onDestroyView()
         detachChildPresenter()
         clickManager.viewFindable = null
+        dialogManager.onStop()
     }
 
     override fun getViewForSnackbar() = view!!
@@ -185,23 +203,25 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         negativeAction: Action,
         neutralAction: Action?
     ) {
-        createQuery(message, title, positiveAction, negativeAction, neutralAction).apply {
-            dialogList += this
-            show()
-        }
+        createQuery(message, title, positiveAction, negativeAction, neutralAction)
+            .apply(dialogManager::showMessageDialog)
     }
 
     override fun hideQueryOrMessage() {
-        dialogList.lastOrNull()?.let {
-            it.dismiss()
-            dialogList.remove(it)
-        }
+        dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
     override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action).apply {
-            dialogList += this
-            show()
+        createMessage(message, action)
+            .apply(dialogManager::showMessageDialog)
+    }
+
+    override fun launch(launcher: Launcher) {
+        when (launcher) {
+            is FragmentLauncher -> {
+                launcher.replaceFragment(R.id.layout_container)
+            }
+            else -> super.launch(launcher)
         }
     }
 
@@ -237,17 +257,13 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        detachChildPresenter()
-        dialogList.forEach {
-            it.setOnDismissListener(null)
-            it.dismiss()
-        }
-    }
-
     override fun exit() {
         activity!!.finish()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    protected operator fun <T> get(extraKey: String): T? {
+        return arguments?.get(extraKey) as T?
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)
@@ -267,9 +283,9 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     final override fun <T : RecyclerView, M> bind(
         res: Int,
         layoutRes: Int,
-        parentModel: AutoBindModel<M>?,
+        parentModel: BindModel<M>?,
         callback: ((M) -> Unit)?,
-        builder: AutoBindModel.Builder<M>.() -> Unit
+        builder: BindModel.Builder<M>.() -> Unit
     ): Lazy<T> {
         return super.bind(res, layoutRes, parentModel, callback, builder)
     }
@@ -312,4 +328,8 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     final override fun <T : View> bindOrNull(@IdRes res: Int, initBlock: T.() -> Unit) =
         super.bindOrNull(res, initBlock)
 
+    @JvmName("setClickFunction")
+    final fun <T : View> T.setClickListener(block: () -> Unit) {
+        setClickListener(this, block)
+    }
 }

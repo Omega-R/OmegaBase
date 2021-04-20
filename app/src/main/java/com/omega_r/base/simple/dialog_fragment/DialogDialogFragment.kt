@@ -23,7 +23,7 @@ class DialogDialogFragment : OmegaDialogFragment(), DialogView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setOnClickListener(R.id.button) {
+        setClickListener(R.id.button) {
             showToast(Text.from("Test from dialog"))
         }
     }
