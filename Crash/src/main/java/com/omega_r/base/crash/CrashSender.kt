@@ -15,33 +15,35 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.Exception
 import java.lang.ref.WeakReference
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 
 
-class CrashSender(context: Context, private val senderWays: Array<out SenderCrashWay>) : Thread.UncaughtExceptionHandler,
+class CrashSender(context: Context) : Thread.UncaughtExceptionHandler,
     Application.ActivityLifecycleCallbacks {
 
     companion object {
 
+        val senderWays = CopyOnWriteArraySet<SenderCrashWay>().apply {
+            add(EmailSenderCrashWay())
+        }
+
+        val reporters = CopyOnWriteArraySet<CrashReporter>()
+
         @SuppressLint("StaticFieldLeak")
         private var singleCrashSender: CrashSender? = null
 
-        private val reporters = CopyOnWriteArraySet<CrashReporter>()
-
-        fun setup(application: Application, vararg otherSenderWays: SenderCrashWay) {
+        fun setup(application: Application) {
             singleCrashSender?.let {
                 application.unregisterActivityLifecycleCallbacks(it)
                 OmegaUncaughtExceptionHandler.remove(it)
             }
-            val handler = CrashSender(application, otherSenderWays)
+            val handler = CrashSender(application)
             OmegaUncaughtExceptionHandler.add(handler)
             application.registerActivityLifecycleCallbacks(handler)
             singleCrashSender = handler
         }
 
-        fun addReporter(reporter: CrashReporter) {
-            reporters.add(reporter)
-        }
 
     }
 

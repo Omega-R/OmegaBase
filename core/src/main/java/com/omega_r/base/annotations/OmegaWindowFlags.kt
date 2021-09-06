@@ -1,6 +1,6 @@
 package com.omega_r.base.annotations
 
-import androidx.annotation.StyleRes
+import java.lang.annotation.Inherited
 
 /**
  * Created by Anton Knyazev on 10.04.19.
