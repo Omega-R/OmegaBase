@@ -65,7 +65,7 @@ dependencies {
     kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:2.2.0'
 
 
-    api "com.github.Omega-R:OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}@aar"
+    api "com.github.Omega-R:OmegaRecyclerView:${omegaRecyclerView}@aar"
     api 'com.github.Omega-R.OmegaTypes:glide:2.0.3'
     api 'com.github.Omega-R.OmegaIntentBuilder:core:1.3.3'
     api 'com.github.Omega-R:OmegaLaunchers:1.0.3'
