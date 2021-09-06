@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 apply plugin: 'com.github.dcendents.android-maven'
-group = 'com.github.Omega-R'
+group = 'com.github.Omega-R.OmegaBase'
 
 android {
     compileSdkVersion 30
