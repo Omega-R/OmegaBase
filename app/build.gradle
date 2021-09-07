@@ -47,6 +47,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}"
 
     implementation project(':core')
     implementation project(':crash')
