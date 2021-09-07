@@ -22,8 +22,6 @@ import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.dialogs.WaitingController
-import com.omega_r.base.crash.CrashSender
-import com.omega_r.base.crash.EmailSenderCrashWay
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.bind.delegates.IdHolder
 import com.omega_r.bind.delegates.managers.BindersManager
@@ -65,7 +63,6 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         OmegaPresenter.isDebuggable.ifNull {
             OmegaPresenter.isDebuggable = 0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
-            setupCrashSender()
         }
 
         this::class.findAnnotation<OmegaWindowFlags>()?.let {
@@ -96,16 +93,6 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
                 }
             }
         }
-    }
-
-    protected open fun setupCrashSender() {
-        if (OmegaPresenter.isDebuggable == true) {
-            CrashSender.setup(application, *getSenderCrashWays())
-        }
-    }
-
-    protected open fun getSenderCrashWays(): Array<CrashSender.SenderCrashWay> {
-        return arrayOf(EmailSenderCrashWay())
     }
 
     override fun getViewForSnackbar(): View {

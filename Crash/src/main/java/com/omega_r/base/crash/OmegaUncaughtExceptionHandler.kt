@@ -14,7 +14,6 @@ object OmegaUncaughtExceptionHandler : UncaughtExceptionHandler {
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 
-
     override fun uncaughtException(thread: Thread, error: Throwable) {
         try {
             uncaughtExceptionHandlers.forEach {

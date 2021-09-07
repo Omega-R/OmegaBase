@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.omega_r.base.crash">
+
+    <application>
+
+        <provider
+                android:name=".CrashInitProvider"
+                android:authorities="${applicationId}.omega.crash"
+                android:exported="false" />
+
+    </application>
+
+</manifest>

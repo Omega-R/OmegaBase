@@ -1,7 +1,6 @@
 package com.omega_r.base.logs
 
 import androidx.collection.ArraySet
-import com.omega_r.base.crash.OmegaUncaughtExceptionHandler
 import com.omega_r.base.logs.Logger.Level
 import java.util.concurrent.ConcurrentHashMap
 
@@ -14,9 +13,6 @@ object LogManager {
 
     init {
         this += AndroidLogger
-        OmegaUncaughtExceptionHandler.add { _, throwable ->
-            log(Level.ERROR, "Crash", throwable, null)
-        }
     }
 
     fun isEmpty(level: Level) = loggersMap[level].isNullOrEmpty()
