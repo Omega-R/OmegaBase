@@ -66,7 +66,7 @@ open class ErrorHandler : (Throwable) -> Exception, CoroutineExceptionHandler {
                 val arguments = tag.arguments().joinToString()
                 result += tag.method().declaringClass.simpleName + "." + tag.method().name + "(" + arguments + ")"
             }
-         
+
             result
         }
     }
