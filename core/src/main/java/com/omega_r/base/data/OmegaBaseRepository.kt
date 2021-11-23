@@ -311,10 +311,7 @@ open class OmegaBaseRepository<SOURCE : Source>(
 
     private suspend fun <R> ProducerScope<R>.applyMock(block: suspend SOURCE.() -> R) {
         if (mockSource != null) {
-            getException {
-                send(block(mockSource))
-                return
-            }
+            send(block(mockSource))
         }
     }
 
