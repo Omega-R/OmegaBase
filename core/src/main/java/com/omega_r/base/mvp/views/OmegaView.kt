@@ -24,7 +24,7 @@ interface OmegaView : MvpView {
     }
 
     @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
-    fun showMessage(message: Text, action: Action? = null)
+    fun showMessage(message: Text, title: Text? = null, action: Action? = null)
 
     @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showQuery(message: Text, title: Text? = null, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
