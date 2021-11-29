@@ -1,5 +1,7 @@
 package com.omega_r.base.errors
 
+import com.omega_r.libs.omegatypes.Text
+
 /**
  * Created by Anton Knyazev on 2019-05-28.
  */
@@ -8,7 +10,8 @@ private const val NO_MESSAGE = " "
 
 open class AppException(
     devMessage: String?,
-    cause: Throwable? = null
+    val userMessage: Text? = null,
+    cause: Throwable? = null,
 ) : Exception(devMessage ?: cause?.toString() ?: NO_MESSAGE) {
 
     init {
@@ -17,27 +20,36 @@ open class AppException(
         }
     }
 
-    class NotImplemented(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class NotImplemented(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class NoConnection(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class NoConnection(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class ServerUnavailable(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class ServerUnavailable(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class ServerProblem(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class ServerProblem(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class NotFound(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class NotFound(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class AccessDenied(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class AccessDenied(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class NotAuthorized(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class NotAuthorized(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class AuthorizedFailed(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class AuthorizedFailed(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class NoData(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
+    class NoData(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 
-    class UnknownError(devMessage: String?, cause: Throwable? = null) : AppException(devMessage, cause)
-
+    class UnknownError(devMessage: String?, userMessage: Text? = null, cause: Throwable? = null) :
+        AppException(devMessage, userMessage, cause)
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun throwNoData(message: String? = null): Nothing = throw AppException.NoData(message)
+inline fun throwNoData(devMessage: String? = null): Nothing = throw AppException.NoData(devMessage)
