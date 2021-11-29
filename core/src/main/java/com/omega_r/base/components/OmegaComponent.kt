@@ -33,10 +33,12 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
     val presenter: OmegaPresenter<out OmegaView>
 
-    fun createMessage(message: Text, action: Action? = null): Dialog {
-        return MaterialAlertDialogBuilder(getContext()!!)
+    fun createMessage(message: Text, title: Text?, action: Action? = null): Dialog {
+        val context = getContext()!!
+        return MaterialAlertDialogBuilder(context)
             .setCancelable(true)
-            .setMessage(message.getCharSequence(getContext()!!)).apply {
+            .setTitle(title?.getCharSequence(context))
+            .setMessage(message.getCharSequence(context)).apply {
                 if (action == null) {
                     setPositiveButton(android.R.string.ok) { _, _ ->
                         presenter.hideQueryOrMessage()
@@ -58,9 +60,11 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
         negativeAction: Action,
         neutralAction: Action?
     ): Dialog {
-        return MaterialAlertDialogBuilder(getContext()!!)
-            .setTitle(title?.getCharSequence(getContext()!!))
-            .setMessage(message.getCharSequence(getContext()!!))
+        val context = getContext()!!
+
+        return MaterialAlertDialogBuilder(context)
+            .setTitle(title?.getCharSequence(context))
+            .setMessage(message.getCharSequence(context))
             .setCancelable(false)
             .setButtons(presenter, positiveAction, negativeAction, neutralAction)
             .create()

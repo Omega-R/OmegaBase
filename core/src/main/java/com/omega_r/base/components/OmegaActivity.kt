@@ -258,8 +258,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 

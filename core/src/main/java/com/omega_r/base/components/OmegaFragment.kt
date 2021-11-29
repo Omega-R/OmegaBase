@@ -142,14 +142,14 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         dialogManager.onStop()
     }
 
-    override fun getViewForSnackbar() = view!!
+    override fun getViewForSnackbar() = requireView()
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
         (activity as OmegaActivity).setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
-        launch(context!!, option)
+        launch(requireContext(), option)
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
@@ -158,7 +158,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
         createLauncher()
-            .launch(context!!, option)
+            .launch(requireContext(), option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(
@@ -211,8 +211,8 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 
@@ -258,7 +258,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     }
 
     override fun exit() {
-        activity!!.finish()
+        requireActivity().finish()
     }
 
     @Suppress("UNCHECKED_CAST")

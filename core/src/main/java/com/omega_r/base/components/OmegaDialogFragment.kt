@@ -32,7 +32,7 @@ private const val KEY_SAVE_DATA = "omegaSaveData"
 private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
 private const val INNER_KEY_MENU = "menu"
 
-abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponent {
+abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent {
 
     protected open val dialogManager = DialogManager()
 
@@ -46,6 +46,11 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     private var data: Serializable? = null
     private var requestCode: Int = 0
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    constructor() : super()
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -152,7 +157,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         clickManager.viewFindable = null
     }
 
-    override fun getViewForSnackbar() = view!!
+    override fun getViewForSnackbar() = requireView()
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
         (activity as OmegaActivity).setWaiting(waiting, text)
@@ -164,7 +169,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
-        launch(context!!, option)
+        launch(requireContext(), option)
     }
 
     override fun launch(launcher: Launcher) {
@@ -182,7 +187,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
         createLauncher()
-            .launch(context!!, option)
+            .launch(requireContext(), option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
@@ -223,8 +228,8 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment(), OmegaComponen
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 

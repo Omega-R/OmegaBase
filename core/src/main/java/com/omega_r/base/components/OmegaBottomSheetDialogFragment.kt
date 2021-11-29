@@ -147,14 +147,14 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         clickManager.viewFindable = null
     }
 
-    override fun getViewForSnackbar() = view!!
+    override fun getViewForSnackbar() = requireView()
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
         (activity as OmegaActivity).setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
-        launch(context!!, option)
+        launch(requireContext(), option)
     }
 
     override fun launch(launcher: Launcher) {
@@ -172,7 +172,7 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
         createLauncher()
-            .launch(context!!, option)
+            .launch(requireContext(), option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(requestCode: Int, option: Bundle? = null) {
@@ -213,8 +213,8 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 
