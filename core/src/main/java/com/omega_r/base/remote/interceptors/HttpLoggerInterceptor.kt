@@ -8,6 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import okhttp3.logging.HttpLoggingInterceptor.Level.NONE
 import java.nio.charset.Charset
+import java.nio.charset.CharsetEncoder
 
 class HttpLoggingInterceptor(enabled: Boolean) : Interceptor {
 
@@ -27,13 +28,17 @@ class HttpLoggingInterceptor(enabled: Boolean) : Interceptor {
 
     private object HttpLogger : HttpLoggingInterceptor.Logger {
 
-        private val encoder = Charset.forName("ISO-8859-1").newEncoder()
+        private val encoder = object:ThreadLocal<CharsetEncoder>() {
+            override fun initialValue() = Charset.forName("ISO-8859-1").newEncoder()
+        }
 
         private const val TAG = "OkHttp"
         private const val MESSAGE_BINARY = "<BINARY DATA>"
 
         override fun log(message: String) {
             val maxLogLength = 4000
+
+
 
             // Split by line, then ensure each line can fit into Log's maximum length.
             var i = 0
@@ -50,7 +55,7 @@ class HttpLoggingInterceptor(enabled: Boolean) : Interceptor {
                     if (msg.contains("Content-Type") && msg.contains("application/octet-stream")) { // use another Content-Type if need
                         isBinaryContentType = true
                     }
-                    val isBinaryData = !encoder.canEncode(msg)
+                    val isBinaryData = encoder.get()?.canEncode(msg) == false
 
                     // multipart boundary
                     if (isBinaryLogDisplayed && msg.startsWith("--")) {
