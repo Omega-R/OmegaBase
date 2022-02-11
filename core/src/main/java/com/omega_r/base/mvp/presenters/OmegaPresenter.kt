@@ -45,7 +45,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + job + handler
 
-    private val permissionsCallbacks: MutableMap<List<String>, ((Boolean) -> Unit)?>
+    private val permissionsCallbacks: MutableMap<Set<String>, ((Boolean) -> Unit)?>
             by lazy { mutableMapOf() }
 
     protected val intentBuilder
@@ -228,7 +228,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected fun requestPermission(vararg permissions: String, resultCallback: (Boolean) -> Unit) {
-        val permissionList = permissions.toList()
+        val permissionList = permissions.toSet()
         permissionsCallbacks[permissionList] = resultCallback
 
         val requestCode =
@@ -237,12 +237,20 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         viewState.requestPermissions(requestCode, *permissions)
     }
 
+    protected suspend fun requestPermission(vararg permissions: String): Boolean {
+        val deferred = CompletableDeferred<Boolean>()
+        requestPermission(*permissions) {
+            deferred.complete(it)
+        }
+        return deferred.await()
+    }
+
     fun onPermissionResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ): Boolean {
-        val permissionList = permissions.toList()
+        val permissionList = permissions.toSet()
         if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)) {
             val success =
                 grantResults.firstOrNull { it != PERMISSION_GRANTED } == null
