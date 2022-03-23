@@ -266,6 +266,10 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         return arguments?.get(extraKey) as T?
     }
 
+    final override fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return super.bindAndSetClick<T>(res, block)
+    }
+
     final override fun <T> bind(init: () -> T) = super.bind(init)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)

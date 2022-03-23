@@ -289,6 +289,10 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent 
         }
     }
 
+    final override fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return super.bindAndSetClick(res, block)
+    }
+
     final override fun <T> bind(init: () -> T) = super.bind(init)
 
     final override fun <T : View, E> bind(vararg idsPair: Pair<E, Int>) = super.bind<T, E>(*idsPair)

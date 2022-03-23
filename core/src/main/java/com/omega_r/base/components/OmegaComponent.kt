@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -32,6 +33,12 @@ internal const val KEY_RESULT = "omegaResultData"
 interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
 
     val presenter: OmegaPresenter<out OmegaView>
+
+    fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return bind(res) {
+            setClickListener(this, block)
+        }
+    }
 
     fun createMessage(message: Text, title: Text?, action: Action? = null): Dialog {
         val context = getContext()!!

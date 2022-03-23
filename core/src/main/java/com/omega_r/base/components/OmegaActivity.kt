@@ -319,10 +319,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         return intent.extras?.get(extraKey) as T?
     }
 
-    protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
-        return bind(res) {
-            setClickListener(this, block)
-        }
+    final override fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return super.bindAndSetClick<T>(res, block)
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)
