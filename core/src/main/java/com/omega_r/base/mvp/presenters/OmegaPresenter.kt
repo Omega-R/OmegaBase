@@ -4,6 +4,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import com.omega_r.base.R
 import com.omega_r.base.errors.AppException
 import com.omega_r.base.logs.log
+import com.omega_r.base.mvp.model.LaunchResult
 import com.omega_r.base.mvp.views.OmegaView
 import com.omega_r.libs.omegaintentbuilder.OmegaIntentBuilder
 import com.omega_r.libs.omegaintentbuilder.interfaces.IntentBuilder
@@ -15,10 +16,10 @@ import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.callbackFlow
 import java.io.PrintWriter
 import java.io.Serializable
 import java.io.StringWriter
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -26,14 +27,13 @@ import kotlin.coroutines.EmptyCoroutineContext
  * Created by Anton Knyazev on 04.04.2019.
  */
 private const val REQUEST_PERMISSION_BASE = 10000
-
+private const val REQUEST_CODE_MAX: Int = Int.MAX_VALUE - 1
 
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
     companion object {
 
         internal var isDebuggable: Boolean? = null
-
     }
 
     private val handler = CoroutineExceptionHandler { _, throwable ->
@@ -48,6 +48,12 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     private val permissionsCallbacks: MutableMap<Set<String>, ((Boolean) -> Unit)?>
             by lazy { mutableMapOf() }
+
+    private val launchResultMap: MutableMap<Int, CompletableDeferred<LaunchResult>>
+            by lazy { mutableMapOf() }
+
+    private val requestCodeCounter: AtomicInteger
+            by lazy { AtomicInteger(REQUEST_CODE_MAX) }
 
     protected val intentBuilder
         get() = OmegaIntentBuilder
@@ -135,7 +141,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         context: CoroutineContext = EmptyCoroutineContext,
         waiting: Boolean = true,
         waitingText: Text? = null,
-        block: suspend () -> Unit
+        block: suspend () -> Unit,
     ): Job {
         if (waiting) {
             viewState.setWaiting(true, waitingText)
@@ -195,6 +201,20 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
+    protected suspend fun BaseIntentLauncher.launchForResult(): LaunchResult {
+        val completableDeferred = CompletableDeferred<LaunchResult>()
+        val requestCode = requestCodeCounter.getAndDecrement()
+        launchResultMap[requestCode] = CompletableDeferred()
+        try {
+            viewState.launchForResult(this, requestCode)
+        } catch (e: Throwable) {
+            launchResultMap.remove(requestCode)
+            throw e
+        }
+
+        return completableDeferred.await()
+    }
+
     protected fun DialogFragmentLauncher.launchForResult(requestCode: Int) {
         try {
             viewState.launchForResult(this, requestCode)
@@ -203,12 +223,30 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         }
     }
 
+    protected suspend fun DialogFragmentLauncher.launchForResult(): LaunchResult {
+        val completableDeferred = CompletableDeferred<LaunchResult>()
+        val requestCode = requestCodeCounter.getAndDecrement()
+        launchResultMap[requestCode] = CompletableDeferred()
+        try {
+            viewState.launchForResult(this, requestCode)
+        } catch (e: Throwable) {
+            launchResultMap.remove(requestCode)
+            throw e
+        }
+
+        return completableDeferred.await()
+    }
+
     protected fun IntentBuilder.launch() = createLauncher().launch()
 
     protected fun IntentBuilder.launchForResult(requestCode: Int) =
         createLauncher().launchForResult(requestCode)
 
     open fun onLaunchResult(requestCode: Int, success: Boolean, data: Serializable?): Boolean {
+        if (launchResultMap.containsKey(requestCode)) {
+            launchResultMap.remove(requestCode)?.complete(LaunchResult(success, data))
+            return true
+        }
         return false
     }
 
@@ -249,7 +287,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     fun onPermissionResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ): Boolean {
         val permissionList = permissions.toSet()
         if (requestCode >= REQUEST_PERMISSION_BASE && permissionsCallbacks.contains(permissionList)) {
@@ -271,7 +309,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
 
     protected open fun onPermissionResult(
         requestCode: Int,
-        permissionResults: Map<String, Boolean>
+        permissionResults: Map<String, Boolean>,
     ): Boolean {
         return false
     }
@@ -280,5 +318,4 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         super.onDestroy()
         job.cancel()
     }
-
 }
