@@ -228,7 +228,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
         return deferred.await()
     }
 
-    protected fun requestPermission(vararg permissions: String, resultCallback: (Boolean) -> Unit) {
+    protected fun requestPermission(vararg permissions: String, resultCallback: (result: Boolean) -> Unit) {
         val permissionList = permissions.toSet()
         permissionsCallbacks[permissionList] = resultCallback
 
