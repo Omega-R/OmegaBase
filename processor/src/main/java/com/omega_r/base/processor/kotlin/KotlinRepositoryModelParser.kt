@@ -95,7 +95,7 @@ class KotlinRepositoryModelParser(private val messager: Messager, private val el
         when (returnType.className) {
             CHANNEL_CLASS_NAME, SEND_CHANNEL_CLASS_NAME -> {
                 messager.printMessage(
-                    ERROR, "${clazz.name} contains function $name with forbidden return type $returnType"
+                    ERROR, "${clazz.name} contains function $name with forbidden return type $returnType \nuse ReceiveChannel instead of Channel and SendChannel"
                 )
                 return null
             }
