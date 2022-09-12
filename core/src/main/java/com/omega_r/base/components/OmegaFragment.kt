@@ -9,6 +9,8 @@ import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.annotations.OmegaMenu
 import com.omega_r.base.annotations.OmegaTheme
+import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
+import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
@@ -27,6 +29,7 @@ import java.io.Serializable
  */
 
 private const val INNER_KEY_MENU = "menu"
+private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
 abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
@@ -39,6 +42,10 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     private var childPresenterAttached = false
 
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val menuItemPropertyList: MutableList<MenuProperty>
+        get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
 
     constructor() : super()
 
@@ -107,6 +114,11 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
             inflater.inflate(menuRes, menu)
             true
         } ?: super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        onPrepareMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

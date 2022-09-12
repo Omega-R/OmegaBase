@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
+import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
+import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
@@ -40,6 +42,7 @@ import java.io.Serializable
  * Created by Anton Knyazev on 04.04.2019.
  */
 private const val INNER_KEY_MENU = "menu"
+private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
 abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
@@ -52,6 +55,10 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     protected open val waitingController by lazy { WaitingController(this, dialogManager) }
 
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val menuItemPropertyList: MutableList<MenuProperty>
+        get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
 
     constructor() : super()
 
@@ -178,6 +185,14 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
             menuInflater.inflate(menuRes, menu)
             true
         } ?: super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        return super.onPrepareOptionsMenu(menu).also {
+            menu?.let {
+                onPrepareMenu(menu)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

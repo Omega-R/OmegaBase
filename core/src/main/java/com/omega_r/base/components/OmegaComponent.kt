@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.IdRes
@@ -30,7 +31,7 @@ import kotlinx.coroutines.CompletableDeferred
 
 internal const val KEY_RESULT = "omegaResultData"
 
-interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
+interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable, OmegaMenuable {
 
     val presenter: OmegaPresenter<out OmegaView>
 

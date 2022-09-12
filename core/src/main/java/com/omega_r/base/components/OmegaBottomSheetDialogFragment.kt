@@ -10,6 +10,8 @@ import androidx.annotation.*
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
+import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
+import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
@@ -27,6 +29,7 @@ private const val KEY_SAVE_RESULT =  "omegaSaveResult"
 private const val KEY_SAVE_DATA =  "omegaSaveData"
 private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
 private const val INNER_KEY_MENU = "menu"
+private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
 abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
 
@@ -42,6 +45,10 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
     private var data: Serializable? = null
     private var requestCode: Int = 0
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val menuItemPropertyList: MutableList<MenuProperty>
+        get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 
@@ -103,6 +110,11 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
             inflater.inflate(menuRes, menu)
             true
         } ?: super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        onPrepareMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
