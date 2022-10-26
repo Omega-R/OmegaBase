@@ -5,12 +5,27 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
-import androidx.annotation.*
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.AnimRes
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.IdRes
+import androidx.annotation.IntegerRes
+import androidx.annotation.MenuRes
 import androidx.recyclerview.widget.RecyclerView
-import com.omega_r.base.annotations.*
+import com.omega_r.base.annotations.OmegaClickViews
+import com.omega_r.base.annotations.OmegaContentView
+import com.omega_r.base.annotations.OmegaMenu
+import com.omega_r.base.annotations.OmegaTheme
+import com.omega_r.base.annotations.OmegaWindowBackground
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
-import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
 import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.dialogs.DialogManager
@@ -21,7 +36,12 @@ import com.omega_r.bind.delegates.managers.ResettableBindersManager
 import com.omega_r.bind.model.BindModel
 import com.omega_r.click.ClickManager
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.libs.omegalaunchers.*
+import com.omegar.libs.omegalaunchers.ActivityLauncher
+import com.omegar.libs.omegalaunchers.BaseIntentLauncher
+import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
+import com.omegar.libs.omegalaunchers.FragmentLauncher
+import com.omegar.libs.omegalaunchers.Launcher
+import com.omegar.libs.omegalaunchers.R
 import com.omegar.mvp.MvpBottomSheetDialogFragment
 import java.io.Serializable
 
@@ -31,7 +51,9 @@ private const val KEY_SAVE_REQUEST_CODE = "omegaRequestCode"
 private const val INNER_KEY_MENU = "menu"
 private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
-abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), OmegaComponent {
+abstract class OmegaBottomSheetDialogFragment @JvmOverloads constructor(
+    private val layoutRes: Int = 0
+) : MvpBottomSheetDialogFragment(), OmegaComponent {
 
     protected open val dialogManager = DialogManager()
 
@@ -138,10 +160,14 @@ abstract class OmegaBottomSheetDialogFragment : MvpBottomSheetDialogFragment(), 
             inflater.cloneInContext(ContextThemeWrapper(activity, it.resId))
         } ?: inflater
 
-        return if (contentView != null) {
-            themedInflater.inflate(contentView.layoutRes, container, false)
-        } else {
-            super.onCreateView(themedInflater, container, savedInstanceState)
+        return when {
+            layoutRes != 0 -> {
+                themedInflater.inflate(layoutRes, container, false)
+            }
+            contentView != null -> {
+                themedInflater.inflate(contentView.layoutRes, container, false)
+            }
+            else -> super.onCreateView(themedInflater, container, savedInstanceState)
         }
     }
 

@@ -56,9 +56,9 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent 
 
 
     constructor() : super()
-//
-//    @ContentView
-//    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
+
+    @ContentView
+    constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     override fun <T : View> findViewById(id: Int): T? = view?.findViewById(id)
 

@@ -26,6 +26,7 @@ android {
         pickFirst 'META-INF/atomicfu.kotlin_module'
         pickFirst 'META-INF/kotlinx-coroutines-io.kotlin_module'
         pickFirst 'META-INF/library_release.kotlin_module'
+        pickFirst 'META-INF/core_release.kotlin_module'
     }
 
 
@@ -41,11 +42,11 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0-alpha04'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}"
 
