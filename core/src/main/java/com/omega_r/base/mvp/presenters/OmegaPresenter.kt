@@ -226,7 +226,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     protected suspend fun DialogFragmentLauncher.launchForResult(): LaunchResult {
         val completableDeferred = CompletableDeferred<LaunchResult>()
         val requestCode = requestCodeCounter.getAndDecrement()
-        launchResultMap[requestCode] = CompletableDeferred()
+        launchResultMap[requestCode] = completableDeferred
         try {
             viewState.launchForResult(this, requestCode)
         } catch (e: Throwable) {
