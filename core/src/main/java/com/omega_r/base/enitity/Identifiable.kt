@@ -33,3 +33,5 @@ fun <T : Identifiable<I>, I> Iterable<T>.indexOfLast(id: I): Int {
 fun <T : Identifiable<I>, I> Iterable<T>.firstOrNull(id: I): T? {
     return firstOrNull(predicate = { it.id == id })
 }
+
+fun <T : Identifiable<I>, I> Iterable<T>.filterById(id: I) = filter { it.id == id }

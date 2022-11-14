@@ -181,7 +181,6 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
         return menuRes?.let {
-            innerData.remove(INNER_KEY_MENU)
             menuInflater.inflate(menuRes, menu)
             true
         } ?: super.onCreateOptionsMenu(menu)
