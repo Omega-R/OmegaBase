@@ -1,10 +1,5 @@
 package com.omega_r.base.enitity
 
-interface Identifiable<T> {
+import com.omega_r.adapters.OmegaIdentifiable
 
-    val id: T
-
-    val idAsLong: Long
-        get() = 0
-
-}
+typealias Identifiable<T> = OmegaIdentifiable<T>
