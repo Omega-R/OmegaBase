@@ -55,6 +55,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable, OmegaMenuab
                     setPositiveButton(presenter, action)
                     setOnCancelListener {
                         action()
+                        presenter.hideQueryOrMessage()
                     }
                 }
             }
