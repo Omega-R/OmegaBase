@@ -50,7 +50,6 @@ dependencies {
     implementation "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}"
 
     implementation project(':core')
-    implementation project(':crash')
 
     kapt "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
     kapt project(':processor')
