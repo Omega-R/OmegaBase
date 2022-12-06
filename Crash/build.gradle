@@ -2,18 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 
-project.afterEvaluate {
-    publishing {
-        publications {
-            library(MavenPublication) {
-                setGroupId groupId
-                setArtifactId artifactId
-
-                artifact bundleReleaseAar
-            }
-        }
-    }
-}
 
 android {
     compileSdkVersion 31

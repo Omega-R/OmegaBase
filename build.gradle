@@ -1,33 +1,19 @@
-ext {
-    omegaRecyclerView = '1.9.9'
-    omegaMoxy_version = 'e52a752a'
-    kotlinCorutines_version = '1.5.0'
-
-}// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
+    ext {
+        omegaRecyclerView = '1.9.9'
+        omegaMoxy_version = 'e52a752a'
+        kotlinCorutines_version = '1.5.0'
 
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-    }
+    }// Top-level build file where you can add configuration options common to all sub-projects/modules.
+}
+plugins {
+    id 'com.android.application' version '7.3.0' apply false
+    id 'com.android.library' version '7.3.0' apply false
+    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        maven { url 'https://jitpack.io' }
-        mavenCentral()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
-    }
-}
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir
