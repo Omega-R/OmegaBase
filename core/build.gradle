@@ -1,17 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
 group = 'com.github.Omega-R.OmegaBase'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -53,11 +53,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.1-alpha01'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
-    implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${kotlin_version}"
 
     api "com.github.Omega-R.OmegaMoxy:moxy:${omegaMoxy_version}"
     api "com.github.Omega-R.OmegaMoxy:moxy-androidx:${omegaMoxy_version}"
@@ -87,7 +84,3 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0-beta01'
 
 }
-repositories {
-    mavenCentral()
-}
-

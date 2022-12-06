@@ -35,6 +35,9 @@ interface OmegaView : MvpView {
     @StateStrategyType(ONE_EXECUTION)
     fun showBottomMessage(message: Text, action: Action? = null)
 
+//    @StateStrategyType(ONE_EXECUTION)
+//    fun showBottomChooser()
+
     @StateStrategyType(ONE_EXECUTION)
     fun showToast(message: Text)
 

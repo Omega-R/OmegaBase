@@ -1,7 +1,7 @@
 package com.omega_r.base.simple
 
 import android.Manifest
-import com.omega_r.base.enitity.contains
+import com.omega_r.base.errors.ErrorHandler
 import com.omega_r.base.logs.log
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.presenters.OmegaPresenter
@@ -10,6 +10,9 @@ import com.omega_r.libs.omegatypes.Text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import retrofit2.Retrofit
 import java.io.Serializable
 
 /**
@@ -18,8 +21,22 @@ import java.io.Serializable
 class MainPresenter : OmegaPresenter<MainView>() {
 
     init {
-       DialogDialogFragment.createLauncher()
-           .launch()
+        viewState.showToast(Text.from(System.getProperty("http.agent")))
+        viewState.enabled = false
+        launch {
+            try {
+                Retrofit.Builder()
+                    .baseUrl("https://git.omega-r.club")
+                    .build()
+                    .create(Api::class.java)
+                    .test("aga", RequestBody.create(MediaType.get("text/html"), "Run"))
+            } catch (e: Exception) {
+                throw ErrorHandler().handleThrowable(e)
+            }
+        }
+
+//       DialogDialogFragment.createLauncher()
+//           .launch()
 //        viewState.showMe
 //        log {
 //            "Message"
