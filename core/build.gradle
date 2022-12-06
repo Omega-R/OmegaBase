@@ -3,9 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'maven-publish'
-group = 'com.github.Omega-R.OmegaBase'
-
 android {
     compileSdkVersion 31
 
