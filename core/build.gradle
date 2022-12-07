@@ -7,6 +7,17 @@ apply plugin: 'maven-publish'
 
 group = 'com.github.Omega-R.OmegaBase'
 
+publishing {
+    publications {
+        release(MavenPublication) {
+            artifactId = 'core'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+}
 
 android {
     compileSdkVersion 31

@@ -6,6 +6,17 @@ plugins {
 
 group = 'com.github.Omega-R.OmegaBase'
 
+publishing {
+    publications {
+        release(MavenPublication) {
+            artifactId = 'stub'
+
+            afterEvaluate {
+                from components.java
+            }
+        }
+    }
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_7

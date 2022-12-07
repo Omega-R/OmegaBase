@@ -1,9 +1,21 @@
 apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
 
-group = 'com.github.Omega-R.OmegaBase'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection DifferentStdlibGradleVersion
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.Omega-R.OmegaBase'
+            artifactId = 'annotations'
+
+            afterEvaluate {
+                from components.java
+            }
+        }
+    }
 }
