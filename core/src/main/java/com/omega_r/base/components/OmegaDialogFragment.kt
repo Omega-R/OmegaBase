@@ -50,6 +50,8 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent 
     private var requestCode: Int = 0
     private val innerData: MutableMap<String, Any> = hashMapOf()
 
+    private var dissmissCall: Boolean = false
+
     @Suppress("UNCHECKED_CAST")
     override val menuItemPropertyList: MutableList<MenuProperty>
         get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
@@ -161,6 +163,7 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent 
         bindersManager.reset()
         bindersManager.doAutoInit()
         clickManager.viewFindable = this
+        dissmissCall = false
     }
 
     override fun onDestroyView() {
@@ -296,7 +299,8 @@ abstract class OmegaDialogFragment : MvpAppCompatDialogFragment, OmegaComponent 
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        if (isResumed && requestCode != 0) {
+        if (!dissmissCall && requestCode != 0) {
+            dissmissCall = true
             val omegaComponent = (parentFragment as? OmegaComponent) ?: (activity as? OmegaComponent)
             omegaComponent?.presenter?.onLaunchResult(requestCode, result, data)
         }
