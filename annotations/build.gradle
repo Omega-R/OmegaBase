@@ -2,9 +2,9 @@ apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
 
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    //noinspection DifferentStdlibGradleVersion
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 publishing {
@@ -12,10 +12,27 @@ publishing {
         release(MavenPublication) {
             groupId = 'com.github.Omega-R.OmegaBase'
             artifactId = 'annotations'
+            version project.hasProperty('version') ? project.version : gradle.gitHash()
 
             afterEvaluate {
                 from components.java
             }
         }
     }
+    repositories {
+        maven {
+            url gradle.nexusUrl
+            credentials {
+                username gradle.nexusUsername
+                password gradle.nexusPassword
+            }
+        }
+    }
+
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation "org.jetbrains.kotlin:kotlin-reflect"
+        //noinspection DifferentStdlibGradleVersion
+    }
+
 }

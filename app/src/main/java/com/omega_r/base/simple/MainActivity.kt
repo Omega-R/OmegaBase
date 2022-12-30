@@ -8,34 +8,15 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.adapters.OmegaListAdapter
 import com.omega_r.base.components.OmegaActivity
+import com.omega_r.base.simple.MainPresenterFactory.providePresenter
 import com.omega_r.bind.adapters.OmegaAutoAdapter
 import com.omega_r.bind.delegates.IdHolder
-import com.omega_r.bind.model.binders.bindEnabled
 import com.omega_r.bind.model.binders.bindImage
-import com.omega_r.bind.model.binders.bindSelected
-import com.omega_r.bind.model.binders.bindViewState
-import com.omega_r.bind.model.binders.bindVisible
 import com.omega_r.libs.omegatypes.Text
 import com.omega_r.libs.omegatypes.image.Image
 import com.omega_r.libs.omegatypes.image.from
-import com.omega_r.libs.omegatypes.toText
-import com.omega_r.libs.omegatypes.toast
-import com.omegar.libs.omegalaunchers.createActivityLauncher
-import com.omegar.libs.omegalaunchers.tools.put
-import com.omegar.mvp.ktx.providePresenter
-import kotlin.math.roundToInt
 
 class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
-
-    companion object {
-
-        private const val EXTRA_TITLE = "title"
-
-        fun createLauncher(title: String) = createActivityLauncher(
-            EXTRA_TITLE put title
-        )
-
-    }
 
     override val presenter: MainPresenter by providePresenter()
 
@@ -94,7 +75,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = this[EXTRA_TITLE]
+//        title = this[EXTRA_TITLE]
         setClickListener(R.id.button) {
             showToast(Text.from("Test"))
         }

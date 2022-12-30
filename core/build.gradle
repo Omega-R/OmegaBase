@@ -10,20 +10,31 @@ group = 'com.github.Omega-R.OmegaBase'
 publishing {
     publications {
         release(MavenPublication) {
+            groupId = 'com.github.Omega-R.OmegaBase'
             artifactId = 'core'
+            version project.hasProperty('version') ? project.version : gradle.gitHash()
 
             afterEvaluate {
                 from components.release
             }
         }
     }
+    repositories {
+        maven {
+            url gradle.nexusUrl
+            credentials {
+                username gradle.nexusUsername
+                password gradle.nexusPassword
+            }
+        }
+    }
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -71,18 +82,18 @@ dependencies {
 
     api "com.github.Omega-R.OmegaMoxy:moxy:${omegaMoxy_version}"
     api "com.github.Omega-R.OmegaMoxy:moxy-androidx:${omegaMoxy_version}"
-    api "com.github.Omega-R.OmegaMoxy:moxy-ktx:${omegaMoxy_version}"
     kapt "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
 
 
     api "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}@aar"
+    api 'com.github.Omega-R.OmegaTypes:omegatypes:2.1.0'
     api 'com.github.Omega-R.OmegaTypes:glide:2.1.0'
-    api 'com.github.Omega-R.OmegaIntentBuilder:core:1.3.3'
-    api 'com.github.Omega-R:OmegaLaunchers:1.0.3'
+    api 'com.github.Omega-R.OmegaIntentBuilder:core:1.3.3@aar'
+    api 'com.github.Omega-R.OmegaLaunchers:omegalauncherslib:9bf99e7a'
     api 'com.github.Omega-R:OmegaExtensions:1.0.5'
     api "com.github.Omega-R:OmegaBind:fd7a8c1a@aar"
     api 'com.github.Omega-R:OmegaClicks:1.0.0@aar'
-    api 'com.github.Omega-R:OmegaAdapters:1.0.2'
+    api 'com.github.Omega-R:OmegaAdapters:1.0.2@aar'
 
 
     api project(':annotations')

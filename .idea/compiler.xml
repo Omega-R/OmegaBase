@@ -21,12 +21,15 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.7">
-      <module name="OmegaBase.annotations" target="11" />
-      <module name="OmegaBase.annotations.main" target="11" />
-      <module name="OmegaBase.annotations.test" target="11" />
+      <module name="OmegaBase.annotations" target="1.8" />
+      <module name="OmegaBase.annotations.main" target="1.8" />
+      <module name="OmegaBase.annotations.test" target="1.8" />
       <module name="OmegaBase.app" target="11" />
       <module name="OmegaBase.core" target="11" />
       <module name="OmegaBase.crash" target="11" />
+      <module name="OmegaBase.mvp-processor" target="1.8" />
+      <module name="OmegaBase.mvp-processor.main" target="1.8" />
+      <module name="OmegaBase.mvp-processor.test" target="1.8" />
       <module name="OmegaBase.processor" target="11" />
       <module name="OmegaBase.processor.main" target="11" />
       <module name="OmegaBase.processor.test" target="11" />

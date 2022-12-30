@@ -1,5 +1,7 @@
 package com.omega_r.base.simple
 
+import android.os.SystemClock
+import com.omega_r.base.annotations.AutoPresenterLauncher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.libs.omegatypes.Text
 import java.io.Serializable
@@ -7,9 +9,23 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
-class MainPresenter : OmegaPresenter<MainView>() {
+@AutoPresenterLauncher(MainActivity::class)
+class MainPresenter(testEntity: TestEntity?): OmegaPresenter<MainView>() {
+
+    companion object {
+        var lastTime = SystemClock.elapsedRealtime()
+    }
 
     init {
+
+        val time =  (SystemClock.elapsedRealtime() - lastTime)
+        lastTime = SystemClock.elapsedRealtime()
+
+        if (testEntity == null) {
+            MainPresenterFactory.createLauncher(TestEntity()).launch()
+        } else {
+            println("TestAnt: $time")
+        }
         viewState.showToast(Text.from(System.getProperty("http.agent")))
         viewState.enabled = false
 //        launch {
