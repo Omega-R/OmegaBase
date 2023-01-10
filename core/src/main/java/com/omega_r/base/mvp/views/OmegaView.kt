@@ -1,6 +1,7 @@
 package com.omega_r.base.mvp.views
 
 import com.omega_r.base.mvp.model.Action
+import com.omega_r.base.mvp.strategies.MvpLauncherStrategy
 import com.omega_r.base.mvp.strategies.RemoveEndTagStrategy
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.ActivityLauncher
@@ -23,52 +24,52 @@ interface OmegaView : MvpView {
         private const val TAG_QUERY_OR_MESSAGE= "queryOrMessage"
     }
 
-    @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
+    @MoxyViewCommand(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showMessage(message: Text, title: Text? = null, action: Action? = null)
 
-    @StateStrategyType(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
+    @MoxyViewCommand(value = ADD_TO_END, tag = TAG_QUERY_OR_MESSAGE)
     fun showQuery(message: Text, title: Text? = null, positiveAction: Action, negativeAction: Action, neutralAction: Action? = null)
 
-    @StateStrategyType(value = CUSTOM, custom = RemoveEndTagStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
+    @MoxyViewCommand(value = CUSTOM, custom = RemoveEndTagStrategy::class, tag = TAG_QUERY_OR_MESSAGE)
     fun hideQueryOrMessage()
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun showBottomMessage(message: Text, action: Action? = null)
 
 //    @StateStrategyType(ONE_EXECUTION)
 //    fun showBottomChooser()
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun showToast(message: Text)
 
-    @StateStrategyType(ADD_TO_END_SINGLE)
+    @MoxyViewCommand(ADD_TO_END_SINGLE)
     fun setWaiting(waiting: Boolean, text: Text? = null)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(CUSTOM, custom = MvpLauncherStrategy::class)
     fun launch(launcher: Launcher)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(CUSTOM, custom = MvpLauncherStrategy::class)
     fun launch(launcher: ActivityLauncher, vararg parentLaunchers: ActivityLauncher)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(CUSTOM, custom = MvpLauncherStrategy::class)
     fun launch(launcher: DialogFragmentLauncher)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(CUSTOM, custom = MvpLauncherStrategy::class)
     fun launchForResult(launcher: BaseIntentLauncher, requestCode: Int)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(CUSTOM, custom = MvpLauncherStrategy::class)
     fun launchForResult(launcher: DialogFragmentLauncher, requestCode: Int)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun setResult(success: Boolean, data: Serializable?)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun requestPermissions(requestCode: Int, vararg permissions: String)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun requestGetPermission(permission: String, deferred: CompletableDeferred<Boolean>)
 
-    @StateStrategyType(ONE_EXECUTION)
+    @MoxyViewCommand(ONE_EXECUTION)
     fun exit()
 
 }

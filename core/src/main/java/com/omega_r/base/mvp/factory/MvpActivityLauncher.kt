@@ -18,14 +18,15 @@ import com.omegar.mvp.presenter.PresenterType
 import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 
-
 class MvpActivityLauncher(
     activityClass: Class<out Activity>,
     private val bundle: Bundle?,
     flags: Int = 0,
     private val presenterType: PresenterType,
     private val presenterClass: KClass<out MvpPresenter<*>>,
-) : ActivityLauncher(activityClass, bundle, flags) {
+) : ActivityLauncher(activityClass, bundle, flags), MvpLauncher {
+
+    private var uniqueKey: Int = generateUniqueKey()
 
     @Suppress("UNCHECKED_CAST")
     constructor(parcel: Parcel) : this(
@@ -46,27 +47,22 @@ class MvpActivityLauncher(
 
     override fun getIntent(context: Context): Intent {
         val intent = super.getIntent(context)
-        if (MvpPresentersFactory.hasFactory(presenterClass)) {
-            val uniqueKey = intent.getIntExtraOrPut(MvpDelegate.KEY_UNIQUE_KEY, SystemClock.elapsedRealtime()::toInt)
+        intent.putExtra(MvpDelegate.KEY_UNIQUE_KEY, uniqueKey)
+        preparePresenter()
+        uniqueKey = generateUniqueKey()
+        return intent
+    }
 
+    override fun preparePresenter(): Boolean {
+        if (MvpPresentersFactory.hasFactory(presenterClass)) {
             val delegateTag = generateDelegateTag(Reflection.createKotlinClass(activityClass), MvpDelegate::class, uniqueKey)
 
             getOrCreateMvpPresenter(delegateTag, presenterType, presenterClass) {
                 MvpPresentersFactory.createPresenter(presenterClass, bundle)!!
             }
+            return true
         }
-
-        return intent
-    }
-
-    private inline fun Intent.getIntExtraOrPut(key: String, factory: () -> Int): Int {
-        return if (!hasExtra(key)) {
-            val newUniqueKey = factory()
-            putExtra(key, newUniqueKey)
-            newUniqueKey
-        } else {
-            getIntExtra(key, 0)
-        }
+        return false
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

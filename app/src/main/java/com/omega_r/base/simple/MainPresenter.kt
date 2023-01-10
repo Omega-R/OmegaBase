@@ -9,8 +9,8 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
-@AutoPresenterLauncher(MainActivity::class)
-class MainPresenter(testEntity: TestEntity?): OmegaPresenter<MainView>() {
+@AutoPresenterLauncher(MainActivity::class, TestFragment::class)
+class MainPresenter(testEntity: TestEntity?, t2: TestEntity?): OmegaPresenter<MainView>() {
 
     companion object {
         var lastTime = SystemClock.elapsedRealtime()
@@ -22,7 +22,7 @@ class MainPresenter(testEntity: TestEntity?): OmegaPresenter<MainView>() {
         lastTime = SystemClock.elapsedRealtime()
 
         if (testEntity == null) {
-            MainPresenterFactory.createLauncher(TestEntity()).launch()
+            MainPresenterFactory.createMainActivityLauncher(TestEntity(), TestEntity()).launch()
         } else {
             println("TestAnt: $time")
         }

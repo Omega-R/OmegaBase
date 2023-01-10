@@ -18,10 +18,12 @@ import kotlin.reflect.KClass
 
 class MvpDialogFragmentLauncher(
     fragmentClass: Class<out DialogFragment>,
-    bundle: Bundle?,
+    private val bundle: Bundle?,
     private val presenterType: PresenterType,
     private val presenterClass: KClass<out MvpPresenter<*>>,
-) : DialogFragmentLauncher(fragmentClass, bundle) {
+) : DialogFragmentLauncher(fragmentClass, bundle), MvpLauncher {
+
+    private var uniqueKey = generateUniqueKey()
 
     constructor(
         fragmentClass: Class<out DialogFragment>,
@@ -41,37 +43,31 @@ class MvpDialogFragmentLauncher(
     override fun createDialogFragment(): DialogFragment {
         val dialogFragment = super.createDialogFragment()
 
-        if (MvpPresentersFactory.hasFactory(presenterClass)) {
-            dialogFragment.arguments = dialogFragment.arguments?.let {
-                Bundle(it).apply {
-                    val uniqueKey = getIntOrPut(MvpDelegate.KEY_UNIQUE_KEY, SystemClock.elapsedRealtime()::toInt)
-
-                    val delegateTag = MvpProcessor.generateDelegateTag(
-                        Reflection.createKotlinClass(fragmentClass),
-                        MvpDelegate::class,
-                        uniqueKey
-                    )
-
-                    MvpProcessor.getOrCreateMvpPresenter(delegateTag, presenterType, presenterClass) {
-                        MvpPresentersFactory.createPresenter(presenterClass, this)!!
-                    }
-                }
-            }
+        if (preparePresenter()) {
+            val bundle = dialogFragment.arguments ?: Bundle()
+            bundle.putInt(MvpDelegate.KEY_UNIQUE_KEY, uniqueKey)
+            dialogFragment.arguments = bundle
+            uniqueKey = generateUniqueKey()
         }
 
         return dialogFragment
     }
 
-    private inline fun Bundle.getIntOrPut(key: String, factory: () -> Int): Int {
-        return if (!containsKey(key)) {
-            val newUniqueKey = factory()
-            putInt(key, newUniqueKey)
-            newUniqueKey
-        } else {
-            getInt(key)
-        }
-    }
+    override fun preparePresenter(): Boolean {
+        if (MvpPresentersFactory.hasFactory(presenterClass)) {
+            val delegateTag = MvpProcessor.generateDelegateTag(
+                Reflection.createKotlinClass(fragmentClass),
+                MvpDelegate::class,
+                uniqueKey
+            )
 
+            MvpProcessor.getOrCreateMvpPresenter(delegateTag, presenterType, presenterClass) {
+                MvpPresentersFactory.createPresenter(presenterClass, bundle)!!
+            }
+            return true
+        }
+        return false
+    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         super.writeToParcel(parcel, flags)
@@ -93,5 +89,4 @@ class MvpDialogFragmentLauncher(
             return arrayOfNulls(size)
         }
     }
-
 }
