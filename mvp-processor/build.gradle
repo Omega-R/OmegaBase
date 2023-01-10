@@ -1,6 +1,31 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
+}
 
+group = 'com.github.Omega-R.OmegaBase'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.Omega-R.OmegaBase'
+            artifactId = 'mvp-processor'
+            version project.hasProperty('version') ? project.version : gradle.gitHash()
+
+            afterEvaluate {
+                from components.java
+            }
+        }
+    }
+    repositories {
+        maven {
+            url gradle.nexusUrl
+            credentials {
+                username gradle.nexusUsername
+                password gradle.nexusPassword
+            }
+        }
+    }
 }
 
 java {
