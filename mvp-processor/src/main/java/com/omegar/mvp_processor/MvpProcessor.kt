@@ -11,6 +11,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
@@ -67,6 +68,10 @@ class MvpProcessor(
     }
 
     private inner class LauncherGeneratorVisitor(private val resolver: Resolver) : KSVisitorVoid() {
+
+        private val serializableType by lazy { resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList()) }
+
+        private val parcelableType by lazy { resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList()) }
 
         @OptIn(KspExperimental::class)
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -155,7 +160,7 @@ class MvpProcessor(
             val format = "return createLauncher(%T::class, " +
                     joinToString {
                         val ksType = it.second.type.resolve()
-                        when (val className = ksType.toClassName()) {
+                        when (val className = ksType.smartToClassName()) {
                             LIST, SET -> {
                                 val type = ksType.arguments.first().type!!.resolve()
                                 val prefix =
@@ -186,7 +191,7 @@ class MvpProcessor(
             val args = mutableListOf<Any>()
             val format = joinToString {
                 val ksType = it.second.type.resolve()
-                when (ksType.toClassName()) {
+                when (ksType.smartToClassName()) {
                     SET -> {
                         args += ksType.arguments.first().type?.toTypeName()!!
                         val nullable = ksType.toNullableString()
@@ -201,14 +206,33 @@ class MvpProcessor(
 
         private fun KSType.toNullableString() = if (isMarkedNullable) "?" else ""
 
-        private fun KSType.isSerializable(): Boolean {
-            val serializableType = resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList())
-            return (declaration as KSClassDeclaration).getAllSuperTypes().contains(serializableType)
+        private fun KSType.isSerializable(): Boolean = isImplementation(serializableType)
+
+        private fun KSType.isParcelable(): Boolean = isImplementation(parcelableType)
+
+        private fun KSType.isImplementation(type: KSType): Boolean {
+            return when (val declaration = declaration) {
+                is KSClassDeclaration -> {
+                    declaration.getAllSuperTypes().contains(type)
+                }
+                is KSTypeAlias -> {
+                    return declaration.type.resolve().isSerializable()
+                }
+                else -> throw IllegalArgumentException()
+            }
         }
 
-        private fun KSType.isParcelable(): Boolean {
-            val serializableType = resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList())
-            return (declaration as KSClassDeclaration).getAllSuperTypes().contains(serializableType)
+        private fun KSType.smartToClassName(): ClassName {
+            return when (val declaration = declaration) {
+                is KSClassDeclaration -> {
+                    declaration.toClassName()
+                }
+                is KSTypeAlias -> {
+                    declaration.type.resolve().smartToClassName()
+                }
+                else -> throw IllegalArgumentException(this::class.simpleName)
+            }
         }
+
     }
 }

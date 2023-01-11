@@ -9,8 +9,9 @@ import java.io.Serializable
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
+typealias TestEntity2 = TestEntity
 @AutoPresenterLauncher(MainActivity::class, TestFragment::class)
-class MainPresenter(testEntity: TestEntity?, t2: TestEntity?): OmegaPresenter<MainView>() {
+class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<MainView>() {
 
     companion object {
         var lastTime = SystemClock.elapsedRealtime()
