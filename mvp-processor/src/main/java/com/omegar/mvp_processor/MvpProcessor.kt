@@ -22,6 +22,7 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.CONST
+import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.KModifier.PRIVATE
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.MemberName
@@ -56,22 +57,24 @@ class MvpProcessor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        val serializableType = resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList())
+        val parcelableType = resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList())
+
         return resolver.getSymbolsWithAnnotation(AutoPresenterLauncher::class.qualifiedName!!)
             .filterIsInstance<KSClassDeclaration>()
             .filter {
                 if (it.validate()) {
-                    it.accept(LauncherGeneratorVisitor(resolver), Unit)
+                    it.accept(LauncherGeneratorVisitor(serializableType, parcelableType), Unit)
                     false
                 } else true
             }
             .toList()
     }
 
-    private inner class LauncherGeneratorVisitor(private val resolver: Resolver) : KSVisitorVoid() {
-
-        private val serializableType by lazy { resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList()) }
-
-        private val parcelableType by lazy { resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList()) }
+    private inner class LauncherGeneratorVisitor(
+        private val serializableType: KSType,
+        private val parcelableType: KSType,
+    ) : KSVisitorVoid() {
 
         @OptIn(KspExperimental::class)
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -82,8 +85,6 @@ class MvpProcessor(
                 it.annotationType.resolve().declaration.qualifiedName?.asString() == AutoPresenterLauncher::class.qualifiedName
             }
             val targetClass = ksAnnotation.arguments.first { it.name?.asString() == "delegatedClass" }.value as List<KSType>
-
-            val delegatedClass = targetClass.first().toTypeName()
 
             val presenterType = if (annotation.localPresenterType) "LOCAL" else "GLOBAL"
 
@@ -131,16 +132,6 @@ class MvpProcessor(
                             }
                     }
 
-                    targetClass.forEach { delegatedClass ->
-                        FunSpec.builder("providePresenter")
-                            .receiver(delegatedClass.toTypeName())
-                            .addCode("return createPresenterField()")
-                            .build()
-                            .apply {
-                                builder.addFunction(this)
-                            }
-                    }
-
                 }
                 .build()
 
@@ -149,6 +140,17 @@ class MvpProcessor(
                 packageName = classDeclaration.packageName.asString(),
                 fileName = factoryName,
             ).addType(typeSpec)
+                .also { builder ->
+                    targetClass.forEach { delegatedClass ->
+                        FunSpec.builder("providePresenter")
+                            .receiver(delegatedClass.toTypeName())
+                            .addCode("return with($factoryName) { createPresenterField() }")
+                            .build()
+                            .apply {
+                                builder.addFunction(this)
+                            }
+                    }
+                }
                 .build()
                 .also { fileSpec ->
                     fileSpec.writeTo(codeGenerator = codeGenerator, aggregating = true)
@@ -233,6 +235,5 @@ class MvpProcessor(
                 else -> throw IllegalArgumentException(this::class.simpleName)
             }
         }
-
     }
 }

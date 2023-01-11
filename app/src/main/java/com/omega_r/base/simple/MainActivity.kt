@@ -8,7 +8,6 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.adapters.OmegaListAdapter
 import com.omega_r.base.components.OmegaActivity
-import com.omega_r.base.simple.MainPresenterFactory.providePresenter
 import com.omega_r.bind.adapters.OmegaAutoAdapter
 import com.omega_r.bind.delegates.IdHolder
 import com.omega_r.bind.model.binders.bindImage

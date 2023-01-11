@@ -60,25 +60,25 @@ abstract class MvpPresenterFactory<Presenter : MvpPresenter<*>>(
     ): FragmentLauncher =
         MvpFragmentLauncher(clazz.java, presenterType, presenterClass, *extraParams)
 
-    protected fun MvpAppCompatActivity.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatActivity> {
+    fun MvpAppCompatActivity.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatActivity> {
         return createPresenterField {
             MvpActivityPresenterField(presenterClass)
         }
     }
 
-    protected fun MvpAppCompatFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatFragment> {
+    fun MvpAppCompatFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatFragment> {
         return createPresenterField {
             MvpFragmentPresenterField(presenterClass)
         }
     }
 
-    protected fun MvpAppCompatDialogFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatDialogFragment> {
+    fun MvpAppCompatDialogFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpAppCompatDialogFragment> {
         return createPresenterField {
             MvpFragmentPresenterField(presenterClass)
         }
     }
 
-    protected fun MvpBottomSheetDialogFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpBottomSheetDialogFragment> {
+    fun MvpBottomSheetDialogFragment.createPresenterField(): MvpBasePresenterField<Presenter, MvpBottomSheetDialogFragment> {
         return createPresenterField {
             MvpFragmentPresenterField(presenterClass)
         }
