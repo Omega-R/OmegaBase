@@ -14,6 +14,7 @@ import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.BaseIntentLauncher
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.Launcher
+import com.omegar.mvp.InjectViewState
 import com.omegar.mvp.MvpPresenter
 import kotlinx.coroutines.*
 import java.io.PrintWriter
@@ -29,6 +30,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 private const val REQUEST_PERMISSION_BASE = 10000
 private const val REQUEST_CODE_MAX: Int = Int.MAX_VALUE - 1
 
+@InjectViewState
 open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineScope {
 
     companion object {

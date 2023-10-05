@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.devtools.ksp'
 
 apply plugin: 'maven-publish'
 
@@ -50,10 +50,6 @@ android {
         }
     }
 
-    androidExtensions {
-        experimental = true
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -65,6 +61,9 @@ android {
         arguments {
             arg("moxyReflectorPackage", 'com.omega_r.base')
         }
+    }
+    ksp {
+        arg("moxyReflectorPackage", 'com.omega_r.base')
     }
 }
 
@@ -82,7 +81,7 @@ dependencies {
 
     api "com.github.Omega-R.OmegaMoxy:moxy:${omegaMoxy_version}"
     api "com.github.Omega-R.OmegaMoxy:moxy-androidx:${omegaMoxy_version}"
-    kapt "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
+    ksp "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
 
 
     api "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}@aar"

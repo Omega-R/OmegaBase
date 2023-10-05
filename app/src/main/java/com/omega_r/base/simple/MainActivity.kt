@@ -56,7 +56,7 @@ class MainActivity : OmegaActivity(R.layout.activity_main), MainView {
     }
 
     private val maps: Map<Field, View> by bind(Field.values()) {
-        showToast(Text.from(it.id.toString()))
+        //showToast(Text.from(it.id.toString()))
     }
 
     override var list: String = ""

@@ -22,7 +22,6 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.CONST
-import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.KModifier.PRIVATE
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.MemberName
@@ -52,19 +51,56 @@ class MvpProcessor(
         private val PARCELABLE = ClassName("android.os", "Parcelable")
         private val SERIALIZABLE = ClassName("java.io", "Serializable")
         private val PUT = MemberName("com.omegar.libs.omegalaunchers.tools", "put", isExtension = true)
-        private val ACTIVITY_LAUNCHER = ClassName("com.omega_r.base.mvp.factory", "MvpActivityLauncher")
-        private val MVP_ACTIVITY_PRESENTER_FIELD = ClassName("com.omega_r.base.mvp.factory", "MvpActivityPresenterField")
+        private val ACTIVITY_LAUNCHER_NAME = ClassName("com.omegar.libs.omegalaunchers", "ActivityLauncher")
+        private val FRAGMENT_LAUNCHER_NAME = ClassName("com.omegar.libs.omegalaunchers", "FragmentLauncher")
+        private val DIALOG_FRAGMENT_LAUNCHER_NAME = ClassName("com.omegar.libs.omegalaunchers", "DialogFragmentLauncher")
+
+        private val ACTIVITY_NAME = ClassName("android.app", "Activity")
+        private val FRAGMENT_NAME = ClassName("androidx.fragment.app", "Fragment")
+        private val DIALOG_FRAGMENT_NAME = ClassName("androidx.fragment.app", "DialogFragment")
+
+        private val MVP_BASE_PRESENTER_FIELD = ClassName("com.omega_r.base.mvp.factory", "MvpBasePresenterField")
+
+        private val MVP_ACTIVITY_NAME = ClassName("com.omegar.mvp", "MvpAppCompatActivity")
+        private val MVP_FRAGMENT_NAME = ClassName("com.omegar.mvp", "MvpAppCompatFragment")
+        private val MVP_DIALOG_FRAGMENT_NAME = ClassName("com.omegar.mvp", "MvpAppCompatDialogFragment")
+
+        private val delegateLauncherMap = mapOf(
+            DelegateType.ACTIVITY to ACTIVITY_LAUNCHER_NAME,
+            DelegateType.FRAGMENT to FRAGMENT_LAUNCHER_NAME,
+            DelegateType.DIALOG_FRAGMENT to DIALOG_FRAGMENT_NAME,
+        )
+
+        private val mvpDelegateLauncherMap = mapOf(
+            DelegateType.ACTIVITY to MVP_ACTIVITY_NAME,
+            DelegateType.FRAGMENT to MVP_FRAGMENT_NAME,
+            DelegateType.DIALOG_FRAGMENT to MVP_DIALOG_FRAGMENT_NAME,
+        )
     }
+
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val serializableType = resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList())
         val parcelableType = resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList())
+        val activityType = resolver.getClassDeclarationByName(ACTIVITY_NAME.canonicalName)!!.asType(emptyList())
+        val fragmentType = resolver.getClassDeclarationByName(FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
+        val dialogFragmentType = resolver.getClassDeclarationByName(DIALOG_FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
+
 
         return resolver.getSymbolsWithAnnotation(AutoPresenterLauncher::class.qualifiedName!!)
             .filterIsInstance<KSClassDeclaration>()
             .filter {
                 if (it.validate()) {
-                    it.accept(LauncherGeneratorVisitor(serializableType, parcelableType), Unit)
+                    it.accept(
+                        visitor = LauncherGeneratorVisitor(
+                            serializableType = serializableType,
+                            parcelableType = parcelableType,
+                            activityType = activityType,
+                            fragmentType = fragmentType,
+                            dialogFragmentType = dialogFragmentType
+                        ),
+                        data = Unit
+                    )
                     false
                 } else true
             }
@@ -74,7 +110,11 @@ class MvpProcessor(
     private inner class LauncherGeneratorVisitor(
         private val serializableType: KSType,
         private val parcelableType: KSType,
-    ) : KSVisitorVoid() {
+        private val activityType: KSType,
+        private val fragmentType: KSType,
+        private val dialogFragmentType: KSType,
+
+        ) : KSVisitorVoid() {
 
         @OptIn(KspExperimental::class)
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
@@ -108,6 +148,7 @@ class MvpProcessor(
                             extraName to parameter
                         }
                     FunSpec.builder("createPresenter")
+                        .returns(presenterClassName)
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter("bundle", BUNDLE.copy(true))
                         .addCode(pairParams.generateBundleGetter(presenterClassName))
@@ -116,16 +157,22 @@ class MvpProcessor(
                             builder.addFunction(this)
                         }
 
+
                     targetClass.forEach { delegatedClass ->
-                        FunSpec.builder(if (targetClass.size == 1) "createLauncher" else {
-                            "create${delegatedClass.toClassName().simpleName}Launcher"
-                        })
+                        val delegateTypeName = delegatedClass.toTypeName()
+                        val launcherClassName = delegateLauncherMap[delegatedClass.getDelegateType()]!!
+                        FunSpec.builder(
+                            if (targetClass.size == 1) "createLauncher" else {
+                                "create${delegatedClass.toClassName().simpleName}Launcher"
+                            }
+                        )
+                            .returns(launcherClassName)
                             .addParameters(pairParams.map {
                                 val name = it.second.name?.asString()!!
                                 ParameterSpec.builder(name, it.second.type.toTypeName())
                                     .build()
                             })
-                            .addCode(pairParams.generateBundlePutter(delegatedClass.toTypeName()))
+                            .addCode(pairParams.generateBundlePutter(delegateTypeName))
                             .build()
                             .apply {
                                 builder.addFunction(this)
@@ -144,6 +191,12 @@ class MvpProcessor(
                     targetClass.forEach { delegatedClass ->
                         FunSpec.builder("providePresenter")
                             .receiver(delegatedClass.toTypeName())
+                            .returns(
+                                MVP_BASE_PRESENTER_FIELD.parameterizedBy(
+                                    presenterClassName,
+                                    mvpDelegateLauncherMap[delegatedClass.getDelegateType()]!!
+                                )
+                            )
                             .addCode("return with($factoryName) { createPresenterField() }")
                             .build()
                             .apply {
@@ -173,6 +226,7 @@ class MvpProcessor(
                                     else -> throw IllegalArgumentException()
                                 }
                             }
+
                             else -> {
                                 args += PUT
                                 if (ksType.isSerializable() && ksType.isParcelable()) {
@@ -199,6 +253,7 @@ class MvpProcessor(
                         val nullable = ksType.toNullableString()
                         "bundle.get<List<%T>$nullable>(${it.first})$nullable.toSet()"
                     }
+
                     else -> "bundle get ${it.first}"
                 }
             } + ")"
@@ -212,14 +267,29 @@ class MvpProcessor(
 
         private fun KSType.isParcelable(): Boolean = isImplementation(parcelableType)
 
+        private fun KSType.isActivity(): Boolean = activityType.isAssignableFrom(this)
+
+        private fun KSType.isFragment(): Boolean = fragmentType.isAssignableFrom(this)
+
+        private fun KSType.isDialogFragment(): Boolean = dialogFragmentType.isAssignableFrom(this)
+
+        private fun KSType.getDelegateType() = when {
+            isActivity() -> DelegateType.ACTIVITY
+            isFragment() -> DelegateType.FRAGMENT
+            isDialogFragment() -> DelegateType.DIALOG_FRAGMENT
+            else -> throw IllegalArgumentException("Unknown type $this")
+        }
+
         private fun KSType.isImplementation(type: KSType): Boolean {
             return when (val declaration = declaration) {
                 is KSClassDeclaration -> {
                     declaration.getAllSuperTypes().contains(type)
                 }
+
                 is KSTypeAlias -> {
                     return declaration.type.resolve().isSerializable()
                 }
+
                 else -> throw IllegalArgumentException()
             }
         }
@@ -229,11 +299,18 @@ class MvpProcessor(
                 is KSClassDeclaration -> {
                     declaration.toClassName()
                 }
+
                 is KSTypeAlias -> {
                     declaration.type.resolve().smartToClassName()
                 }
+
                 else -> throw IllegalArgumentException(this::class.simpleName)
             }
         }
     }
+
+    enum class DelegateType {
+        ACTIVITY, FRAGMENT, DIALOG_FRAGMENT
+    }
+
 }
