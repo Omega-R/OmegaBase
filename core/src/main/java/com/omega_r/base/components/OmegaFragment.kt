@@ -9,6 +9,8 @@ import com.omega_r.base.annotations.OmegaClickViews
 import com.omega_r.base.annotations.OmegaContentView
 import com.omega_r.base.annotations.OmegaMenu
 import com.omega_r.base.annotations.OmegaTheme
+import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
+import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.dialogs.DialogManager
 import com.omega_r.base.mvp.model.Action
@@ -27,6 +29,7 @@ import java.io.Serializable
  */
 
 private const val INNER_KEY_MENU = "menu"
+private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
 abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
@@ -39,6 +42,10 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     private var childPresenterAttached = false
 
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val menuItemPropertyList: MutableList<MenuProperty>
+        get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
 
     constructor() : super()
 
@@ -67,6 +74,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     private fun detachChildPresenter() {
         if (childPresenterAttached) {
+            childPresenterAttached = false
             (activity as? OmegaActivity)?.presenter?.detachChildPresenter(presenter)
         }
     }
@@ -109,6 +117,11 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         } ?: super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        onPrepareMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (clickManager.handleMenuClick(item.itemId)) true else super.onOptionsItemSelected(item)
     }
@@ -142,14 +155,14 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         dialogManager.onStop()
     }
 
-    override fun getViewForSnackbar() = view!!
+    override fun getViewForSnackbar() = requireView()
 
     override fun setWaiting(waiting: Boolean, text: Text?) {
         (activity as OmegaActivity).setWaiting(waiting, text)
     }
 
     fun ActivityLauncher.launch(option: Bundle? = null) {
-        launch(context!!, option)
+        launch(requireContext(), option)
     }
 
     fun ActivityLauncher.launchForResult(requestCode: Int, option: Bundle? = null) {
@@ -158,7 +171,7 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
 
     fun ActivityLauncher.DefaultCompanion.launch(option: Bundle? = null) {
         createLauncher()
-            .launch(context!!, option)
+            .launch(requireContext(), option)
     }
 
     fun ActivityLauncher.DefaultCompanion.launchForResult(
@@ -211,8 +224,8 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 
@@ -258,12 +271,16 @@ abstract class OmegaFragment : MvpAppCompatFragment, OmegaComponent {
     }
 
     override fun exit() {
-        activity!!.finish()
+        requireActivity().finish()
     }
 
     @Suppress("UNCHECKED_CAST")
     protected operator fun <T> get(extraKey: String): T? {
         return arguments?.get(extraKey) as T?
+    }
+
+    final override fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return super.bindAndSetClick<T>(res, block)
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

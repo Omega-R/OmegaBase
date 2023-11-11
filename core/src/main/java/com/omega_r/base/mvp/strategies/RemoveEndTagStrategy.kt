@@ -7,11 +7,9 @@ import com.omegar.mvp.viewstate.strategy.StateStrategy
 /**
  * Created by Anton Knyazev on 04.05.2019.
  */
-class RemoveEndTagStrategy : StateStrategy {
+object RemoveEndTagStrategy : StateStrategy {
 
-    override fun <View : MvpView> beforeApply(
-        currentState: MutableList<ViewCommand<View>>,
-        incomingCommand: ViewCommand<View>) {
+    override fun <View : MvpView> beforeApply(currentState: MutableList<ViewCommand<View>>, incomingCommand: ViewCommand<View>) {
         val iterator = currentState.listIterator(currentState.size)
 
         while (iterator.hasPrevious()) {
@@ -24,10 +22,7 @@ class RemoveEndTagStrategy : StateStrategy {
         }
     }
 
-    override fun <View : MvpView?> afterApply(
-        currentState: MutableList<ViewCommand<View>>,
-        incomingCommand: ViewCommand<View>
-    ) {
+    override fun <View : MvpView> afterApply(currentState: MutableList<ViewCommand<View>>, incomingCommand: ViewCommand<View>) {
         //Just do nothing
     }
 

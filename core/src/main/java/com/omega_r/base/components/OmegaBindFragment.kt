@@ -22,7 +22,7 @@ abstract class OmegaBindFragment<M>: OmegaFragment, OmegaBindView<M> {
     }
 
     override fun bind(item: M) {
-        bindModel.bind(view!!, item)
+        bindModel.bind(requireView(), item)
     }
 
 }

@@ -1,25 +1,52 @@
 package com.omega_r.base.simple
 
-import android.Manifest
-import com.omega_r.base.enitity.contains
-import com.omega_r.base.logs.log
-import com.omega_r.base.mvp.model.Action
+import android.os.SystemClock
+import com.omega_r.base.annotations.AutoPresenterLauncher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
-import com.omega_r.base.simple.dialog_fragment.DialogDialogFragment
 import com.omega_r.libs.omegatypes.Text
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.omegar.mvp.InjectViewState
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
-class MainPresenter : OmegaPresenter<MainView>() {
+typealias TestEntity2 = TestEntity
+@AutoPresenterLauncher(MainActivity::class, TestFragment::class)
+@InjectViewState
+class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<MainView>() {
+
+    companion object {
+        var lastTime = SystemClock.elapsedRealtime()
+    }
 
     init {
-       DialogDialogFragment.createLauncher()
-           .launch()
+
+        val time =  (SystemClock.elapsedRealtime() - lastTime)
+        lastTime = SystemClock.elapsedRealtime()
+
+        if (testEntity == null) {
+//            MainActivity::class.createLauncher(testEntity, t2).launch()
+            MainPresenterFactory.createMainActivityLauncher(TestEntity(), TestEntity()).launch()
+        } else {
+            println("TestAnt: $time")
+            viewState.showToast(Text.from(time.toString()))
+
+        }
+        viewState.enabled = false
+//        launch {
+//            try {
+//                Retrofit.Builder()
+//                    .baseUrl("https://git.omega-r.club")
+//                    .build()
+//                    .create(Api::class.java)
+//                    .test("aga", RequestBody.create(MediaType.get("text/html"), "Run"))
+//            } catch (e: Exception) {
+//                throw ErrorHandler().handleThrowable(e)
+//            }
+//        }
+
+//       DialogDialogFragment.createLauncher()
+//           .launch()
 //        viewState.showMe
 //        log {
 //            "Message"

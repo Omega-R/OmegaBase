@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'kotlin-parcelize'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.omega_r.omegabase.simple"
         multiDexEnabled true
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -26,6 +27,7 @@ android {
         pickFirst 'META-INF/atomicfu.kotlin_module'
         pickFirst 'META-INF/kotlinx-coroutines-io.kotlin_module'
         pickFirst 'META-INF/library_release.kotlin_module'
+        pickFirst 'META-INF/core_release.kotlin_module'
     }
 
 
@@ -38,21 +40,25 @@ android {
 
 }
 
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs += 'build/generated/ksp/debug/kotlin'
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCorutines_version}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${kotlinCorutines_version}"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0-alpha04'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}"
 
     implementation project(':core')
-    implementation project(':crash')
 
-    kapt 'com.github.Omega-R.OmegaMoxy:moxy-compiler:2.2.0'
+    ksp "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
     kapt project(':processor')
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
@@ -60,6 +66,8 @@ dependencies {
     testImplementation 'junit:junit:4.13-beta-3'
     androidTestImplementation 'androidx.test:runner:1.3.0-alpha02'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha02'
+    implementation 'com.google.android.material:material:1.5.0-beta01'
 
+    ksp project(":mvp-processor")
 
 }

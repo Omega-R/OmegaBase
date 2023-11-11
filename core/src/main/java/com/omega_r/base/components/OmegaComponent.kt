@@ -4,8 +4,10 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.view.Menu
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -29,14 +31,22 @@ import kotlinx.coroutines.CompletableDeferred
 
 internal const val KEY_RESULT = "omegaResultData"
 
-interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
+interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable, OmegaMenuable {
 
     val presenter: OmegaPresenter<out OmegaView>
 
-    fun createMessage(message: Text, action: Action? = null): Dialog {
-        return MaterialAlertDialogBuilder(getContext()!!)
+    fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return bind(res) {
+            setClickListener(this, block)
+        }
+    }
+
+    fun createMessage(message: Text, title: Text?, action: Action? = null): Dialog {
+        val context = getContext()!!
+        return MaterialAlertDialogBuilder(context)
             .setCancelable(true)
-            .setMessage(message.getCharSequence(getContext()!!)).apply {
+            .setTitle(title?.getCharSequence(context))
+            .setMessage(message.getCharSequence(context)).apply {
                 if (action == null) {
                     setPositiveButton(android.R.string.ok) { _, _ ->
                         presenter.hideQueryOrMessage()
@@ -45,6 +55,7 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
                     setPositiveButton(presenter, action)
                     setOnCancelListener {
                         action()
+                        presenter.hideQueryOrMessage()
                     }
                 }
             }
@@ -58,9 +69,11 @@ interface OmegaComponent : OmegaBindable, OmegaView, OmegaClickable {
         negativeAction: Action,
         neutralAction: Action?
     ): Dialog {
-        return MaterialAlertDialogBuilder(getContext()!!)
-            .setTitle(title?.getCharSequence(getContext()!!))
-            .setMessage(message.getCharSequence(getContext()!!))
+        val context = getContext()!!
+
+        return MaterialAlertDialogBuilder(context)
+            .setTitle(title?.getCharSequence(context))
+            .setMessage(message.getCharSequence(context))
             .setCancelable(false)
             .setButtons(presenter, positiveAction, negativeAction, neutralAction)
             .create()

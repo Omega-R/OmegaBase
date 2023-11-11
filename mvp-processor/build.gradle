@@ -1,0 +1,44 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
+}
+
+group = 'com.github.Omega-R.OmegaBase'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.Omega-R.OmegaBase'
+            artifactId = 'mvp-processor'
+            version project.hasProperty('version') ? project.version : gradle.gitHash()
+
+            afterEvaluate {
+                from components.java
+            }
+        }
+    }
+    repositories {
+        maven {
+            url gradle.nexusUrl
+            credentials {
+                username gradle.nexusUsername
+                password gradle.nexusPassword
+            }
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    implementation project(path: ':annotations')
+
+    implementation 'com.google.devtools.ksp:symbol-processing-api:1.9.0-1.0.11'
+
+    implementation("com.squareup:kotlinpoet:1.14.2")
+    implementation("com.squareup:kotlinpoet-ksp:1.14.2")
+
+}

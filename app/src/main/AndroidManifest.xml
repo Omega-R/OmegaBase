@@ -13,7 +13,11 @@
             android:supportsRtl="true"
             android:name=".SampleApp"
             android:theme="@style/AppTheme">
-        <activity android:name="com.omega_r.base.simple.MainActivity">
+
+        <meta-data android:name="CRASH_SENDER_EMAIL" android:value="anton.knyazev@omega-r.com"/>
+
+        <activity android:name="com.omega_r.base.simple.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

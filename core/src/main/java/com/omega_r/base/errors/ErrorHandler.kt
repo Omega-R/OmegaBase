@@ -27,34 +27,57 @@ open class ErrorHandler : (Throwable) -> Exception, CoroutineExceptionHandler {
 
         when (response?.code()) {
             HTTP_INTERNAL_ERROR -> return AppException.ServerProblem(
-                "Internal server error\n$method",
-                httpException
+                devMessage = "Internal server error\n$method",
+                cause = httpException
             )
-            HTTP_BAD_REQUEST -> return AppException.ServerProblem("Bad request\n" +
-                    "$method", httpException)
-            HTTP_UNAVAILABLE -> return AppException.ServerProblem("Service Unavailable\n" +
-                    "$method", httpException)
-            HTTP_NOT_FOUND -> return AppException.NotFound("Not found\n" +
-                    "$method", httpException)
-            HTTP_FORBIDDEN -> return AppException.AccessDenied("Forbidden\n" +
-                    "$method", httpException)
-            HTTP_UNAUTHORIZED-> return AppException.NotAuthorized("Unauthorized\n" +
-                    "$method", httpException)
+            HTTP_BAD_REQUEST -> return AppException.ServerProblem(
+                devMessage = "Bad request\n$method",
+                cause = httpException
+            )
+            HTTP_UNAVAILABLE -> return AppException.ServerProblem(
+                devMessage = "Service Unavailable\n$method",
+                cause = httpException
+            )
+            HTTP_NOT_FOUND -> return AppException.NotFound(
+                devMessage = "Not found\n$method",
+                cause = httpException
+            )
+            HTTP_FORBIDDEN -> return AppException.AccessDenied(
+                devMessage = "Forbidden\n$method",
+                cause = httpException
+            )
+            HTTP_UNAUTHORIZED -> return AppException.NotAuthorized(
+                devMessage = "Unauthorized\n$method",
+                cause = httpException
+            )
         }
 
-        return AppException.UnknownError("Unknown error type", httpException)
+        return AppException.UnknownError(
+            devMessage = "Unknown error type",
+            cause = httpException
+        )
     }
 
     open fun handleThrowable(throwable: Throwable): AppException {
         return when (throwable) {
-            is UnknownHostException -> AppException.NoConnection(null, throwable)
+            is UnknownHostException -> AppException.NoConnection(
+                devMessage = null,
+                cause = throwable
+            )
             is ConnectException,
-            is SocketTimeoutException -> AppException.ServerUnavailable(null, throwable)
+            is SocketTimeoutException,
+            -> AppException.ServerUnavailable(
+                devMessage = null,
+                cause = throwable
+            )
             is HttpException -> {
                 handleHttpException(throwable, throwable.getMethod())
             }
             is AppException -> throwable
-            else -> AppException.UnknownError("Unknown error", throwable)
+            else -> AppException.UnknownError(
+                devMessage = "Unknown error",
+                cause = throwable
+            )
         }
     }
 
@@ -78,5 +101,4 @@ open class ErrorHandler : (Throwable) -> Exception, CoroutineExceptionHandler {
     override operator fun invoke(it: Throwable): AppException {
         return handleThrowable(it)
     }
-
 }

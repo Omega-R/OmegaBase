@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
+import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
+import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.mvp.model.Action
 import com.omega_r.base.mvp.views.findAnnotation
@@ -40,6 +42,7 @@ import java.io.Serializable
  * Created by Anton Knyazev on 04.04.2019.
  */
 private const val INNER_KEY_MENU = "menu"
+private const val INNER_KEY_MENU_PROPERTY = "menuProperty"
 
 abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
 
@@ -52,6 +55,10 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     protected open val waitingController by lazy { WaitingController(this, dialogManager) }
 
     private val innerData: MutableMap<String, Any> = hashMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    override val menuItemPropertyList: MutableList<MenuProperty>
+        get() = innerData.getOrPut(INNER_KEY_MENU_PROPERTY) { mutableListOf<MenuProperty>() } as MutableList<MenuProperty>
 
     constructor() : super()
 
@@ -174,10 +181,17 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val menuRes = innerData[INNER_KEY_MENU] as? Int ?: this::class.findAnnotation<OmegaMenu>()?.menuRes
         return menuRes?.let {
-            innerData.remove(INNER_KEY_MENU)
             menuInflater.inflate(menuRes, menu)
             true
         } ?: super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        return super.onPrepareOptionsMenu(menu).also {
+            menu?.let {
+                onPrepareMenu(menu)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -258,8 +272,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         dialogManager.dismissLastDialog(DialogCategory.MESSAGE)
     }
 
-    override fun showMessage(message: Text, action: Action?) {
-        createMessage(message, action)
+    override fun showMessage(message: Text, title: Text?, action: Action?) {
+        createMessage(message, title, action)
             .apply(dialogManager::showMessageDialog)
     }
 
@@ -319,10 +333,8 @@ abstract class OmegaActivity : MvpAppCompatActivity, OmegaComponent {
         return intent.extras?.get(extraKey) as T?
     }
 
-    protected fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
-        return bind(res) {
-            setClickListener(this, block)
-        }
+    final override fun <T : View> bindAndSetClick(@IdRes res: Int, block: () -> Unit): Lazy<T> {
+        return super.bindAndSetClick<T>(res, block)
     }
 
     final override fun <T> bind(init: () -> T) = super.bind(init)

@@ -17,7 +17,7 @@ import kotlinx.coroutines.channels.produce
  * Created by Anton Knyazev on 2019-05-28.
  */
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 open class OmegaBaseRepository<SOURCE : Source>(
     protected val errorHandler: ErrorHandler,
     vararg sources: SOURCE
