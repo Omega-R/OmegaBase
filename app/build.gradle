@@ -5,7 +5,7 @@ apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
     defaultConfig {
         applicationId "com.omega_r.omegabase.simple"
         multiDexEnabled true
