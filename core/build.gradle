@@ -84,15 +84,16 @@ dependencies {
     ksp "com.github.Omega-R.OmegaMoxy:moxy-compiler:${omegaMoxy_version}"
 
 
-    api "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}@aar"
-    api 'com.github.Omega-R.OmegaTypes:omegatypes:2.1.0'
-    api 'com.github.Omega-R.OmegaTypes:glide:2.1.0'
-    api 'com.github.Omega-R.OmegaIntentBuilder:core:1.3.3@aar'
-    api 'com.github.Omega-R.OmegaLaunchers:omegalauncherslib:9bf99e7a'
+    api "com.github.Omega-R.OmegaRecyclerView:omegarecyclerview:${omegaRecyclerView}"
+    api 'com.github.Omega-R.OmegaTypes:omegatypes:2.2.0'
+    api 'com.github.Omega-R.OmegaTypes:glide:2.2.0'
+    api 'com.github.Omega-R.OmegaIntentBuilder:core:1.3.4'
+    api 'com.github.Omega-R.OmegaLaunchers:omegalauncherslib:1.0.6'
     api 'com.github.Omega-R:OmegaExtensions:1.0.5'
-    api "com.github.Omega-R:OmegaBind:fd7a8c1a@aar"
-    api 'com.github.Omega-R:OmegaClicks:1.0.0@aar'
-    api 'com.github.Omega-R:OmegaAdapters:1.0.2@aar'
+    api 'com.github.Omega-R.OmegaIntentBuilder:annotations:1.0.5'
+    api 'com.github.Omega-R:OmegaBind:1.0.5'
+    api 'com.github.Omega-R:OmegaClicks:1.0.0'
+    api 'com.github.Omega-R:OmegaAdapters:1.0.3'
 
 
     api project(':annotations')

@@ -3,9 +3,7 @@ package com.omega_r.base.mvp.factory
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable.Creator
-import android.os.SystemClock
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import com.omegar.libs.omegalaunchers.DialogFragmentLauncher
 import com.omegar.libs.omegalaunchers.tools.BundlePair
 import com.omegar.libs.omegalaunchers.tools.bundleOf
@@ -18,7 +16,7 @@ import kotlin.reflect.KClass
 
 class MvpDialogFragmentLauncher(
     fragmentClass: Class<out DialogFragment>,
-    private val bundle: Bundle?,
+    bundle: Bundle?,
     private val presenterType: PresenterType,
     private val presenterClass: KClass<out MvpPresenter<*>>,
 ) : DialogFragmentLauncher(fragmentClass, bundle), MvpLauncher {

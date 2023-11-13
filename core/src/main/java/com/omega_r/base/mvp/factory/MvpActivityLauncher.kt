@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable.Creator
-import android.os.SystemClock
 import com.omegar.libs.omegalaunchers.ActivityLauncher
 import com.omegar.libs.omegalaunchers.tools.BundlePair
 import com.omegar.libs.omegalaunchers.tools.bundleOf
@@ -20,7 +19,7 @@ import kotlin.reflect.KClass
 
 class MvpActivityLauncher(
     activityClass: Class<out Activity>,
-    private val bundle: Bundle?,
+    bundle: Bundle?,
     flags: Int = 0,
     private val presenterType: PresenterType,
     private val presenterClass: KClass<out MvpPresenter<*>>,

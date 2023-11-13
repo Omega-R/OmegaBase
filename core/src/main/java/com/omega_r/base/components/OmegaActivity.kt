@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.omega_r.base.R
 import com.omega_r.base.annotations.*
 import com.omega_r.base.annotations.OmegaWindowBackground.Companion.apply
-import com.omega_r.base.components.OmegaMenuable.ItemMenuProperty
 import com.omega_r.base.components.OmegaMenuable.MenuProperty
 import com.omega_r.base.dialogs.DialogCategory
 import com.omega_r.base.mvp.model.Action
