@@ -8,14 +8,18 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
 import com.omega_r.base.annotations.AutoPresenterLauncher
+import com.omegar.mvp.MvpView
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -36,6 +40,7 @@ import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import java.lang.RuntimeException
 
 class MvpProcessor(
     private val options: Map<String, String>,
@@ -85,7 +90,7 @@ class MvpProcessor(
         val activityType = resolver.getClassDeclarationByName(ACTIVITY_NAME.canonicalName)!!.asType(emptyList())
         val fragmentType = resolver.getClassDeclarationByName(FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
         val dialogFragmentType = resolver.getClassDeclarationByName(DIALOG_FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
-
+        val mvpView = resolver.getClassDeclarationByName(MvpView::class.qualifiedName!!)!!.asStarProjectedType()
 
         return resolver.getSymbolsWithAnnotation(AutoPresenterLauncher::class.qualifiedName!!)
             .filterIsInstance<KSClassDeclaration>()
@@ -97,7 +102,8 @@ class MvpProcessor(
                             parcelableType = parcelableType,
                             activityType = activityType,
                             fragmentType = fragmentType,
-                            dialogFragmentType = dialogFragmentType
+                            dialogFragmentType = dialogFragmentType,
+                            mvpView = mvpView
                         ),
                         data = Unit
                     )
@@ -113,6 +119,7 @@ class MvpProcessor(
         private val activityType: KSType,
         private val fragmentType: KSType,
         private val dialogFragmentType: KSType,
+        private val mvpView: KSType,
 
         ) : KSVisitorVoid() {
 
@@ -127,6 +134,9 @@ class MvpProcessor(
             val targetClass = ksAnnotation.arguments.first { it.name?.asString() == "delegatedClass" }.value as List<KSType>
 
             val presenterType = if (annotation.localPresenterType) "LOCAL" else "GLOBAL"
+
+            val (_, view) = classDeclaration.getSuperPresenterAndView()
+            val viewStateName = view.toClassName().simpleName.replace("View", "MvpViewState")
 
             val presenterClassName = classDeclaration.toClassName()
 
@@ -197,7 +207,10 @@ class MvpProcessor(
                                     mvpDelegateLauncherMap[delegatedClass.getDelegateType()]!!
                                 )
                             )
-                            .addCode("return with($factoryName) { createPresenterField() }")
+                            .addCode("return with($factoryName) { \n" +
+                                    "$viewStateName.Companion\n" +
+                                    "createPresenterField() " +
+                                    "}")
                             .build()
                             .apply {
                                 builder.addFunction(this)
@@ -206,8 +219,49 @@ class MvpProcessor(
                 }
                 .build()
                 .also { fileSpec ->
-                    fileSpec.writeTo(codeGenerator = codeGenerator, aggregating = true)
+                    fileSpec.writeTo(codeGenerator = codeGenerator, aggregating = false)
                 }
+        }
+
+        private fun KSClassDeclaration.getSuperPresenterAndView(): Pair<KSClassDeclaration, KSType> {
+            return superTypes
+                .firstNotNullOf { reference ->
+                    (reference.resolve().declaration as? KSClassDeclaration)
+                        ?.takeIf { it.classKind == ClassKind.CLASS }
+                        ?.let {
+                            it to (reference.findView() ?: throw RuntimeException("It is impossible to find a view in $this"))
+                        }
+                }
+        }
+
+        private fun KSTypeReference.findView(): KSType? {
+            val type = element
+                ?.typeArguments
+                ?.asSequence()
+                ?.map { it.type?.resolve() }
+                ?.firstOrNull {
+                    it?.let {
+                        mvpView.isAssignableFrom(it)
+                    } ?: false
+                }
+            return when (type?.declaration) {
+                is KSClassDeclaration -> type
+                is KSTypeParameter -> {
+                    (type.declaration as KSTypeParameter)
+                        .bounds
+                        .map {
+                            it.resolve()
+                        }
+                        .firstOrNull {
+                            mvpView.isAssignableFrom(it)
+                        }
+                }
+
+                else -> {
+                    logger.warn("Unknown type is " + type?.declaration?.let { it::class}.toString())
+                    null
+                }
+            }
         }
 
         private fun List<Pair<String, KSValueParameter>>.generateBundlePutter(delegatedClass: TypeName): CodeBlock {

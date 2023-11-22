@@ -6,7 +6,6 @@ import com.omega_r.base.components.OmegaDialogFragment
 import com.omega_r.base.simple.R
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.createDialogFragmentLauncher
-import com.omegar.mvp.ktx.providePresenter
 
 /**
  * Created by Anton Knyazev on 10.03.2020.

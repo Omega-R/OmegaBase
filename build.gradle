@@ -1,7 +1,7 @@
 buildscript {
     ext {
         omegaRecyclerView = '1.10.1'
-        omegaMoxy_version = '3.0.0'
+        omegaMoxy_version = 'b5e0b08d88'
         kotlinCorutines_version = '1.5.0'
 
     }// Top-level build file where you can add configuration options common to all sub-projects/modules.

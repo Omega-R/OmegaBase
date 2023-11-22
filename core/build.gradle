@@ -56,15 +56,6 @@ android {
     }
 
     kotlinOptions.jvmTarget = "1.8"
-
-    kapt {
-        arguments {
-            arg("moxyReflectorPackage", 'com.omega_r.base')
-        }
-    }
-    ksp {
-        arg("moxyReflectorPackage", 'com.omega_r.base')
-    }
 }
 
 

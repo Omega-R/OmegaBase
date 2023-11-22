@@ -4,7 +4,6 @@ import android.os.SystemClock
 import com.omega_r.base.annotations.AutoPresenterLauncher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.mvp.InjectViewState
 import java.io.Serializable
 
 /**
@@ -12,7 +11,6 @@ import java.io.Serializable
  */
 typealias TestEntity2 = TestEntity
 @AutoPresenterLauncher(MainActivity::class, TestFragment::class)
-@InjectViewState
 class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<MainView>() {
 
     companion object {
