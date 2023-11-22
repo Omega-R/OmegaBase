@@ -144,6 +144,7 @@ class MvpProcessor(
                 .addOriginatingKSFile(classDeclaration.containingFile!!)
                 .superclass(MVP_PRESENTER_FACTORY.parameterizedBy(presenterClassName))
                 .addSuperclassConstructorParameter("%T.$presenterType, %T::class", PRESENTER_TYPE, presenterClassName)
+                .addInitializerBlock(CodeBlock.of( "$viewStateName.Companion"))
                 .also { builder ->
                     val pairParams: List<Pair<String, KSValueParameter>> =
                         classDeclaration.primaryConstructor!!.parameters.map { parameter ->
