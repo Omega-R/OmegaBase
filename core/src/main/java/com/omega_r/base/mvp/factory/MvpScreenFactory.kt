@@ -21,7 +21,7 @@ import com.omegar.mvp.presenter.PresenterType
 import java.io.Serializable
 import kotlin.reflect.KClass
 
-abstract class MvpPresenterFactory<Presenter : MvpPresenter<*>>(
+abstract class MvpScreenFactory<Presenter : MvpPresenter<*>>(
     internal val presenterType: PresenterType,
     private val presenterClass: KClass<Presenter>,
 ) {

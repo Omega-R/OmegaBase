@@ -7,11 +7,11 @@ import kotlin.reflect.KClass
 
 object MvpPresentersFactory {
 
-    private val factoryMap = mutableMapOf<KClass<out MvpPresenter<*>>, MvpPresenterFactory<*>>()
+    private val factoryMap = mutableMapOf<KClass<out MvpPresenter<*>>, MvpScreenFactory<*>>()
 
     fun hasFactory(presenterClass: KClass<out MvpPresenter<*>>) = factoryMap.containsKey(presenterClass)
 
-    fun <P : MvpPresenter<*>> addFactory(presenterClass: KClass<P>, factory: MvpPresenterFactory<P>) {
+    fun <P : MvpPresenter<*>> addFactory(presenterClass: KClass<P>, factory: MvpScreenFactory<P>) {
         factoryMap[presenterClass] = factory
     }
 

@@ -2,7 +2,6 @@ package com.omegar.mvp_processor
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAllSuperTypes
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -18,7 +17,7 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
-import com.omega_r.base.annotations.AutoPresenterLauncher
+import com.omegar.mvp.MvpPresenter
 import com.omegar.mvp.MvpView
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -51,7 +50,7 @@ class MvpProcessor(
     companion object {
 
         private val PRESENTER_TYPE = ClassName("com.omegar.mvp.presenter", "PresenterType")
-        private val MVP_PRESENTER_FACTORY = ClassName("com.omega_r.base.mvp.factory", "MvpPresenterFactory")
+        private val MVP_PRESENTER_FACTORY = ClassName("com.omega_r.base.mvp.factory", "MvpScreenFactory")
         private val BUNDLE = ClassName("android.os", "Bundle")
         private val PARCELABLE = ClassName("android.os", "Parcelable")
         private val SERIALIZABLE = ClassName("java.io", "Serializable")
@@ -73,7 +72,7 @@ class MvpProcessor(
         private val delegateLauncherMap = mapOf(
             DelegateType.ACTIVITY to ACTIVITY_LAUNCHER_NAME,
             DelegateType.FRAGMENT to FRAGMENT_LAUNCHER_NAME,
-            DelegateType.DIALOG_FRAGMENT to DIALOG_FRAGMENT_NAME,
+            DelegateType.DIALOG_FRAGMENT to DIALOG_FRAGMENT_LAUNCHER_NAME,
         )
 
         private val mvpDelegateLauncherMap = mapOf(
@@ -83,17 +82,25 @@ class MvpProcessor(
         )
     }
 
+    private var isProcessed = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (isProcessed) {
+            return emptyList()
+        }
+        isProcessed = true
         val serializableType = resolver.getClassDeclarationByName(SERIALIZABLE.canonicalName)!!.asType(emptyList())
         val parcelableType = resolver.getClassDeclarationByName(PARCELABLE.canonicalName)!!.asType(emptyList())
         val activityType = resolver.getClassDeclarationByName(ACTIVITY_NAME.canonicalName)!!.asType(emptyList())
         val fragmentType = resolver.getClassDeclarationByName(FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
         val dialogFragmentType = resolver.getClassDeclarationByName(DIALOG_FRAGMENT_NAME.canonicalName)!!.asType(emptyList())
         val mvpView = resolver.getClassDeclarationByName(MvpView::class.qualifiedName!!)!!.asStarProjectedType()
+        val mvpPresenter = resolver.getClassDeclarationByName(MvpPresenter::class.qualifiedName!!)!!.asStarProjectedType()
 
-        return resolver.getSymbolsWithAnnotation(AutoPresenterLauncher::class.qualifiedName!!)
+        return resolver.getAllFiles()
+            .flatMap { it.declarations }
             .filterIsInstance<KSClassDeclaration>()
+            .filter { mvpPresenter.isAssignableFrom(it.asStarProjectedType()) }
             .filter {
                 if (it.validate()) {
                     it.accept(
@@ -103,7 +110,8 @@ class MvpProcessor(
                             activityType = activityType,
                             fragmentType = fragmentType,
                             dialogFragmentType = dialogFragmentType,
-                            mvpView = mvpView
+                            mvpView = mvpView,
+                            resolver = resolver
                         ),
                         data = Unit
                     )
@@ -120,28 +128,38 @@ class MvpProcessor(
         private val fragmentType: KSType,
         private val dialogFragmentType: KSType,
         private val mvpView: KSType,
+        private val resolver: Resolver,
 
         ) : KSVisitorVoid() {
 
         @OptIn(KspExperimental::class)
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-            val factoryName = classDeclaration.simpleName.asString() + "Factory"
-
-            val annotation = classDeclaration.getAnnotationsByType(AutoPresenterLauncher::class).first()
-            val ksAnnotation = classDeclaration.annotations.first {
-                it.annotationType.resolve().declaration.qualifiedName?.asString() == AutoPresenterLauncher::class.qualifiedName
-            }
-            val targetClass = ksAnnotation.arguments.first { it.name?.asString() == "delegatedClass" }.value as List<KSType>
-
-            val presenterType = if (annotation.localPresenterType) "LOCAL" else "GLOBAL"
+            val factoryName = classDeclaration.simpleName.asString().replace("Presenter", "") + "ScreenFactory"
 
             val (_, view) = classDeclaration.getSuperPresenterAndView()
+
+            val targetClass = resolver.getAllFiles()
+                .flatMap { it.declarations }
+                .filterIsInstance<KSClassDeclaration>()
+                .map { it.asStarProjectedType() }
+                .filter {
+                    (it.isActivity() || it.isFragment() || it.isDialogFragment()) && (view.isAssignableFrom(it))
+                }
+                .toList()
+
+            val presenterType = "LOCAL"
+
             val viewStateName = view.toClassName().simpleName.replace("View", "MvpViewState")
 
             val presenterClassName = classDeclaration.toClassName()
 
             val typeSpec = TypeSpec.objectBuilder(factoryName)
-                .addOriginatingKSFile(classDeclaration.containingFile!!)
+                .apply {
+                    addOriginatingKSFile(classDeclaration.containingFile!!)
+                    targetClass.forEach {
+                        addOriginatingKSFile(it.declaration.containingFile!!)
+                    }
+                }
                 .superclass(MVP_PRESENTER_FACTORY.parameterizedBy(presenterClassName))
                 .addSuperclassConstructorParameter("%T.$presenterType, %T::class", PRESENTER_TYPE, presenterClassName)
                 .addInitializerBlock(CodeBlock.of( "$viewStateName.Companion"))
@@ -330,8 +348,8 @@ class MvpProcessor(
 
         private fun KSType.getDelegateType() = when {
             isActivity() -> DelegateType.ACTIVITY
-            isFragment() -> DelegateType.FRAGMENT
             isDialogFragment() -> DelegateType.DIALOG_FRAGMENT
+            isFragment() -> DelegateType.FRAGMENT
             else -> throw IllegalArgumentException("Unknown type $this")
         }
 
