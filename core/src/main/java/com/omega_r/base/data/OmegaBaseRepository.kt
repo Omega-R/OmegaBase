@@ -27,6 +27,8 @@ open class OmegaBaseRepository<SOURCE : Source>(
 
     protected val coroutineScope = CoroutineScope(Dispatchers.Background + job)
 
+    override var mockMode: Boolean = false
+
     protected val remoteSource: SOURCE? = sources.firstOrNull { it.type == Source.Type.REMOTE }
 
     protected val memorySource: SOURCE?
@@ -48,6 +50,9 @@ open class OmegaBaseRepository<SOURCE : Source>(
     protected open suspend fun <R> processResult(result: R, sourceType: Source.Type): R {
         return result
     }
+
+    private val generalSource: SOURCE?
+        get() = if (mockMode) mockSource else remoteSource
 
     protected fun <R> createChannel(strategy: Strategy, block: suspend SOURCE.() -> R): ReceiveChannel<R> {
         return coroutineScope.produce {

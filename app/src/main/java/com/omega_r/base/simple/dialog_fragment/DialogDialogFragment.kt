@@ -6,7 +6,6 @@ import com.omega_r.base.components.OmegaDialogFragment
 import com.omega_r.base.simple.R
 import com.omega_r.libs.omegatypes.Text
 import com.omegar.libs.omegalaunchers.createDialogFragmentLauncher
-import com.omegar.mvp.ktx.providePresenter
 
 /**
  * Created by Anton Knyazev on 10.03.2020.
@@ -14,13 +13,8 @@ import com.omegar.mvp.ktx.providePresenter
 @OmegaContentView(R.layout.activity_main)
 class DialogDialogFragment : OmegaDialogFragment(), DialogView {
 
-    companion object {
-        fun createLauncher() = createDialogFragmentLauncher()
-    }
 
-    override val presenter: DialogPresenter by providePresenter {
-        DialogPresenter()
-    }
+    override val presenter: DialogPresenter by providePresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

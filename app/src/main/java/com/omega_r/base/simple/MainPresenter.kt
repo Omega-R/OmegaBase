@@ -1,18 +1,15 @@
 package com.omega_r.base.simple
 
 import android.os.SystemClock
-import com.omega_r.base.annotations.AutoPresenterLauncher
 import com.omega_r.base.mvp.presenters.OmegaPresenter
+import com.omega_r.base.simple.dialog_fragment.DialogScreenFactory
 import com.omega_r.libs.omegatypes.Text
-import com.omegar.mvp.InjectViewState
 import java.io.Serializable
 
 /**
  * Created by Anton Knyazev on 06.05.19.
  */
 typealias TestEntity2 = TestEntity
-@AutoPresenterLauncher(MainActivity::class, TestFragment::class)
-@InjectViewState
 class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<MainView>() {
 
     companion object {
@@ -25,8 +22,7 @@ class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<M
         lastTime = SystemClock.elapsedRealtime()
 
         if (testEntity == null) {
-//            MainActivity::class.createLauncher(testEntity, t2).launch()
-            MainPresenterFactory.createMainActivityLauncher(TestEntity(), TestEntity()).launch()
+            MainScreenFactory.createLauncher(TestEntity(), TestEntity()).launch()
         } else {
             println("TestAnt: $time")
             viewState.showToast(Text.from(time.toString()))
@@ -45,8 +41,7 @@ class MainPresenter(testEntity: TestEntity?, t2: TestEntity2?): OmegaPresenter<M
 //            }
 //        }
 
-//       DialogDialogFragment.createLauncher()
-//           .launch()
+       DialogScreenFactory.createLauncher().launch()
 //        viewState.showMe
 //        log {
 //            "Message"

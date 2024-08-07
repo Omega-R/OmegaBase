@@ -2,6 +2,8 @@ package com.omega_r.base.data
 
 interface OmegaRepository {
 
+    var mockMode: Boolean
+
     fun clearCache()
 
     enum class Strategy {
