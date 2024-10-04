@@ -125,13 +125,13 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
     }
 
     protected suspend fun <T> withWaiting(waitingText: Text? = null, block: suspend () -> T): T {
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main.immediate) {
             viewState.setWaiting(true, waitingText)
         }
         return try {
             block()
         } finally {
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main.immediate) {
                 viewState.setWaiting(false, waitingText)
             }
         }
@@ -151,7 +151,7 @@ open class OmegaPresenter<View : OmegaView> : MvpPresenter<View>(), CoroutineSco
                 block()
             } finally {
                 if (waiting) {
-                    withContext(Dispatchers.Main) {
+                    withContext(Dispatchers.Main.immediate) {
                         viewState.setWaiting(false, waitingText)
                     }
                 }
